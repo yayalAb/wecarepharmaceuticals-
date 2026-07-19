@@ -1,0 +1,107 @@
+services:
+    db:
+        image: postgres:15-alpine
+        container_name: odoo18-db
+        restart: unless-stopped
+        environment:
+            POSTGRES_DB: postgres
+            POSTGRES_USER: ${POSTGRES_USER:-odoo}
+            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+        ports:
+            - "5432:5432"
+        volumes:
+            - odoo-db-data:/var/lib/postgresql/data
+        networks:
+            - odoo-network
+        healthcheck:
+            test:
+                [
+                    "CMD-SHELL",
+                    "pg_isready -U ${POSTGRES_USER:-odoo} -d postgres",
+                ]
+            interval: 10s
+            timeout: 5s
+            retries: 5
+
+    odoo:
+        image: odoo:18.0
+        container_name: odoo18-web
+        restart: unless-stopped
+        depends_on:
+            db:
+                condition: service_healthy
+        healthcheck:
+            test: ["CMD-SHELL", "python3 -c \"import urllib.request; urllib.request.urlopen('http://localhost:8069/web/health')\" || exit 1"]
+            interval: 30s
+            timeout: 10s
+            retries: 5
+            start_period: 120s
+        ports:
+            - "8069:8069"
+        environment:
+            HOST: db
+            USER: ${POSTGRES_USER:-odoo}
+            PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+        command: odoo -c /etc/odoo/odoo.conf
+        volumes:
+            - odoo-web-data:/var/lib/odoo
+            - ./etc/odoo.conf:/etc/odoo/odoo.conf:ro
+            - ./addons:/mnt/addons
+            - ./addons_e:/mnt/addons_e
+            - ./project:/mnt/project
+            - ./accounting:/mnt/accounting
+            - ./fleet:/mnt/fleet
+            - ./hr:/mnt/hr
+            - ./inv_purchase_sales:/mnt/inv_purchase_sales
+            - ./manufacturing:/mnt/manufacturing
+            - ./theme:/mnt/theme
+        networks:
+            - odoo-network
+
+    nginx:
+        image: nginx:alpine
+        container_name: odoo18-nginx
+        restart: unless-stopped
+        depends_on:
+            odoo:
+                condition: service_healthy
+        ports:
+            - "80:80"
+            - "443:443"
+        environment:
+            SSL_DOMAIN: ${SSL_DOMAIN:-redfox.loyalitsolution.com}
+        volumes:
+            - ./nginx/entrypoint.sh:/entrypoint.sh:ro
+            - ./nginx/templates:/etc/nginx/templates:ro
+            - ./letsencrypt:/etc/letsencrypt:ro
+            - ./certbot-webroot:/var/www/certbot:ro
+        entrypoint: ["/bin/sh", "/entrypoint.sh"]
+        networks:
+            - odoo-network
+
+    certbot:
+        image: certbot/certbot:latest
+        container_name: odoo18-certbot
+        restart: unless-stopped
+        depends_on:
+            - nginx
+        environment:
+            SSL_DOMAIN: ${SSL_DOMAIN:-redfox.loyalitsolution.com}
+            CERTBOT_EMAIL: ${CERTBOT_EMAIL:-admin@redfox.loyalitsolution.com}
+            CERTBOT_RETRY_SECONDS: ${CERTBOT_RETRY_SECONDS:-300}
+            CERTBOT_RENEW_INTERVAL: ${CERTBOT_RENEW_INTERVAL:-43200}
+        volumes:
+            - ./letsencrypt:/etc/letsencrypt
+            - ./certbot-webroot:/var/www/certbot
+            - ./scripts/certbot-entrypoint.sh:/certbot-entrypoint.sh:ro
+        entrypoint: ["/bin/sh", "/certbot-entrypoint.sh"]
+        networks:
+            - odoo-network
+
+volumes:
+    odoo-db-data:
+    odoo-web-data:
+
+networks:
+    odoo-network:
+        driver: bridge
