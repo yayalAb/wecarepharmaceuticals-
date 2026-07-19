@@ -1,0 +1,248 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_report_customer_delivery_note" model="ir.actions.report">
+        <field name="name">Customer Delivery Note / ለደንበኛ ማስረከቢያ ሰነድ</field>
+        <field name="model">stock.picking</field>
+        <field name="paperformat_id" ref="stock_picking_grn_report.paperformat_customer_delivery_note"/>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">stock_picking_grn_report.report_customer_delivery_note</field>
+        <field name="report_file">stock_picking_grn_report.report_customer_delivery_note</field>
+        <field name="print_report_name">'CDN-%s' % object.name</field>
+        <field name="binding_model_id" ref="stock.model_stock_picking"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <template id="report_customer_delivery_note">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="stock_picking_grn_report.report_customer_delivery_note_document" t-lang="o.partner_id.lang or o.company_id.partner_id.lang"/>
+            </t>
+        </t>
+    </template>
+
+    <template id="report_customer_delivery_note_document">
+        <t t-set="company" t-value="o.company_id"/>
+        <t t-set="first_move" t-value="o.move_ids_without_package[:1]"/>
+        <t t-set="fm" t-value="first_move[0] if first_move else None"/>
+        <t t-call="web.external_layout">
+            <div class="page" style="font-family: 'Noto Sans Ethiopic', 'Times New Roman', serif; font-size: 11px; padding: 0 30px; position: relative; min-height: 850px; color: #111;">
+                <style type="text/css">
+                    .gpa-field { margin-bottom: 14px; font-size: 10px; overflow: hidden; width: 100%; }
+                    .gpa-lbl { font-weight: bold; float: left; margin-right: 6px; padding-bottom: 3px; line-height: 1.35; }
+                    .gpa-und { display: block; overflow: hidden; border-bottom: 1px solid #000; min-height: 18px; padding: 0 0 5px 2px; margin-bottom: 2px; vertical-align: bottom; }
+                    .gpa-appr { margin-top: 6px; font-size: 10px; }
+                    .gpa-appr-row { display: table; width: 100%; table-layout: fixed; margin-bottom: 14px; padding-bottom: 14px; border-bottom: 1px dotted #aaa; }
+                    .gpa-appr-row:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+                    .gpa-appr-title { display: table-cell; vertical-align: bottom; font-weight: bold; width: 20%; padding: 0 10px 4px 0; line-height: 1.3; }
+                    .gpa-appr-slot { display: table-cell; vertical-align: bottom; width: 26.67%; padding: 0 12px 0 0; }
+                    .gpa-appr-slot .gpa-field { margin-bottom: 0; }
+                    .gpa-appr-slot .gpa-lbl { font-weight: normal; }
+                    .gpa-appr-slot .gpa-und { min-height: 16px; padding-bottom: 4px; }
+                    .gpa-cols { display: table; width: 100%; table-layout: fixed; margin-bottom: 14px; font-size: 10px; }
+                    .gpa-col { display: table-cell; width: 50%; vertical-align: top; padding-right: 14px; }
+                    .gpa-col-right { display: table-cell; width: 50%; vertical-align: top; padding-left: 20px; }
+                    .cdn-hint { font-weight: normal; font-size: 9px; }
+                </style>
+
+                <div style="text-align: center; font-size: 15px; font-weight: 700; margin-bottom: 14px; padding-bottom: 8px; border-bottom: 2px solid #c62828; color: #c62828;">
+                    ለደንበኛ ማስረከቢያ ሰነድ/ CUSTOMER DELIVERY NOTE
+                </div>
+
+                <div class="gpa-cols">
+                    <div class="gpa-col">
+                        <div class="gpa-field">
+                            <span class="gpa-lbl">Doc Ref No: <span class="cdn-hint">(ወጪ የሆነበት ሰነድ ቁጥር)</span></span>
+                            <div class="gpa-und"><span t-field="o.origin"/><t t-if="not o.origin"><span t-field="o.name"/></t></div>
+                        </div>
+                        <div class="gpa-field">
+                            <span class="gpa-lbl">GRN Date:</span>
+                            <div class="gpa-und">
+                                <t t-if="o.date_done"><span t-field="o.date_done" t-options='{"widget": "date"}'/></t>
+                                <t t-elif="o.scheduled_date"><span t-field="o.scheduled_date" t-options='{"widget": "date"}'/></t>
+                                <t t-else="">-</t>
+                            </div>
+                        </div>
+                        <div class="gpa-field">
+                            <span class="gpa-lbl">Vendor Name: <span class="cdn-hint">(ስም)</span></span>
+                            <div class="gpa-und"><span t-field="o.partner_id.name"/></div>
+                        </div>
+                    </div>
+                    <div class="gpa-col-right">
+                        <div class="gpa-field">
+                            <span class="gpa-lbl">የእቃው ባለቤት:</span>
+                            <div class="gpa-und"><span t-field="o.partner_id.name"/></div>
+                        </div>
+                        <div class="gpa-field">
+                            <span class="gpa-lbl">Truck No <span class="cdn-hint">(የመኪናው ሰሌዳ ቁጥር)</span>:</span>
+                            <div class="gpa-und"><span t-field="o.vehicle_plate"/><t t-if="not o.vehicle_plate">&#160;</t></div>
+                        </div>
+                        <div class="gpa-field">
+                            <span class="gpa-lbl">Store / Destination Location:</span>
+                            <div class="gpa-und"><span t-field="o.location_dest_id.display_name"/></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="font-weight: 700; font-size: 11px; margin-bottom: 6px; border-bottom: 1px solid #333; padding-bottom: 4px;">
+                    የእህል አይነት / Item Details
+                </div>
+
+                <table class="table table-sm table-bordered" style="width: 100%; border-collapse: collapse; border: 1px solid #000; font-size: 8.5px;">
+                    <thead style="background-color: #f0f0f0;">
+                        <tr>
+                            <th style="border: 1px solid #000; padding: 4px 2px; text-align: center; width: 4%;">S.N</th>
+                            <th style="border: 1px solid #000; padding: 4px 2px; text-align: center; width: 9%;">Item Code</th>
+                            <th style="border: 1px solid #000; padding: 4px 2px; text-align: center; width: 24%;">Item Description</th>
+                            <th style="border: 1px solid #000; padding: 4px 2px; text-align: center; width: 8%;">Unit of<br/>Measure</th>
+                            <th style="border: 1px solid #000; padding: 4px 2px; text-align: center; width: 9%;">Quantity<br/><span style="font-weight: normal;">የደንብ ብዛት</span></th>
+                            <th style="border: 1px solid #000; padding: 4px 2px; text-align: center; width: 11%;">Total Weight<br/><span style="font-weight: normal;">ጠቅላላ ክብደት</span></th>
+                            <th style="border: 1px solid #000; padding: 4px 2px; text-align: center; width: 11%;">Net Weight<br/><span style="font-weight: normal;">ነጠላ ክብደት</span></th>
+                            <th style="border: 1px solid #000; padding: 4px 2px; text-align: center; width: 11%;">P. Net Weight<br/><span style="font-weight: normal;">የተጣራ ክብደት</span></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <t t-set="i" t-value="0"/>
+                        <t t-foreach="o.move_ids_without_package" t-as="move">
+                            <t t-set="i" t-value="i + 1"/>
+                            <tr>
+                                <td style="border: 1px solid #000; padding: 3px; text-align: center;"><span t-esc="i"/></td>
+                                <td style="border: 1px solid #000; padding: 3px;"><span t-field="move.product_id.default_code"/></td>
+                                <td style="border: 1px solid #000; padding: 3px;"><span t-field="move.product_id.name"/></td>
+                                <td style="border: 1px solid #000; padding: 3px; text-align: center;"><span t-field="move.product_uom.name"/></td>
+                                <td style="border: 1px solid #000; padding: 3px; text-align: right;">
+                                    <span t-esc="'{0:,.2f}'.format(move.quantity)"/>
+                                </td>
+                                <td style="border: 1px solid #000; padding: 3px; text-align: right;">
+                                    <span t-esc="'{0:,.2f}'.format(move.grn_gross_weight) if move.grn_gross_weight else '-'"/>
+                                </td>
+                                <td style="border: 1px solid #000; padding: 3px; text-align: right;">
+                                    <span t-esc="'{0:,.2f}'.format(move.grn_tare_weight) if move.grn_tare_weight else '-'"/>
+                                </td>
+                                <td style="border: 1px solid #000; padding: 3px; text-align: right;">
+                                    <span t-esc="'{0:,.2f}'.format(move.grn_net_weight) if move.grn_net_weight else '-'"/>
+                                </td>
+                            </tr>
+                        </t>
+                    </tbody>
+                </table>
+
+                <div class="mt-3 mb-2" style="font-size: 10px;">
+                    <!-- <div style="margin-bottom: 10px;">
+                        <strong>የሚፈለገው የማጣሪያ ጥራት</strong>
+                        <span style="letter-spacing: 2px;">&#160;________________</span>
+                        <strong>%</strong>
+                        <t t-if="fm and fm.grn_quality_pct"><span style="margin-left: 6px;">(<span t-esc="'{0:,.2f}'.format(fm.grn_quality_pct)"/>)</span></t>
+                    </div> -->
+                    <div>
+                        <strong>ወጪ የሆነበት ምክንያት/ Reason</strong>
+                        <div style="border-bottom: 1px solid #000; min-height: 22px; margin-top: 6px;">
+                            <t t-if="o.reason_for_entry"><span t-field="o.reason_for_entry"/></t>
+                            <t t-elif="o.note"><span t-field="o.note"/></t>
+                        </div>
+                        <div style="border-bottom: 1px solid #000; min-height: 22px; margin-top: 12px;">&#160;</div>
+                    </div>
+                </div>
+
+                <div style="font-weight: 700; font-size: 11px; margin-top: 18px; margin-bottom: 8px;">Approval Flow</div>
+                <div class="gpa-appr">
+                    <div class="gpa-appr-row">
+                        <div class="gpa-appr-title">Prepared By:</div>
+                        <div class="gpa-appr-slot">
+                            <div class="gpa-field">
+                                <span class="gpa-lbl">Name:</span>
+                                <div class="gpa-und"><span t-field="o.create_uid.name"/></div>
+                            </div>
+                        </div>
+                        <div class="gpa-appr-slot">
+                            <div class="gpa-field">
+                                <span class="gpa-lbl">Sig:</span>
+                                <div class="gpa-und">&#160;</div>
+                            </div>
+                        </div>
+                        <div class="gpa-appr-slot">
+                            <div class="gpa-field">
+                                <span class="gpa-lbl">Date:</span>
+                                <div class="gpa-und">&#160;</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="gpa-appr-row">
+                        <div class="gpa-appr-title">Received By:</div>
+                        <div class="gpa-appr-slot">
+                            <div class="gpa-field">
+                                <span class="gpa-lbl">Name:</span>
+                                <div class="gpa-und"><span t-field="o.partner_id.name"/></div>
+                            </div>
+                        </div>
+                        <div class="gpa-appr-slot">
+                            <div class="gpa-field">
+                                <span class="gpa-lbl">Sig:</span>
+                                <div class="gpa-und">&#160;</div>
+                            </div>
+                        </div>
+                        <div class="gpa-appr-slot">
+                            <div class="gpa-field">
+                                <span class="gpa-lbl">Date:</span>
+                                <div class="gpa-und">&#160;</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="gpa-appr-row">
+                        <div class="gpa-appr-title">Store Keeper Name:</div>
+                        <div class="gpa-appr-slot">
+                            <div class="gpa-field">
+                                <span class="gpa-lbl">Name:</span>
+                                <div class="gpa-und">
+                                    <t t-if="o.location_dest_id and o.location_dest_id.warehouse_id and o.location_dest_id.warehouse_id.storeman_id">
+                                        <span t-field="o.location_dest_id.warehouse_id.storeman_id.name"/>
+                                    </t>
+                                    <t t-else="">&#160;</t>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="gpa-appr-slot">
+                            <div class="gpa-field">
+                                <span class="gpa-lbl">Sig:</span>
+                                <div class="gpa-und">&#160;</div>
+                            </div>
+                        </div>
+                        <div class="gpa-appr-slot">
+                            <div class="gpa-field">
+                                <span class="gpa-lbl">Date:</span>
+                                <div class="gpa-und">&#160;</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="gpa-appr-row">
+                        <div class="gpa-appr-title">Warehouse Manager Name:</div>
+                        <div class="gpa-appr-slot">
+                            <div class="gpa-field">
+                                <span class="gpa-lbl">Name:</span>
+                                <div class="gpa-und"><t t-if="o.approved_by"><span t-field="o.approved_by.name"/></t><t t-else="">&#160;</t></div>
+                            </div>
+                        </div>
+                        <div class="gpa-appr-slot">
+                            <div class="gpa-field">
+                                <span class="gpa-lbl">Sig:</span>
+                                <div class="gpa-und">&#160;</div>
+                            </div>
+                        </div>
+                        <div class="gpa-appr-slot">
+                            <div class="gpa-field">
+                                <span class="gpa-lbl">Date:</span>
+                                <div class="gpa-und">&#160;</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 16px; font-size: 8.5px; text-align: center; line-height: 1.45;">
+                    <strong>Original</strong> – አስረካቢው (Deliverer) &#160;|&#160;
+                    <strong>1st Copy</strong> – Finance &#160;|&#160;
+                    <strong>2nd Copy</strong> – ክምችት ክፍል (Store Section) &#160;|&#160;
+                    <strong>3rd Copy</strong> – Pad
+                </div>
+            </div>
+        </t>
+    </template>
+</odoo>

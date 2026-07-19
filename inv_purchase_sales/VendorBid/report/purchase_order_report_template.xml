@@ -1,0 +1,590 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="paperformat_purchase_order_attachment" model="report.paperformat">
+        <field name="name">Purchase Order Attachment</field>
+        <field name="format">A4</field>
+        <field name="orientation">Portrait</field>
+        <field name="margin_top">40</field>
+        <field name="margin_bottom">25</field>
+        <field name="margin_left">10</field>
+        <field name="margin_right">10</field>
+        <field name="header_spacing">35</field>
+        <field name="header_line" eval="False" />
+        <field name="dpi">90</field>
+    </record>
+
+    <!-- Override standard PO print to use this report -->
+    <record id="purchase.action_report_purchase_order" model="ir.actions.report">
+        <field name="name">Purchase Order Attachment</field>
+        <field name="report_name">VendorBid.report_purchase_order_attachment</field>
+        <field name="report_file">VendorBid.report_purchase_order_attachment</field>
+        <field name="print_report_name">'Purchase Order Attachment - %s' % (object.name)</field>
+        <field name="paperformat_id" ref="paperformat_purchase_order_attachment" />
+    </record>
+
+    <template id="report_purchase_order_attachment">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="VendorBid.report_purchase_order_attachment_document" t-lang="o.partner_id.lang" />
+            </t>
+        </t>
+    </template>
+
+    <template id="report_purchase_order_attachment_document">
+        <t t-call="web.external_layout">
+            <t t-set="o" t-value="o.with_context(lang=o.partner_id.lang)" />
+            <t t-call="VendorBid.report_purchase_order_attachment_body" />
+        </t>
+    </template>
+
+    <template id="report_purchase_order_attachment_body">
+                    <style>
+                        .poa-page {
+                            font-family: 'Noto Sans Ethiopic', 'Times New Roman', serif;
+                            font-size: 12px;
+                            color: #000;
+                            padding: 4px 20px 12px;
+                        }
+                        .poa-title {
+                            color: #c00000;
+                            font-weight: bold;
+                            font-size: 18px;
+                            text-align: center;
+                            margin: 0 0 20px 0;
+                            letter-spacing: 0.3px;
+                        }
+                        .poa-section-title {
+                            font-weight: bold;
+                            margin: 16px 0 6px 0;
+                            font-size: 12px;
+                        }
+                        .poa-form-row {
+                            display: table;
+                            width: 100%;
+                            table-layout: fixed;
+                            margin-bottom: 10px;
+                            border-collapse: separate;
+                        }
+                        .poa-form-half {
+                            display: table-cell;
+                            width: 50%;
+                            vertical-align: top;
+                            padding-right: 20px;
+                        }
+                        .poa-form-half:last-child {
+                            padding-right: 0;
+                            padding-left: 12px;
+                        }
+                        .poa-form-group {
+                            display: table;
+                            width: 100%;
+                            table-layout: fixed;
+                        }
+                        .poa-label {
+                            font-weight: bold;
+                            white-space: nowrap;
+                            display: table-cell;
+                            width: 155px;
+                            vertical-align: bottom;
+                            padding-right: 8px;
+                            padding-bottom: 4px;
+                            font-size: 11px;
+                        }
+                        .poa-label-right {
+                            width: 145px;
+                        }
+                        .poa-field-wrap {
+                            display: table-cell;
+                            width: auto;
+                            vertical-align: bottom;
+                        }
+                        .poa-field-line {
+                            display: block;
+                            width: 100%;
+                            min-height: 22px;
+                            border-bottom: 1px solid #000;
+                            padding: 2px 0 3px 8px;
+                            line-height: 1.35;
+                            box-sizing: border-box;
+                            white-space: normal;
+                            word-wrap: break-word;
+                            overflow-wrap: anywhere;
+                        }
+                        .poa-field-line-compact {
+                            white-space: nowrap;
+                            overflow: hidden;
+                            text-overflow: ellipsis;
+                        }
+                        .poa-field-line-tall {
+                            min-height: 28px;
+                        }
+                        .poa-field-line-dashed {
+                            display: block;
+                            width: 100%;
+                            min-height: 24px;
+                            border-bottom: 1px dashed #000;
+                            padding: 3px 0 2px 10px;
+                            line-height: 1.4;
+                            box-sizing: border-box;
+                        }
+                        .poa-field-full {
+                            display: block;
+                            width: 100%;
+                            margin-bottom: 8px;
+                        }
+                        .poa-items-table {
+                            width: 100%;
+                            border-collapse: collapse;
+                            margin-top: 4px;
+                        }
+                        .poa-items-table th,
+                        .poa-items-table td {
+                            border: 1px solid #000;
+                            padding: 5px 6px;
+                            vertical-align: middle;
+                        }
+                        .poa-items-table th {
+                            font-weight: bold;
+                            text-align: center;
+                            font-size: 10px;
+                            line-height: 1.25;
+                            background-color: #e8e8f0;
+                        }
+                        .poa-items-table tbody td {
+                            min-height: 26px;
+                            font-size: 11px;
+                        }
+                        .poa-items-table .poa-td-desc {
+                            text-align: left;
+                            white-space: normal;
+                            word-wrap: break-word;
+                        }
+                        .poa-items-table .poa-td-num {
+                            text-align: right;
+                            white-space: nowrap;
+                        }
+                        .poa-items-table .poa-td-center {
+                            text-align: center;
+                            white-space: nowrap;
+                        }
+                        .poa-totals-wrap {
+                            margin-top: 10px;
+                            width: 100%;
+                        }
+                        .poa-totals-row {
+                            display: table;
+                            width: 62%;
+                            margin-left: auto;
+                            margin-bottom: 6px;
+                            table-layout: fixed;
+                        }
+                        .poa-totals-label {
+                            display: table-cell;
+                            font-weight: bold;
+                            width: 120px;
+                            vertical-align: bottom;
+                            padding-right: 8px;
+                            padding-bottom: 4px;
+                        }
+                        .poa-totals-value {
+                            display: table-cell;
+                            vertical-align: bottom;
+                        }
+                        .poa-approval-row {
+                            display: table;
+                            width: 100%;
+                            table-layout: fixed;
+                            margin-bottom: 16px;
+                        }
+                        .poa-approval-role {
+                            display: table-cell;
+                            font-weight: bold;
+                            width: 14%;
+                            vertical-align: bottom;
+                            padding-bottom: 4px;
+                            padding-right: 6px;
+                        }
+                        .poa-approval-name-wrap {
+                            display: table-cell;
+                            width: 26%;
+                            vertical-align: bottom;
+                            padding-right: 14px;
+                        }
+                        .poa-approval-sig-label {
+                            display: table-cell;
+                            font-weight: bold;
+                            width: 4%;
+                            text-align: center;
+                            vertical-align: bottom;
+                            padding-bottom: 4px;
+                        }
+                        .poa-approval-sig-wrap {
+                            display: table-cell;
+                            width: 36%;
+                            vertical-align: bottom;
+                            padding-right: 14px;
+                        }
+                        .poa-approval-date-label {
+                            display: table-cell;
+                            font-weight: bold;
+                            width: 5%;
+                            text-align: center;
+                            vertical-align: bottom;
+                            padding-bottom: 4px;
+                        }
+                        .poa-approval-date-wrap {
+                            display: table-cell;
+                            width: 15%;
+                            vertical-align: bottom;
+                        }
+                        .poa-sig-box {
+                            width: 100%;
+                            min-height: 50px;
+                            border-bottom: 1px solid #000;
+                            text-align: center;
+                            padding-bottom: 2px;
+                            box-sizing: border-box;
+                        }
+                        .poa-copy-dist {
+                            margin-top: 28px;
+                            font-size: 11px;
+                            text-align: center;
+                        }
+                    </style>
+
+                    <t t-set="company_currency" t-value="o.company_id.currency_id" />
+                    <t t-set="order_date"
+                        t-value="o.date_order.date() if o.date_order else False" />
+                    <t t-set="total_birr"
+                        t-value="o.currency_id._convert(o.amount_total, company_currency, o.company_id, order_date)" />
+                    <t t-set="amount_words"
+                        t-value="o.format_amount_to_text(total_birr, company_currency)" />
+                    <t t-set="vendor_bill" t-value="o.invoice_ids[:1]" />
+                    <t t-set="purchase_type_label"
+                        t-value="dict(o._fields['purchase_origin'].selection).get(o.purchase_origin) if o.purchase_origin else ''" />
+                    <t t-set="deliver_to_name"
+                        t-value="o.dest_address_id.name if o.dest_address_id else (o.picking_type_id.warehouse_id.name if o.picking_type_id and o.picking_type_id.warehouse_id else o.company_id.name)" />
+                    <t t-set="pr_ref" t-value="''" />
+                    <t t-if="o.rfp_id">
+                        <t t-set="pr_ref"
+                            t-value="o.rfp_id.rfp_number or (o.rfp_id.store_request_id.name if o.rfp_id.store_request_id else '')" />
+                    </t>
+
+                    <div class="page poa-page">
+
+                        <div class="oe_structure" />
+
+                        <h3 class="poa-title">Purchase Order Attachment</h3>
+
+                        <div class="poa-form-row">
+                            <div class="poa-form-half">
+                                <div class="poa-form-group">
+                                    <span class="poa-label">Purchase Requested Ref No:</span>
+                                    <span class="poa-field-wrap">
+                                        <span class="poa-field-line poa-field-line-compact">
+                                            <span t-esc="pr_ref or ''" />
+                                        </span>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="poa-form-half">
+                                <div class="poa-form-group">
+                                    <span class="poa-label poa-label-right">Supplier/ Vendor Name:</span>
+                                    <span class="poa-field-wrap">
+                                        <span class="poa-field-line">
+                                            <span t-esc="o.partner_id.display_name or ''" />
+                                        </span>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="poa-form-row">
+                            <div class="poa-form-half">
+                                <div class="poa-form-group">
+                                    <span class="poa-label">Ordered Date:</span>
+                                    <span class="poa-field-wrap">
+                                        <span class="poa-field-line">
+                                            <t t-if="o.date_approve">
+                                                <span t-field="o.date_approve"
+                                                    t-options='{"widget": "date"}' />
+                                            </t>
+                                            <t t-else="">
+                                                <span t-field="o.date_order"
+                                                    t-options='{"widget": "date"}' />
+                                            </t>
+                                        </span>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="poa-form-half">
+                                <div class="poa-form-group">
+                                    <span class="poa-label poa-label-right">Order Deadline:</span>
+                                    <span class="poa-field-wrap">
+                                        <span class="poa-field-line">
+                                            <t t-if="o.validity_period">
+                                                <span t-field="o.validity_period"
+                                                    t-options='{"widget": "date"}' />
+                                            </t>
+                                            <t t-else="">
+                                                <span t-field="o.date_order"
+                                                    t-options='{"widget": "date"}' />
+                                            </t>
+                                        </span>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="poa-form-row">
+                            <div class="poa-form-half">
+                                <div class="poa-form-group">
+                                    <span class="poa-label">Expected Arrival:</span>
+                                    <span class="poa-field-wrap">
+                                        <span class="poa-field-line">
+                                            <span t-field="o.date_planned"
+                                                t-options='{"widget": "date"}' />
+                                        </span>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="poa-form-half">
+                                <div class="poa-form-group">
+                                    <span class="poa-label poa-label-right">Vendor Reference:</span>
+                                    <span class="poa-field-wrap">
+                                        <span class="poa-field-line">
+                                            <span t-field="o.partner_ref" />
+                                        </span>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="poa-form-row">
+                            <div class="poa-form-half">
+                                <div class="poa-form-group">
+                                    <span class="poa-label">Purchase Type:</span>
+                                    <span class="poa-field-wrap">
+                                        <span class="poa-field-line poa-field-line-compact">
+                                            <span t-esc="purchase_type_label" />
+                                        </span>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="poa-form-half">
+                                <div class="poa-form-group">
+                                    <span class="poa-label poa-label-right">Deliver To:</span>
+                                    <span class="poa-field-wrap">
+                                        <span class="poa-field-line">
+                                            <span t-esc="deliver_to_name or ''" />
+                                        </span>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="poa-form-row">
+                            <div class="poa-form-half">
+                                <div class="poa-form-group">
+                                    <span class="poa-label">&#160;</span>
+                                    <span class="poa-field-wrap">
+                                        <span class="poa-field-line" style="border-bottom: none;" />
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="poa-form-half">
+                                <div class="poa-form-group">
+                                    <span class="poa-label poa-label-right">Bill Ref No:</span>
+                                    <span class="poa-field-wrap">
+                                        <span class="poa-field-line poa-field-line-compact">
+                                            <t t-if="vendor_bill">
+                                                <span t-esc="vendor_bill.name" />
+                                            </t>
+                                            <t t-else="">--</t>
+                                        </span>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="poa-section-title">የእህሉ/የእቃው አይነት /Item Details</div>
+
+                        <table class="poa-items-table">
+                            <thead style="display: table-header-group;">
+                                <tr>
+                                    <th style="width: 4%;">S.N</th>
+                                    <th style="width: 9%;">Item Code</th>
+                                    <th style="width: 20%;">Item Description</th>
+                                    <th style="width: 9%;">Unit of Measure</th>
+                                    <th style="width: 11%;">Total Quantity Requested</th>
+                                    <th style="width: 11%;">Total Quantity Received</th>
+                                    <th style="width: 9%;">Unit Price</th>
+                                    <th style="width: 10%;">Total Price</th>
+                                    <th style="width: 7%;">Remarks</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-set="row_count" t-value="0" />
+                                <t t-foreach="o.order_line" t-as="line">
+                                    <t t-if="not line.display_type">
+                                    <t t-set="row_count" t-value="row_count + 1" />
+                                    <tr style="page-break-inside: avoid;">
+                                        <td class="poa-td-center">
+                                            <span t-esc="row_count" />
+                                        </td>
+                                        <td class="poa-td-center">
+                                            <span t-esc="line.product_id.default_code or ''" />
+                                        </td>
+                                        <td class="poa-td-desc">
+                                            <span t-esc="line.product_id.display_name or line.name or ''" />
+                                        </td>
+                                        <td class="poa-td-center">
+                                            <span t-esc="line.product_uom.name or ''" />
+                                        </td>
+                                        <td class="poa-td-num">
+                                            <span t-esc="'{0:,.2f}'.format(line.product_qty)" />
+                                        </td>
+                                        <td class="poa-td-num">
+                                            <span t-esc="'{0:,.2f}'.format(line.qty_received)" />
+                                        </td>
+                                        <td class="poa-td-num">
+                                            <span t-esc="'{0:,.2f}'.format(line.price_unit)" />
+                                        </td>
+                                        <td class="poa-td-num">
+                                            <span t-esc="'{0:,.2f}'.format(line.price_subtotal)" />
+                                        </td>
+                                        <td class="poa-td-center" />
+                                    </tr>
+                                    </t>
+                                </t>
+                                <t t-set="min_rows" t-value="max(3, row_count)" />
+                                <t t-set="pad_rows" t-value="min_rows - row_count" />
+                                <t t-foreach="range(pad_rows)" t-as="pad">
+                                    <tr>
+                                        <td class="text-center">
+                                            <span t-esc="row_count + pad + 1" />
+                                        </td>
+                                        <td>&#160;</td>
+                                        <td>&#160;</td>
+                                        <td>&#160;</td>
+                                        <td>&#160;</td>
+                                        <td>&#160;</td>
+                                        <td>&#160;</td>
+                                        <td>&#160;</td>
+                                        <td>&#160;</td>
+                                    </tr>
+                                </t>
+                            </tbody>
+                        </table>
+
+                        <div class="poa-totals-wrap">
+                            <div class="poa-totals-row">
+                                <span class="poa-totals-label">Total Amount</span>
+                                <span class="poa-totals-value">
+                                    <span class="poa-field-line-dashed">
+                                        <span t-esc="'{0:,.2f}'.format(total_birr)" />
+                                    </span>
+                                </span>
+                            </div>
+                            <div class="poa-totals-row">
+                                <span class="poa-totals-label">Amount in Word</span>
+                                <span class="poa-totals-value">
+                                    <span class="poa-field-line-dashed">
+                                        <span t-esc="amount_words" />
+                                    </span>
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="poa-section-title">
+                            ለእህሉ/ለእቃው የተላከበት ምክንያት Justification / Purpose/Reason
+                        </div>
+                        <div class="poa-field-full">
+                            <span class="poa-field-line poa-field-line-tall">
+                                <t t-if="o.rfp_id and o.rfp_id.purpose">
+                                    <span t-esc="o.rfp_id.purpose" />
+                                </t>
+                                <t t-elif="o.notes">
+                                    <span t-field="o.notes" />
+                                </t>
+                            </span>
+                        </div>
+                        <div class="poa-field-full">
+                            <span class="poa-field-line poa-field-line-tall" />
+                        </div>
+
+                        <div class="poa-section-title">Approval Flow</div>
+
+                        <div class="poa-approval-row">
+                            <div class="poa-approval-role">Prepared By:</div>
+                            <div class="poa-approval-name-wrap">
+                                <span class="poa-field-line poa-field-line-compact">
+                                    <span t-esc="o.submitted_by.name or ''" />
+                                </span>
+                            </div>
+                            <div class="poa-approval-sig-label">Sig:</div>
+                            <div class="poa-approval-sig-wrap">
+                                <div class="poa-sig-box">
+                                    <t t-if="o.submitted_by and o.submitted_by.sign_signature">
+                                        <img
+                                            t-att-src="'data:image/png;base64,%s' % (o.submitted_by.sign_signature.decode())"
+                                            style="max-height: 46px; max-width: 140px;" />
+                                    </t>
+                                </div>
+                            </div>
+                            <div class="poa-approval-date-label">Date:</div>
+                            <div class="poa-approval-date-wrap">
+                                <span class="poa-field-line">
+                                    <span t-field="o.date_order"
+                                        t-options='{"widget": "date"}' />
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="poa-approval-row">
+                            <div class="poa-approval-role">Authorized By:</div>
+                            <div class="poa-approval-name-wrap">
+                                <span class="poa-field-line poa-field-line-compact">
+                                    <span t-esc="o.approved_by.name or ''" />
+                                </span>
+                            </div>
+                            <div class="poa-approval-sig-label">Sig:</div>
+                            <div class="poa-approval-sig-wrap">
+                                <div class="poa-sig-box">
+                                    <t t-if="o.approved_by and o.approved_by.sign_signature">
+                                        <img
+                                            t-att-src="'data:image/png;base64,%s' % (o.approved_by.sign_signature.decode())"
+                                            style="max-height: 46px; max-width: 140px;" />
+                                    </t>
+                                </div>
+                            </div>
+                            <div class="poa-approval-date-label">Date:</div>
+                            <div class="poa-approval-date-wrap">
+                                <span class="poa-field-line">
+                                    <span t-field="o.date_approve"
+                                        t-options='{"widget": "date"}' />
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="poa-copy-dist">
+                            <strong>Copy Distribution:</strong>
+                            <span style="margin-left: 10px;">Original-Vendor</span>
+                            <span style="margin-left: 16px;">1st Copy Purchaser</span>
+                        </div>
+
+                    </div>
+    </template>
+
+    <!-- Fallback: replace standard Odoo PO document when invoked via purchase.report_purchaseorder -->
+    <template id="purchase_order_report_inherit_and_replace"
+        inherit_id="purchase.report_purchaseorder_document">
+        <xpath expr="." position="replace">
+            <t t-call="web.external_layout">
+                <t t-set="o" t-value="o.with_context(lang=o.partner_id.lang)" />
+                <t t-call="VendorBid.report_purchase_order_attachment_body" />
+            </t>
+        </xpath>
+    </template>
+
+</odoo>

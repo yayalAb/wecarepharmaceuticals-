@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Fira Sans — same family used on https://pos.uat.niyatconsultancy.com/ -->
+    <template id="kad_frontend_fonts" inherit_id="web.layout" name="KAD Frontend Fonts">
+        <xpath expr="//head" position="inside">
+            <link rel="preconnect" href="https://fonts.googleapis.com"/>
+            <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous"/>
+            <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&amp;family=Fira+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,600;1,800&amp;display=swap" rel="stylesheet"/>
+        </xpath>
+    </template>
+
+    <template id="kad_layout_body" inherit_id="website.layout" name="KAD Body Class">
+        <xpath expr="//div[@id='wrapwrap']" position="attributes">
+            <attribute name="class" add="kad-wrapwrap" separator=" "/>
+        </xpath>
+    </template>
+
+    <!-- Custom branded footer -->
+    <template id="kad_footer_custom" inherit_id="website.footer_custom" name="KAD Footer Content">
+        <xpath expr="//div[@id='footer']" position="replace">
+            <div id="footer" class="kad-footer oe_structure oe_structure_solo" t-ignore="true" t-if="not no_footer">
+                <div class="container py-5">
+                    <div class="row g-4">
+                        <div class="col-lg-4">
+                            <img src="/website_kad_global/static/src/img/kad_logo.png"
+                                 alt="KAD Import &amp; Export"
+                                 class="kad-footer__logo mb-3"/>
+                            <p class="kad-footer__text">
+                                Kalkidan Abebaw Derso Import &amp; Export PLC connects Ethiopian
+                                products with international markets while sourcing quality imported
+                                goods for industrial, commercial, and construction sectors.
+                            </p>
+                        </div>
+                        <div class="col-6 col-lg-2">
+                            <h5 class="kad-footer__title">Quick Links</h5>
+                            <ul class="kad-footer__list">
+                                <li><a href="/#about">About</a></li>
+                                <li><a href="/#services">Services</a></li>
+                                <li><a href="/#exports">Exports</a></li>
+                                <li><a href="/#imports">Imports</a></li>
+                                <li><a href="/#contact">Contact</a></li>
+                            </ul>
+                        </div>
+                        <div class="col-6 col-lg-3">
+                            <h5 class="kad-footer__title">Products</h5>
+                            <ul class="kad-footer__list">
+                                <li>Fruits &amp; Vegetables</li>
+                                <li>Oilseeds &amp; Pulses</li>
+                                <li>Livestock &amp; Spices</li>
+                                <li>Construction Materials</li>
+                                <li>Steel &amp; Rebars</li>
+                            </ul>
+                        </div>
+                        <div class="col-lg-3">
+                            <h5 class="kad-footer__title">Contact</h5>
+                            <ul class="kad-footer__list">
+                                <li>Addis Ababa, Ethiopia</li>
+                                <li><a href="tel:+251911357216">+251 911 357 216</a></li>
+                                <li><a href="tel:+251911205428">+251 911 205 428</a></li>
+                                <li><a href="mailto:info@kadglobaltrading.com">info@kadglobaltrading.com</a></li>
+                                <li>Mon–Sat · 8:00 AM – 6:00 PM</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="kad-footer__bar">
+                    <div class="container d-flex flex-wrap justify-content-between gap-2">
+                        <span>© 2026 KAD Import &amp; Export</span>
+                        <span>Bridging Markets, Connecting Worlds</span>
+                    </div>
+                </div>
+            </div>
+        </xpath>
+    </template>
+</odoo>

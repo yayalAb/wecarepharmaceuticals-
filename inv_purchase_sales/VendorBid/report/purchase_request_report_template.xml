@@ -1,0 +1,436 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_report_purchase_request" model="ir.actions.report">
+        <field name="name">Purchase Request Attachment</field>
+        <field name="model">supplies.rfp</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">VendorBid.report_purchase_request_document</field>
+        <field name="report_file">VendorBid.report_purchase_request_document</field>
+        <field name="print_report_name">'Purchase Request Attachment - %s' % (object.rfp_number)</field>
+        <field name="binding_model_id" ref="model_supplies_rfp" />
+        <field name="binding_type">report</field>
+    </record>
+
+    <template id="report_purchase_request_document">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.external_layout">
+                    <style>
+                        .pr-page {
+                            font-family: 'Noto Sans Ethiopic', 'Times New Roman', serif;
+                            font-size: 12px;
+                            color: #000;
+                            padding: 8px 24px 16px;
+                        }
+                        .pr-title {
+                            color: #c00000;
+                            font-weight: bold;
+                            font-size: 18px;
+                            text-align: center;
+                            margin: 0 0 20px 0;
+                            letter-spacing: 0.3px;
+                        }
+                        .pr-section-title {
+                            font-weight: bold;
+                            margin: 14px 0 8px 0;
+                        }
+                        .pr-form-row {
+                            display: table;
+                            width: 100%;
+                            table-layout: fixed;
+                            margin-bottom: 12px;
+                            border-collapse: separate;
+                        }
+                        .pr-form-half {
+                            display: table-cell;
+                            width: 50%;
+                            vertical-align: bottom;
+                            padding-right: 24px;
+                        }
+                        .pr-form-half:last-child {
+                            padding-right: 0;
+                            padding-left: 8px;
+                        }
+                        .pr-form-wide {
+                            display: table;
+                            width: 100%;
+                            table-layout: fixed;
+                            margin-bottom: 12px;
+                        }
+                        .pr-form-group {
+                            display: table;
+                            width: 100%;
+                            table-layout: fixed;
+                        }
+                        .pr-label {
+                            font-weight: bold;
+                            white-space: nowrap;
+                            display: table-cell;
+                            width: 128px;
+                            vertical-align: bottom;
+                            padding-right: 8px;
+                            padding-bottom: 4px;
+                        }
+                        .pr-label-wide {
+                            width: 240px;
+                        }
+                        .pr-field-wrap {
+                            display: table-cell;
+                            width: auto;
+                            vertical-align: bottom;
+                        }
+                        .pr-field-line {
+                            display: block;
+                            width: 100%;
+                            min-height: 24px;
+                            border-bottom: 1px solid #000;
+                            padding: 3px 0 2px 10px;
+                            line-height: 1.4;
+                            box-sizing: border-box;
+                        }
+                        .pr-field-line-dashed {
+                            display: block;
+                            width: 100%;
+                            min-height: 24px;
+                            border-bottom: 1px dashed #000;
+                            padding: 3px 0 2px 10px;
+                            line-height: 1.4;
+                            box-sizing: border-box;
+                        }
+                        .pr-field-line-tall {
+                            min-height: 28px;
+                        }
+                        .pr-field-full {
+                            display: block;
+                            width: 100%;
+                            margin-bottom: 8px;
+                        }
+                        .pr-field-half {
+                            display: block;
+                            width: 50%;
+                            margin-bottom: 8px;
+                        }
+                        .pr-field-half .pr-field-line {
+                            width: 100%;
+                        }
+                        .pr-items-table {
+                            width: 100%;
+                            border-collapse: collapse;
+                            margin-top: 4px;
+                        }
+                        .pr-items-table th,
+                        .pr-items-table td {
+                            border: 1px solid #000;
+                            padding: 5px 6px;
+                            vertical-align: middle;
+                        }
+                        .pr-items-table th {
+                            font-weight: bold;
+                            text-align: center;
+                            font-size: 11px;
+                        }
+                        .pr-items-table tbody td {
+                            min-height: 28px;
+                            height: 28px;
+                        }
+                        .pr-approval-row {
+                            display: table;
+                            width: 100%;
+                            table-layout: fixed;
+                            margin-bottom: 16px;
+                            border-collapse: separate;
+                        }
+                        .pr-approval-role {
+                            display: table-cell;
+                            font-weight: bold;
+                            white-space: nowrap;
+                            width: 14%;
+                            vertical-align: bottom;
+                            padding-bottom: 4px;
+                            padding-right: 6px;
+                        }
+                        .pr-approval-name-wrap {
+                            display: table-cell;
+                            width: 26%;
+                            vertical-align: bottom;
+                            padding-right: 14px;
+                        }
+                        .pr-approval-sig-label {
+                            display: table-cell;
+                            font-weight: bold;
+                            width: 4%;
+                            text-align: center;
+                            vertical-align: bottom;
+                            padding-bottom: 4px;
+                        }
+                        .pr-approval-sig-wrap {
+                            display: table-cell;
+                            width: 36%;
+                            vertical-align: bottom;
+                            padding-right: 14px;
+                        }
+                        .pr-approval-date-label {
+                            display: table-cell;
+                            font-weight: bold;
+                            width: 5%;
+                            text-align: center;
+                            vertical-align: bottom;
+                            padding-bottom: 4px;
+                        }
+                        .pr-approval-date-wrap {
+                            display: table-cell;
+                            width: 15%;
+                            vertical-align: bottom;
+                        }
+                        .pr-sig-box {
+                            width: 100%;
+                            min-height: 50px;
+                            border-bottom: 1px solid #000;
+                            text-align: center;
+                            padding-bottom: 2px;
+                            box-sizing: border-box;
+                        }
+                        .pr-copy-dist {
+                            margin-top: 28px;
+                            font-size: 11px;
+                            text-align: center;
+                        }
+                    </style>
+
+                    <div class="page pr-page">
+
+                        <div class="oe_structure" />
+
+                        <h3 class="pr-title">Purchase Request Attachment</h3>
+
+                        <!-- Request Information (no table borders) -->
+                        <div class="pr-form-row">
+                            <div class="pr-form-half">
+                                <div class="pr-form-group">
+                                    <span class="pr-label">Request Ref No:</span>
+                                    <span class="pr-field-wrap">
+                                        <span class="pr-field-line">
+                                            <span t-field="o.store_request_id.name" />
+                                        </span>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="pr-form-half">
+                                <div class="pr-form-group">
+                                    <span class="pr-label">PR Ref No:</span>
+                                    <span class="pr-field-wrap">
+                                        <span class="pr-field-line">
+                                            <span t-field="o.rfp_number" />
+                                        </span>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="pr-form-row">
+                            <div class="pr-form-half">
+                                <div class="pr-form-group">
+                                    <span class="pr-label">Requested Date:</span>
+                                    <span class="pr-field-wrap">
+                                        <span class="pr-field-line">
+                                            <span t-field="o.requested_date"
+                                                t-options='{"widget": "date"}' />
+                                        </span>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="pr-form-half" />
+                        </div>
+                        <div class="pr-form-row">
+                            <div class="pr-form-half">
+                                <div class="pr-form-group">
+                                    <span class="pr-label">Requested By:</span>
+                                    <span class="pr-field-wrap">
+                                        <span class="pr-field-line">
+                                            <span t-esc="(o.submitted_by and o.submitted_by.name) or o.create_uid.name" />
+                                        </span>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="pr-form-half">
+                                <div class="pr-form-group">
+                                    <span class="pr-label">Department:</span>
+                                    <span class="pr-field-wrap">
+                                        <span class="pr-field-line">
+                                            <span t-field="o.department_id.name" />
+                                        </span>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Item Details -->
+                        <div class="pr-section-title">የእህሉ/የእቃው አይነት /Item Details</div>
+
+                        <table class="pr-items-table">
+                            <thead style="display: table-header-group;">
+                                <tr>
+                                    <th style="width: 4%;">S.N</th>
+                                    <th style="width: 10%;">Item Code</th>
+                                    <th style="width: 24%;">Item Description</th>
+                                    <th style="width: 10%;">Unit of Measure</th>
+                                    <th style="width: 12%;">Total Quantity Requested</th>
+                                    <th style="width: 10%;">Unit Price</th>
+                                    <th style="width: 10%;">Total Price</th>
+                                    <th style="width: 10%;">Remarks</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-set="row_count" t-value="0" />
+                                <t t-foreach="o.product_line_ids" t-as="line">
+                                    <t t-set="row_count" t-value="row_count + 1" />
+                                    <tr style="page-break-inside: avoid;">
+                                        <td class="text-center">
+                                            <span t-esc="row_count" />
+                                        </td>
+                                        <td><span t-field="line.product_id.default_code" /></td>
+                                        <td><span t-esc="line.description or line.product_id.name" /></td>
+                                        <td class="text-center"><span t-field="line.product_uom.name" /></td>
+                                        <td class="text-end"><span t-field="line.product_qty" /></td>
+                                        <td class="text-end"><span t-field="line.unit_price" /></td>
+                                        <td class="text-end"><span t-field="line.subtotal_price" /></td>
+                                        <td><span t-field="line.description" /></td>
+                                    </tr>
+                                </t>
+                                <t t-set="min_rows" t-value="3" />
+                                <t t-set="pad_rows" t-value="min_rows - row_count if row_count &lt; min_rows else 0" />
+                                <t t-foreach="range(pad_rows)" t-as="pad">
+                                    <tr>
+                                        <td class="text-center"><span t-esc="row_count + pad + 1" /></td>
+                                        <td>&#160;</td>
+                                        <td>&#160;</td>
+                                        <td>&#160;</td>
+                                        <td>&#160;</td>
+                                        <td>&#160;</td>
+                                        <td>&#160;</td>
+                                        <td>&#160;</td>
+                                    </tr>
+                                </t>
+                            </tbody>
+                        </table>
+
+                        <!-- Justification -->
+                        <div class="pr-section-title">
+                            የእህሉ/የእቃው የሚፈለግበት ምክንያት Justification / Purpose/Reason
+                        </div>
+                        <div class="pr-field-full">
+                            <span class="pr-field-line pr-field-line-tall">
+                                <span t-field="o.purpose" />
+                            </span>
+                        </div>
+                        <div class="pr-field-full">
+                            <span class="pr-field-line pr-field-line-tall" />
+                        </div>
+
+                        <!-- Required Date (label + line on one row) -->
+                        <div class="pr-form-wide" style="margin-top: 14px;">
+                            <div class="pr-form-group">
+                                <span class="pr-label pr-label-wide">የተፈለገበት ቀን/ Required Date</span>
+                                <span class="pr-field-wrap">
+                                    <div class="pr-field-half">
+                                        <span class="pr-field-line">
+                                            <span t-field="o.required_date"
+                                                t-options='{"widget": "date"}' />
+                                        </span>
+                                    </div>
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Approval Flow (no table borders) -->
+                        <!-- <div class="pr-section-title">Approval Flow</div> -->
+
+                        <div class="pr-approval-row">
+                            <div class="pr-approval-role">Requested By:</div>
+                            <div class="pr-approval-name-wrap">
+                                <span class="pr-field-line">
+                                    <span t-esc="(o.submitted_by and o.submitted_by.name) or o.create_uid.name" />
+                                </span>
+                            </div>
+                            <div class="pr-approval-sig-label">Sig:</div>
+                            <div class="pr-approval-sig-wrap">
+                                <div class="pr-sig-box">
+                                    <t t-set="requested_user" t-value="o.submitted_by if o.submitted_by else o.create_uid" />
+                                    <t t-if="requested_user.sign_signature">
+                                        <img
+                                            t-att-src="'data:image/png;base64,%s' % (requested_user.sign_signature.decode())"
+                                            style="max-height: 46px; max-width: 140px;" />
+                                    </t>
+                                </div>
+                            </div>
+                            <div class="pr-approval-date-label">Date:</div>
+                            <div class="pr-approval-date-wrap">
+                                <span class="pr-field-line">
+                                    <span t-field="o.submitted_date" t-options='{"widget": "date"}' />
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="pr-approval-row">
+                            <div class="pr-approval-role">Approved By:</div>
+                            <div class="pr-approval-name-wrap">
+                                <span class="pr-field-line">
+                                    <span t-field="o.approved_by.name" />
+                                </span>
+                            </div>
+                            <div class="pr-approval-sig-label">Sig:</div>
+                            <div class="pr-approval-sig-wrap">
+                                <div class="pr-sig-box">
+                                    <t t-if="o.approved_by.sign_signature">
+                                        <img
+                                            t-att-src="'data:image/png;base64,%s' % (o.approved_by.sign_signature.decode())"
+                                            style="max-height: 46px; max-width: 140px;" />
+                                    </t>
+                                </div>
+                            </div>
+                            <div class="pr-approval-date-label">Date:</div>
+                            <div class="pr-approval-date-wrap">
+                                <span class="pr-field-line">
+                                    <span t-field="o.date_approve" t-options='{"widget": "date"}' />
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="pr-approval-row">
+                            <div class="pr-approval-role">Authorized By:</div>
+                            <div class="pr-approval-name-wrap">
+                                <span class="pr-field-line">
+                                    <span t-field="o.f_approved_by.name" />
+                                </span>
+                            </div>
+                            <div class="pr-approval-sig-label">Sig:</div>
+                            <div class="pr-approval-sig-wrap">
+                                <div class="pr-sig-box">
+                                    <t t-if="o.f_approved_by.sign_signature">
+                                        <img
+                                            t-att-src="'data:image/png;base64,%s' % (o.f_approved_by.sign_signature.decode())"
+                                            style="max-height: 46px; max-width: 140px;" />
+                                    </t>
+                                </div>
+                            </div>
+                            <div class="pr-approval-date-label">Date:</div>
+                            <div class="pr-approval-date-wrap">
+                                <span class="pr-field-line">
+                                    <span t-field="o.f_approved_date" t-options='{"widget": "date"}' />
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Copy Distribution -->
+                        <div class="pr-copy-dist">
+                            <strong>Copy Distribution:</strong>
+                            <span style="margin-left: 10px;">Original-Purchaser</span>
+                            <span style="margin-left: 16px;">1st Copy Accountant</span>
+                            <span style="margin-left: 16px;">2nd Copy-Pad</span>
+                        </div>
+
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

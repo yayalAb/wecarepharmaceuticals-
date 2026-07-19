@@ -1,0 +1,505 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="homepage_body" name="KAD Homepage Body">
+
+        <!-- HERO — full-bleed trade photography -->
+        <section class="kad-hero kad-style kad-style--cinematic">
+            <div class="kad-hero__media" aria-hidden="true">
+                <img src="/website_kad_global/static/src/img/hero_port.jpg"
+                     alt=""
+                     class="kad-hero__photo"
+                     loading="eager"/>
+                <div class="kad-hero__shade"/>
+                <span class="kad-orb kad-orb--1"/>
+                <span class="kad-orb kad-orb--2"/>
+            </div>
+
+            <div class="container-fluid kad-hero__inner">
+                <div class="kad-hero__brand" data-kad-anim="fade-up" data-kad-delay="0">
+                    <img src="/website_kad_global/static/src/img/kad_logo.png"
+                         alt="KAD Import &amp; Export"
+                         class="kad-hero__logo"/>
+                    <p class="kad-hero__eyebrow" aria-label="Kalkidan Abebaw Derso Import and Export KADIE">
+                        <span class="kad-word kad-word--s1" style="--i:0">Kalkidan</span>
+                        <span class="kad-word kad-word--s2" style="--i:1">Abebaw</span>
+                        <span class="kad-word kad-word--s3" style="--i:2">Derso</span>
+                        <span class="kad-word kad-word--s4" style="--i:3">Import</span>
+                        <span class="kad-amp kad-word--s5" style="--i:4">&amp;</span>
+                        <span class="kad-word kad-word--s6" style="--i:5">Export</span>
+                        <span class="kad-word kad-word--accent kad-word--s7" style="--i:6">(KADIE)</span>
+                    </p>
+                </div>
+
+                <div class="kad-hero__copy kad-hero__copy--wide">
+                    <h1 class="kad-hero__title" data-kad-anim="fade-up" data-kad-delay="140">
+                        Bridging Markets,<br/>
+                        <span class="kad-hero__title-accent">Connecting Worlds.</span>
+                    </h1>
+                    <p class="kad-hero__lead" data-kad-anim="fade-up" data-kad-delay="220">
+                        Connecting Ethiopian products with global markets while delivering
+                        high-quality imported goods for industrial, commercial, and construction sectors.
+                    </p>
+                    <div class="kad-hero__actions" data-kad-anim="fade-up" data-kad-delay="300">
+                        <a href="#contact" class="kad-btn kad-btn--primary">
+                            <span>Get Quote</span>
+                            <span class="kad-btn__shine" aria-hidden="true"/>
+                        </a>
+                        <a href="#about" class="kad-btn kad-btn--ghost">Learn More</a>
+                    </div>
+                    <div class="kad-hero__chips" data-kad-anim="fade-up" data-kad-delay="380">
+                        <span class="kad-chip">Export</span>
+                        <span class="kad-chip">Import</span>
+                        <span class="kad-chip">Logistics</span>
+                        <span class="kad-chip">Global Trade</span>
+                    </div>
+                </div>
+            </div>
+            <div class="kad-hero__scroll" aria-hidden="true"><span/></div>
+        </section>
+
+        <!-- MARQUEE — animated trade chips -->
+        <section class="kad-marquee" aria-label="Trade focus areas">
+            <div class="kad-marquee__fade kad-marquee__fade--left" aria-hidden="true"/>
+            <div class="kad-marquee__fade kad-marquee__fade--right" aria-hidden="true"/>
+            <div class="kad-marquee__row">
+                <div class="kad-marquee__track kad-marquee__track--left">
+                    <span class="kad-pill">Oilseeds</span>
+                    <span class="kad-pill">Pulses</span>
+                    <span class="kad-pill">Spices</span>
+                    <span class="kad-pill">Flowers</span>
+                    <span class="kad-pill">Livestock</span>
+                    <span class="kad-pill kad-pill--accent">Export</span>
+                    <span class="kad-pill">Glass</span>
+                    <span class="kad-pill">Steel</span>
+                    <span class="kad-pill">Machinery</span>
+                    <span class="kad-pill">Chemicals</span>
+                    <span class="kad-pill kad-pill--accent">Import</span>
+                    <span class="kad-pill">Oilseeds</span>
+                    <span class="kad-pill">Pulses</span>
+                    <span class="kad-pill">Spices</span>
+                    <span class="kad-pill">Flowers</span>
+                    <span class="kad-pill">Livestock</span>
+                    <span class="kad-pill kad-pill--accent">Export</span>
+                    <span class="kad-pill">Glass</span>
+                    <span class="kad-pill">Steel</span>
+                    <span class="kad-pill">Machinery</span>
+                    <span class="kad-pill">Chemicals</span>
+                    <span class="kad-pill kad-pill--accent">Import</span>
+                </div>
+            </div>
+            <div class="kad-marquee__row">
+                <div class="kad-marquee__track kad-marquee__track--right">
+                    <span class="kad-pill">Logistics</span>
+                    <span class="kad-pill">Customs</span>
+                    <span class="kad-pill">Partnerships</span>
+                    <span class="kad-pill">Quality</span>
+                    <span class="kad-pill kad-pill--accent">Global Trade</span>
+                    <span class="kad-pill">Containers</span>
+                    <span class="kad-pill">Warehousing</span>
+                    <span class="kad-pill">Sourcing</span>
+                    <span class="kad-pill">Shipping</span>
+                    <span class="kad-pill kad-pill--accent">Ethiopia</span>
+                    <span class="kad-pill">Logistics</span>
+                    <span class="kad-pill">Customs</span>
+                    <span class="kad-pill">Partnerships</span>
+                    <span class="kad-pill">Quality</span>
+                    <span class="kad-pill kad-pill--accent">Global Trade</span>
+                    <span class="kad-pill">Containers</span>
+                    <span class="kad-pill">Warehousing</span>
+                    <span class="kad-pill">Sourcing</span>
+                    <span class="kad-pill">Shipping</span>
+                    <span class="kad-pill kad-pill--accent">Ethiopia</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- ABOUT — style 2: editorial split -->
+        <section id="about" class="kad-section kad-about kad-style kad-style--editorial">
+            <div class="container-fluid kad-section__inner">
+                <div class="row align-items-center g-5">
+                    <div class="col-lg-5" data-kad-anim="fade-up">
+                        <div class="kad-photo-stack">
+                            <img src="/website_kad_global/static/src/img/cargo_ship.jpg"
+                                 alt="Cargo vessel for international trade"
+                                 class="kad-photo-stack__main"
+                                 loading="lazy"/>
+                            <img src="/website_kad_global/static/src/img/handshake.jpg"
+                                 alt="Business partnership handshake"
+                                 class="kad-photo-stack__inset"
+                                 loading="lazy"/>
+                        </div>
+                    </div>
+                    <div class="col-lg-7">
+                        <div class="kad-section__head" data-kad-anim="fade-up">
+                            <p class="kad-kicker">About KAD</p>
+                            <h2>Connecting Ethiopia with global markets through reliable import and export solutions.</h2>
+                        </div>
+                        <div class="row g-4 kad-mission-grid">
+                            <div class="col-md-6">
+                                <article class="kad-panel" data-kad-anim="fade-up" data-kad-delay="80">
+                                    <h3>Our Mission</h3>
+                                    <p>
+                                        To connect Ethiopian products with international markets while providing
+                                        high-quality imported products that support economic growth, industrial
+                                        development, and long-term business partnerships.
+                                    </p>
+                                </article>
+                            </div>
+                            <div class="col-md-6">
+                                <article class="kad-panel kad-panel--accent" data-kad-anim="fade-up" data-kad-delay="180">
+                                    <h3>Our Vision</h3>
+                                    <p>
+                                        To become one of East Africa's most trusted import and export companies,
+                                        recognized globally for reliability, quality service, transparency, and
+                                        customer satisfaction.
+                                    </p>
+                                </article>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SERVICES — style 3: media cards -->
+        <section id="services" class="kad-section kad-services kad-style kad-style--cards">
+            <div class="container-fluid kad-section__inner">
+                <div class="kad-section__head kad-section__head--wide" data-kad-anim="fade-up">
+                    <p class="kad-kicker">What We Do</p>
+                    <h2>Reliable trade solutions that connect businesses with global opportunities.</h2>
+                </div>
+                <div class="row g-4">
+                    <div class="col-md-4">
+                        <article class="kad-service kad-service--photo" data-kad-anim="fade-up" data-kad-delay="60">
+                            <div class="kad-service__media">
+                                <img src="/website_kad_global/static/src/img/agriculture.jpg"
+                                     alt="Export of agricultural products"
+                                     loading="lazy"/>
+                            </div>
+                            <div class="kad-service__body">
+                                <h3>Export Solutions</h3>
+                                <p>
+                                    We connect Ethiopian agricultural producers, manufacturers, and suppliers
+                                    with international buyers through efficient export services and global
+                                    trade partnerships.
+                                </p>
+                            </div>
+                        </article>
+                    </div>
+                    <div class="col-md-4">
+                        <article class="kad-service kad-service--photo" data-kad-anim="fade-up" data-kad-delay="140">
+                            <div class="kad-service__media">
+                                <img src="/website_kad_global/static/src/img/construction.jpg"
+                                     alt="Imported construction materials"
+                                     loading="lazy"/>
+                            </div>
+                            <div class="kad-service__body">
+                                <h3>Import Solutions</h3>
+                                <p>
+                                    We source high-quality construction materials, machinery, chemicals, and
+                                    industrial products from trusted suppliers around the world.
+                                </p>
+                            </div>
+                        </article>
+                    </div>
+                    <div class="col-md-4">
+                        <article class="kad-service kad-service--photo" data-kad-anim="fade-up" data-kad-delay="220">
+                            <div class="kad-service__media">
+                                <img src="/website_kad_global/static/src/img/logistics.jpg"
+                                     alt="Freight and logistics coordination"
+                                     loading="lazy"/>
+                            </div>
+                            <div class="kad-service__body">
+                                <h3>Logistics Support</h3>
+                                <p>
+                                    Our team coordinates shipping, customs clearance, documentation, and
+                                    delivery to ensure smooth and reliable trade operations.
+                                </p>
+                            </div>
+                        </article>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- GALLERY — style 4: cinema strip -->
+        <section class="kad-gallery kad-style kad-style--cinema" aria-label="Trade operations">
+            <div class="kad-gallery__grid">
+                <figure class="kad-gallery__item" data-kad-anim="fade-up">
+                    <img src="/website_kad_global/static/src/img/containers.jpg" alt="Container terminal" loading="lazy"/>
+                    <figcaption>Ocean freight</figcaption>
+                </figure>
+                <figure class="kad-gallery__item" data-kad-anim="fade-up" data-kad-delay="80">
+                    <img src="/website_kad_global/static/src/img/spices.jpg" alt="Ethiopian spices for export" loading="lazy"/>
+                    <figcaption>Premium spices</figcaption>
+                </figure>
+                <figure class="kad-gallery__item" data-kad-anim="fade-up" data-kad-delay="160">
+                    <img src="/website_kad_global/static/src/img/warehouse.jpg" alt="Modern warehouse" loading="lazy"/>
+                    <figcaption>Warehousing</figcaption>
+                </figure>
+                <figure class="kad-gallery__item" data-kad-anim="fade-up" data-kad-delay="240">
+                    <img src="/website_kad_global/static/src/img/global_map.jpg" alt="Global trade routes" loading="lazy"/>
+                    <figcaption>Global reach</figcaption>
+                </figure>
+            </div>
+        </section>
+
+        <!-- EXPORTS — style 5: clean light catalog -->
+        <section id="exports" class="kad-section kad-products kad-products--exports kad-style kad-style--catalog">
+            <div class="container">
+                <div class="row align-items-end g-4 mb-4">
+                    <div class="col-lg-7">
+                        <div class="kad-section__head mb-0" data-kad-anim="fade-up">
+                            <p class="kad-kicker">Export Products</p>
+                            <h2>Ethiopian agricultural and natural products for global markets</h2>
+                        </div>
+                    </div>
+                    <div class="col-lg-5" data-kad-anim="fade-up" data-kad-delay="100">
+                        <div class="kad-section-banner">
+                            <img src="/website_kad_global/static/src/img/spices.jpg"
+                                 alt="Ethiopian spices and oilseeds"
+                                 loading="lazy"/>
+                        </div>
+                    </div>
+                </div>
+                <div class="kad-product-list">
+                    <div class="kad-product-item" data-kad-anim="fade-up" data-kad-delay="40">
+                        <strong>Fruits &amp; Vegetables</strong>
+                        <span>Fresh Ethiopian produce supplied to international markets.</span>
+                    </div>
+                    <div class="kad-product-item" data-kad-anim="fade-up" data-kad-delay="80">
+                        <strong>Oilseeds</strong>
+                        <span>Sesame, Niger Seed, Linseed and other premium oilseed products.</span>
+                    </div>
+                    <div class="kad-product-item" data-kad-anim="fade-up" data-kad-delay="120">
+                        <strong>Pulses &amp; Legumes</strong>
+                        <span>Chickpeas, lentils, beans and other nutritious legumes.</span>
+                    </div>
+                    <div class="kad-product-item" data-kad-anim="fade-up" data-kad-delay="160">
+                        <strong>Livestock &amp; Meat</strong>
+                        <span>Live animals and quality meat products for international buyers.</span>
+                    </div>
+                    <div class="kad-product-item" data-kad-anim="fade-up" data-kad-delay="200">
+                        <strong>Flowers</strong>
+                        <span>Fresh cut flowers and ornamental plants for global floral markets.</span>
+                    </div>
+                    <div class="kad-product-item" data-kad-anim="fade-up" data-kad-delay="240">
+                        <strong>Spices</strong>
+                        <span>Black pepper, red pepper, turmeric and premium Ethiopian spices.</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- IMPORTS — style 6: dark industrial -->
+        <section id="imports" class="kad-section kad-products kad-products--imports kad-style kad-style--industrial">
+            <div class="container">
+                <div class="row align-items-end g-4 mb-4">
+                    <div class="col-lg-7">
+                        <div class="kad-section__head mb-0" data-kad-anim="fade-up">
+                            <p class="kad-kicker">Import Products</p>
+                            <h2>Industrial, construction, and commercial products from trusted global suppliers</h2>
+                        </div>
+                    </div>
+                    <div class="col-lg-5" data-kad-anim="fade-up" data-kad-delay="100">
+                        <div class="kad-section-banner">
+                            <img src="/website_kad_global/static/src/img/construction.jpg"
+                                 alt="Construction and industrial materials"
+                                 loading="lazy"/>
+                        </div>
+                    </div>
+                </div>
+                <div class="kad-product-list">
+                    <div class="kad-product-item" data-kad-anim="fade-up" data-kad-delay="40">
+                        <strong>Glass Products</strong>
+                        <span>Float, laminated, clear, and colored glass for commercial and residential use.</span>
+                    </div>
+                    <div class="kad-product-item" data-kad-anim="fade-up" data-kad-delay="80">
+                        <strong>Building Materials</strong>
+                        <span>High-quality materials for infrastructure and commercial projects.</span>
+                    </div>
+                    <div class="kad-product-item" data-kad-anim="fade-up" data-kad-delay="120">
+                        <strong>Machinery &amp; Equipment</strong>
+                        <span>Heavy equipment and industrial machines for efficient operations.</span>
+                    </div>
+                    <div class="kad-product-item" data-kad-anim="fade-up" data-kad-delay="160">
+                        <strong>Stationery</strong>
+                        <span>Office supplies, paper products, and educational materials.</span>
+                    </div>
+                    <div class="kad-product-item" data-kad-anim="fade-up" data-kad-delay="200">
+                        <strong>Chemicals</strong>
+                        <span>Industrial chemicals for manufacturing and production industries.</span>
+                    </div>
+                    <div class="kad-product-item" data-kad-anim="fade-up" data-kad-delay="240">
+                        <strong>Industrial Inputs</strong>
+                        <span>Raw materials supporting manufacturing and industrial production.</span>
+                    </div>
+                    <div class="kad-product-item" data-kad-anim="fade-up" data-kad-delay="280">
+                        <strong>Rebars</strong>
+                        <span>Reinforcement steel bars for construction and infrastructure.</span>
+                    </div>
+                    <div class="kad-product-item" data-kad-anim="fade-up" data-kad-delay="320">
+                        <strong>Steel Coils</strong>
+                        <span>High-grade steel coils for industrial and manufacturing use.</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- WHY US -->
+        <section id="why-us" class="kad-section kad-why kad-style kad-style--trust">
+            <div class="container">
+                <div class="kad-section__head" data-kad-anim="fade-up">
+                    <p class="kad-kicker">Why Choose KAD</p>
+                    <h2>Trusted import and export solutions built on reliability, quality, and long-term partnerships.</h2>
+                </div>
+                <div class="row g-4">
+                    <div class="col-md-6 col-lg-3">
+                        <article class="kad-why-item" data-kad-anim="fade-up" data-kad-delay="40">
+                            <span class="kad-why-item__num">01</span>
+                            <h3>Global Network</h3>
+                            <p>Strong international partnerships and sourcing channels across multiple markets.</p>
+                        </article>
+                    </div>
+                    <div class="col-md-6 col-lg-3">
+                        <article class="kad-why-item" data-kad-anim="fade-up" data-kad-delay="100">
+                            <span class="kad-why-item__num">02</span>
+                            <h3>Quality Assurance</h3>
+                            <p>Strict quality control standards to ensure products meet customer expectations.</p>
+                        </article>
+                    </div>
+                    <div class="col-md-6 col-lg-3">
+                        <article class="kad-why-item" data-kad-anim="fade-up" data-kad-delay="160">
+                            <span class="kad-why-item__num">03</span>
+                            <h3>Reliable Logistics</h3>
+                            <p>Efficient transportation, customs handling, and supply chain coordination.</p>
+                        </article>
+                    </div>
+                    <div class="col-md-6 col-lg-3">
+                        <article class="kad-why-item" data-kad-anim="fade-up" data-kad-delay="220">
+                            <span class="kad-why-item__num">04</span>
+                            <h3>Competitive Pricing</h3>
+                            <p>Cost-effective sourcing and trade solutions without compromising quality.</p>
+                        </article>
+                    </div>
+                </div>
+
+                <div class="kad-stats row g-3 mt-4" data-kad-anim="fade-up">
+                    <div class="col-6 col-md-3">
+                        <div class="kad-stat" data-kad-count="25" data-kad-suffix="+">
+                            <span class="kad-stat__value" aria-live="polite">0+</span>
+                            <span class="kad-stat__label">Countries Served</span>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <div class="kad-stat" data-kad-count="120" data-kad-suffix="+">
+                            <span class="kad-stat__value" aria-live="polite">0+</span>
+                            <span class="kad-stat__label">Products Traded</span>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <div class="kad-stat" data-kad-count="500" data-kad-suffix="+">
+                            <span class="kad-stat__value" aria-live="polite">0+</span>
+                            <span class="kad-stat__label">Transactions</span>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <div class="kad-stat" data-kad-count="100" data-kad-suffix="%">
+                            <span class="kad-stat__value" aria-live="polite">0%</span>
+                            <span class="kad-stat__label">Commitment</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA with photo -->
+        <section class="kad-cta kad-cta--photo kad-style kad-style--impact" data-kad-anim="fade-up">
+            <img src="/website_kad_global/static/src/img/containers.jpg"
+                 alt=""
+                 class="kad-cta__photo"
+                 loading="lazy"/>
+            <div class="kad-cta__shade"/>
+            <div class="container text-center">
+                <h2>Ready to grow your trade with Ethiopia and the world?</h2>
+                <p>Partner with KAD for sourcing, export, import, and logistics support.</p>
+                <a href="#contact" class="kad-btn kad-btn--light"><span>Contact Our Team</span></a>
+            </div>
+        </section>
+
+        <!-- CONTACT -->
+        <section id="contact" class="kad-section kad-contact kad-style kad-style--form">
+            <div class="container">
+                <div class="kad-section__head" data-kad-anim="fade-up">
+                    <p class="kad-kicker">Contact Us</p>
+                    <h2>Get in touch for import, export, sourcing, logistics, and partnership inquiries.</h2>
+                </div>
+                <div class="row g-5">
+                    <div class="col-lg-7">
+                        <form action="/kad/contact" method="post" class="kad-form" data-kad-anim="fade-up" data-kad-delay="80">
+                            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="kad-label" for="kad_name">Full Name</label>
+                                    <input class="kad-input" type="text" id="kad_name" name="name" required="required" placeholder="Full Name"/>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="kad-label" for="kad_email">Email Address</label>
+                                    <input class="kad-input" type="email" id="kad_email" name="email" required="required" placeholder="Email Address"/>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="kad-label" for="kad_phone">Phone Number</label>
+                                    <input class="kad-input" type="tel" id="kad_phone" name="phone" placeholder="Phone Number"/>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="kad-label" for="kad_company">Company Name</label>
+                                    <input class="kad-input" type="text" id="kad_company" name="company" placeholder="Company Name"/>
+                                </div>
+                                <div class="col-12">
+                                    <label class="kad-label" for="kad_message">Message</label>
+                                    <textarea class="kad-input kad-textarea" id="kad_message" name="message" rows="5" required="required" placeholder="Write your message..."/>
+                                </div>
+                                <div class="col-12">
+                                    <button type="submit" class="kad-btn kad-btn--primary">
+                                        <span>Send Message</span>
+                                        <span class="kad-btn__shine" aria-hidden="true"/>
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="col-lg-5">
+                        <div class="kad-contact-aside" data-kad-anim="fade-up" data-kad-delay="160">
+                            <div class="kad-contact-aside__photo">
+                                <img src="/website_kad_global/static/src/img/global_map.jpg"
+                                     alt="Global trade network"
+                                     loading="lazy"/>
+                            </div>
+                            <h3>Contact Information</h3>
+                            <div class="kad-contact-block">
+                                <strong>Address</strong>
+                                <p>Addis Ababa, Ethiopia</p>
+                            </div>
+                            <div class="kad-contact-block">
+                                <strong>Phone</strong>
+                                <p>
+                                    <a href="tel:+251911357216">+251 911 357 216</a><br/>
+                                    <a href="tel:+251911205428">+251 911 205 428</a>
+                                </p>
+                            </div>
+                            <div class="kad-contact-block">
+                                <strong>Email</strong>
+                                <p><a href="mailto:info@kadglobaltrading.com">info@kadglobaltrading.com</a></p>
+                            </div>
+                            <div class="kad-contact-block">
+                                <strong>Business Hours</strong>
+                                <p>Monday – Saturday<br/>8:00 AM – 6:00 PM</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </template>
+</odoo>

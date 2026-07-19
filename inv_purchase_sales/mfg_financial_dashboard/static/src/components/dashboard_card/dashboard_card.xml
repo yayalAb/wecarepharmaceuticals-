@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates>
+    <t t-name="mfg_financial_dashboard.DashboardCard" owl="1">
+        <div class="mfg-dashboard-metric-col">
+            <div class="mfg-dashboard-metric-card" t-on-click="onCardClick" tabindex="0">
+                <div class="mfg-dashboard-metric-card__head">
+                    <span class="mfg-dashboard-metric-card__label" t-esc="props.name"/>
+                    <div class="mfg-dashboard-metric-card__icon-wrap" t-if="props.iconClass">
+                        <i t-att-class="'fa ' + props.iconClass + ' mfg-dashboard-metric-card__icon'"/>
+                    </div>
+                </div>
+                <div class="mfg-dashboard-metric-card__value">
+                    <t t-if="props.displayValue" t-esc="props.displayValue"/>
+                    <t t-else="" t-esc="props.value"/>
+                </div>
+                <div class="mfg-dashboard-metric-card__accent"/>
+            </div>
+        </div>
+    </t>
+</templates>
