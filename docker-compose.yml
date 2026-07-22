@@ -69,7 +69,7 @@ services:
             - "80:80"
             - "443:443"
         environment:
-            SSL_DOMAIN: ${SSL_DOMAIN:-redfox.loyalitsolution.com}
+            SSL_DOMAIN: ${SSL_DOMAIN:-erp.wecarepharmaceuticals.com}
         volumes:
             - ./nginx/entrypoint.sh:/entrypoint.sh:ro
             - ./nginx/templates:/etc/nginx/templates:ro
@@ -86,8 +86,8 @@ services:
         depends_on:
             - nginx
         environment:
-            SSL_DOMAIN: ${SSL_DOMAIN:-redfox.loyalitsolution.com}
-            CERTBOT_EMAIL: ${CERTBOT_EMAIL:-admin@redfox.loyalitsolution.com}
+            SSL_DOMAIN: ${SSL_DOMAIN:-erp.wecarepharmaceuticals.com}
+            CERTBOT_EMAIL: ${CERTBOT_EMAIL:-admin@wecarepharmaceuticals.com}
             CERTBOT_RETRY_SECONDS: ${CERTBOT_RETRY_SECONDS:-300}
             CERTBOT_RENEW_INTERVAL: ${CERTBOT_RENEW_INTERVAL:-43200}
         volumes:

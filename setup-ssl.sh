@@ -5,7 +5,7 @@
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-DOMAIN="${1:-redfox.loyalitsolution.com}"
+DOMAIN="${1:-erp.wecarepharmaceuticals.com}"
 EMAIL="${2:-admin@${DOMAIN}}"
 
 cd "$SCRIPT_DIR"

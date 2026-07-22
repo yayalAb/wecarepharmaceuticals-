@@ -1,7 +1,7 @@
 #!/bin/sh
 set -e
 
-DOMAIN="${SSL_DOMAIN:-redfox.loyalitsolution.com}"
+DOMAIN="${SSL_DOMAIN:-erp.wecarepharmaceuticals.com}"
 EMAIL="${CERTBOT_EMAIL:-admin@${DOMAIN}}"
 WEBROOT=/var/www/certbot
 CERT="/etc/letsencrypt/live/${DOMAIN}/fullchain.pem"

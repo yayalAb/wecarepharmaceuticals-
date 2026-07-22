@@ -1,7 +1,7 @@
 #!/bin/sh
 set -e
 
-DOMAIN="${SSL_DOMAIN:-redfox.loyalitsolution.com}"
+DOMAIN="${SSL_DOMAIN:-erp.wecarepharmaceuticals.com}"
 TEMPLATES_DIR=/etc/nginx/templates
 CONF=/etc/nginx/conf.d/default.conf
 CERT="/etc/letsencrypt/live/${DOMAIN}/fullchain.pem"
