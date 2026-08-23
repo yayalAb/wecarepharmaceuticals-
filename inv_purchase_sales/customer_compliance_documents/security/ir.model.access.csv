@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_compliance_document_type_user,customer.compliance.document.type.user,model_customer_compliance_document_type,sales_team.group_sale_salesman,1,0,0,0
+access_compliance_document_type_manager,customer.compliance.document.type.manager,model_customer_compliance_document_type,sales_team.group_sale_manager,1,1,1,1
+access_compliance_document_user,customer.compliance.document.user,model_customer_compliance_document,sales_team.group_sale_salesman,1,1,1,0
+access_compliance_document_manager,customer.compliance.document.manager,model_customer_compliance_document,sales_team.group_sale_manager,1,1,1,1

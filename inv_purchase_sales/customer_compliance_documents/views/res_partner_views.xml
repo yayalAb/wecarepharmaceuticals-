@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--
+        Do not inherit base.view_partner_form: this database has broken
+        account/purchase partner-form extensions that fail combined validation.
+        Use an action binding on res.partner instead (Action menu + list).
+    -->
+    <record id="action_partner_compliance_documents" model="ir.actions.act_window">
+        <field name="name">Compliance Documents</field>
+        <field name="res_model">customer.compliance.document</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('partner_id', '=', active_id)]</field>
+        <field name="context">{
+            'default_partner_id': active_id,
+            'search_default_partner_id': active_id,
+        }</field>
+        <field name="binding_model_id" ref="base.model_res_partner"/>
+        <field name="binding_view_types">form,list</field>
+    </record>
+</odoo>
