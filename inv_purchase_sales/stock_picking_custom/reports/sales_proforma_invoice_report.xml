@@ -340,7 +340,7 @@
                             <span class="spi-lbl">Sig:</span>
                             <div class="spi-und">
                                 <t t-if="prepared_by and prepared_by.sign_signature">
-                                    <img t-att-src="'data:image/png;base64,%s' % (prepared_by.sign_signature.decode())"
+                                    <img t-att-src="image_data_uri(prepared_by.sign_signature)"
                                         style="max-height: 40px; max-width: 120px;" />
                                 </t>
                                 <t t-elif="prepared_by and prepared_by.employee_id and prepared_by.employee_id.emp_signature">
@@ -380,7 +380,7 @@
                             <span class="spi-lbl">Sig:</span>
                             <div class="spi-und">
                                 <t t-if="doc.proforma_checked_by_id and doc.proforma_checked_by_id.sign_signature">
-                                    <img t-att-src="'data:image/png;base64,%s' % (doc.proforma_checked_by_id.sign_signature.decode())"
+                                    <img t-att-src="image_data_uri(doc.proforma_checked_by_id.sign_signature)"
                                         style="max-height: 40px; max-width: 120px;" />
                                 </t>
                                 <t t-elif="doc.proforma_checked_by_id and doc.proforma_checked_by_id.employee_id and doc.proforma_checked_by_id.employee_id.emp_signature">
@@ -415,7 +415,7 @@
                             <span class="spi-lbl">Sig:</span>
                             <div class="spi-und">
                                 <t t-if="approved_by and approved_by.sign_signature">
-                                    <img t-att-src="'data:image/png;base64,%s' % (approved_by.sign_signature.decode())"
+                                    <img t-att-src="image_data_uri(approved_by.sign_signature)"
                                         style="max-height: 40px; max-width: 120px;" />
                                 </t>
                                 <t t-elif="approved_by and approved_by.employee_id and approved_by.employee_id.emp_signature">

@@ -11,11 +11,11 @@
                 <attribute name="options">{'no_create': True}</attribute>
             </xpath>
             <xpath expr="//field[@name='payment_term_id']" position="after">
-                <field name="fs_no"/>
-                <field name="mrc_no"/>
-                <field name="payment_method"/>
-                <field name="driver_name"/>
-                <field name="driver_phone"/>
+                <field name="fs_no"  invisible="1"/>
+                <field name="mrc_no"  invisible="1"/>
+                <field name="payment_method" required="1"/>
+                <field name="driver_name" invisible="1"/>
+                <field name="driver_phone" invisible="1"/>
             </xpath>
         </field>
     </record>

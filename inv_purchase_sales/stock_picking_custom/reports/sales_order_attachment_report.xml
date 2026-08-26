@@ -357,7 +357,7 @@
                             <span class="soa-lbl">Sig:</span>
                             <div class="soa-und">
                                 <t t-if="prepared_by and prepared_by.sign_signature">
-                                    <img t-att-src="'data:image/png;base64,%s' % (prepared_by.sign_signature.decode())"
+                                    <img t-att-src="image_data_uri(prepared_by.sign_signature)"
                                         style="max-height: 40px; max-width: 120px;" />
                                 </t>
                                 <t t-elif="prepared_by and prepared_by.employee_id and prepared_by.employee_id.emp_signature">
@@ -397,7 +397,7 @@
                             <span class="soa-lbl">Sig:</span>
                             <div class="soa-und">
                                 <t t-if="approved_by and approved_by.sign_signature">
-                                    <img t-att-src="'data:image/png;base64,%s' % (approved_by.sign_signature.decode())"
+                                    <img t-att-src="image_data_uri(approved_by.sign_signature)"
                                         style="max-height: 40px; max-width: 120px;" />
                                 </t>
                                 <t t-elif="approved_by and approved_by.employee_id and approved_by.employee_id.emp_signature">

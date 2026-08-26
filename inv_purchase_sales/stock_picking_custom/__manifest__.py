@@ -7,6 +7,7 @@
         'stock',
         'store_request',
         'purchase_stock',
+        'purchase_mrp',
         'sale_stock',
         'sale',
         'account',

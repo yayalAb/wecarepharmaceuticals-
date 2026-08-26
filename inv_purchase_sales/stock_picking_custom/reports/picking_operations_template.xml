@@ -364,14 +364,12 @@
                 <thead style="display: table-header-group;">
                     <tr>
                         <th style="width:4%;">S.N</th>
-                        <th style="width:9%;">Item Code</th>
-                        <th style="width:18%;">Item Description</th>
-                        <th style="width:8%;">UOM</th>
-                        <th style="width:10%;">Demand/<br />ጠቅላላ ክብደት</th>
-                        <th style="width:9%;">ነጠላ<br />ክብደት</th>
-                        <th style="width:10%;">የተጠራ ክብደት/<br />Quantity</th>
-                        <th style="width:9%;">Unit Price</th>
-                        <th style="width:10%;">Total Unit Price</th>
+                        <th style="width:12%;">Item Code</th>
+                        <th style="width:24%;">Item Description</th>
+                        <th style="width:10%;">UOM</th>
+                        <th style="width:12%;">Quantity</th>
+                        <th style="width:12%;">Unit Price</th>
+                        <th style="width:14%;">Total Unit Price</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -390,12 +388,6 @@
                                 </td>
                                 <td class="cgrn-td-center">
                                     <span t-esc="move.product_uom.name or ''" />
-                                </td>
-                                <td class="cgrn-td-num">
-                                    <span t-esc="'{0:,.2f}'.format(o.get_grn_move_gross_weight(move))" />
-                                </td>
-                                <td class="cgrn-td-num">
-                                    <span t-esc="'{0:,.2f}'.format(o.get_grn_move_tare_weight(move))" />
                                 </td>
                                 <td class="cgrn-td-num">
                                     <span t-esc="'{0:,.2f}'.format(move.quantity or 0.0)" />
@@ -442,16 +434,6 @@
                 <span class="cgrn-field-line cgrn-field-line-tall" />
             </div>
 
-            <div class="cgrn-quality-row">
-                የሚፈለገው የማጣራት ጥራት
-                <span class="cgrn-field-line cgrn-field-line-dashed"
-                    style="display:inline-block; width:80px; margin:0 8px; vertical-align:bottom;">
-                    <t t-if="o.get_grn_cleaning_quality()">
-                        <span t-esc="'{0:,.2f}'.format(o.get_grn_cleaning_quality())" />
-                    </t>
-                </span>%
-            </div>
-
             <!-- <div class="cgrn-section-title">Approval Flow</div> -->
 
             <div class="cgrn-approval-row">
@@ -465,7 +447,7 @@
                 <div class="cgrn-approval-sig-wrap">
                     <div class="cgrn-sig-box">
                         <t t-if="o.create_uid.sign_signature">
-                            <img t-att-src="'data:image/png;base64,%s' % (o.create_uid.sign_signature.decode())"
+                            <img t-att-src="image_data_uri(o.create_uid.sign_signature)"
                                 style="max-height: 46px; max-width: 140px;" />
                         </t>
                     </div>
@@ -508,7 +490,7 @@
                 <div class="cgrn-approval-sig-wrap">
                     <div class="cgrn-sig-box">
                         <t t-if="storeman_user and storeman_user.sign_signature">
-                            <img t-att-src="'data:image/png;base64,%s' % (storeman_user.sign_signature.decode())"
+                            <img t-att-src="image_data_uri(storeman_user.sign_signature)"
                                 style="max-height: 46px; max-width: 140px;" />
                         </t>
                         <t t-elif="storeman_user and storeman_user.employee_id and storeman_user.employee_id.emp_signature">
@@ -881,14 +863,12 @@
                 <thead style="display: table-header-group;">
                     <tr>
                         <th style="width:4%;">S.N</th>
-                        <th style="width:9%;">Item Code</th>
-                        <th style="width:18%;">Item Description</th>
-                        <th style="width:8%;">UOM</th>
-                        <th style="width:10%;">Demand/<br />ጠቅላላ ክብደት</th>
-                        <th style="width:9%;">ነጠላ<br />ክብደት</th>
-                        <th style="width:10%;">የተጠራ ክብደት/<br />Quantity</th>
-                        <th style="width:9%;">Unit Price</th>
-                        <th style="width:10%;">Total Unit Price</th>
+                        <th style="width:12%;">Item Code</th>
+                        <th style="width:24%;">Item Description</th>
+                        <th style="width:10%;">UOM</th>
+                        <th style="width:12%;">Quantity</th>
+                        <th style="width:12%;">Unit Price</th>
+                        <th style="width:14%;">Total Unit Price</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -909,12 +889,6 @@
                                     <span t-esc="move.product_uom.name or ''" />
                                 </td>
                                 <td class="cdn-td-num">
-                                    <span t-esc="'{0:,.2f}'.format(o.get_grn_move_gross_weight(move))" />
-                                </td>
-                                <td class="cdn-td-num">
-                                    <span t-esc="'{0:,.2f}'.format(o.get_grn_move_tare_weight(move))" />
-                                </td>
-                                <td class="cdn-td-num">
                                     <span t-esc="'{0:,.2f}'.format(move.quantity or 0.0)" />
                                 </td>
                                 <td class="cdn-td-num">
@@ -931,8 +905,6 @@
                     <t t-foreach="range(pad_rows)" t-as="pad">
                         <tr>
                             <td class="cdn-td-center"><span t-esc="row_count + pad + 1" /></td>
-                            <td>&#160;</td>
-                            <td>&#160;</td>
                             <td>&#160;</td>
                             <td>&#160;</td>
                             <td>&#160;</td>
@@ -999,7 +971,7 @@
                 <div class="cdn-approval-sig-wrap">
                     <div class="cdn-sig-box">
                         <t t-if="o.create_uid.sign_signature">
-                            <img t-att-src="'data:image/png;base64,%s' % (o.create_uid.sign_signature.decode())"
+                            <img t-att-src="image_data_uri(o.create_uid.sign_signature)"
                                 style="max-height: 46px; max-width: 140px;" />
                         </t>
                     </div>
@@ -1025,7 +997,7 @@
                 <div class="cdn-approval-sig-wrap">
                     <div class="cdn-sig-box">
                         <t t-if="o.approved_by and o.approved_by.sign_signature">
-                            <img t-att-src="'data:image/png;base64,%s' % (o.approved_by.sign_signature.decode())"
+                            <img t-att-src="image_data_uri(o.approved_by.sign_signature)"
                                 style="max-height: 46px; max-width: 140px;" />
                         </t>
                         <t t-elif="o.approved_by and o.approved_by.employee_id and o.approved_by.employee_id.emp_signature">
@@ -1072,7 +1044,7 @@
                 <div class="cdn-approval-sig-wrap">
                     <div class="cdn-sig-box">
                         <t t-if="storeman_user and storeman_user.sign_signature">
-                            <img t-att-src="'data:image/png;base64,%s' % (storeman_user.sign_signature.decode())"
+                            <img t-att-src="image_data_uri(storeman_user.sign_signature)"
                                 style="max-height: 46px; max-width: 140px;" />
                         </t>
                         <t t-elif="storeman_user and storeman_user.employee_id and storeman_user.employee_id.emp_signature">
@@ -1311,7 +1283,7 @@
                 <div class="sia-approval-sig-wrap">
                     <div class="sia-sig-box">
                         <t t-if="storeman_user and storeman_user.sign_signature">
-                            <img t-att-src="'data:image/png;base64,%s' % (storeman_user.sign_signature.decode())"
+                            <img t-att-src="image_data_uri(storeman_user.sign_signature)"
                                 style="max-height: 46px; max-width: 140px;" />
                         </t>
                         <t t-elif="storeman_user and storeman_user.employee_id and storeman_user.employee_id.emp_signature">
@@ -1341,7 +1313,7 @@
                 <div class="sia-approval-sig-wrap">
                     <div class="sia-sig-box">
                         <t t-if="o.approved_by and o.approved_by.sign_signature">
-                            <img t-att-src="'data:image/png;base64,%s' % (o.approved_by.sign_signature.decode())"
+                            <img t-att-src="image_data_uri(o.approved_by.sign_signature)"
                                 style="max-height: 46px; max-width: 140px;" />
                         </t>
                         <t t-elif="o.approved_by and o.approved_by.employee_id and o.approved_by.employee_id.emp_signature">
@@ -1718,7 +1690,7 @@
                             <span class="gpa-lbl">Sig:</span>
                             <div class="gpa-und">
                                 <t t-if="o.create_uid.sign_signature">
-                                    <img t-att-src="'data:image/png;base64,%s' % (o.create_uid.sign_signature.decode())"
+                                    <img t-att-src="image_data_uri(o.create_uid.sign_signature)"
                                         style="max-height: 40px; max-width: 120px;" />
                                 </t>
                             </div>
@@ -1750,7 +1722,7 @@
                             <span class="gpa-lbl">Sig:</span>
                             <div class="gpa-und">
                                 <t t-if="o.approved_by and o.approved_by.sign_signature">
-                                    <img t-att-src="'data:image/png;base64,%s' % (o.approved_by.sign_signature.decode())"
+                                    <img t-att-src="image_data_uri(o.approved_by.sign_signature)"
                                         style="max-height: 40px; max-width: 120px;" />
                                 </t>
                                 <t t-elif="o.approved_by and o.approved_by.employee_id and o.approved_by.employee_id.emp_signature">
@@ -1814,7 +1786,7 @@
                             <span class="gpa-lbl">Sig:</span>
                             <div class="gpa-und">
                                 <t t-if="storeman_user and storeman_user.sign_signature">
-                                    <img t-att-src="'data:image/png;base64,%s' % (storeman_user.sign_signature.decode())"
+                                    <img t-att-src="image_data_uri(storeman_user.sign_signature)"
                                         style="max-height: 40px; max-width: 120px;" />
                                 </t>
                                 <t t-elif="storeman_user and storeman_user.employee_id and storeman_user.employee_id.emp_signature">

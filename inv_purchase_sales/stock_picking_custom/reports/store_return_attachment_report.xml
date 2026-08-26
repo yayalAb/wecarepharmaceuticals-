@@ -237,7 +237,7 @@
                 <div class="sra-approval-sig-wrap">
                     <div class="sra-sig-box">
                         <t t-if="returned_by and returned_by.sign_signature">
-                            <img t-att-src="'data:image/png;base64,%s' % (returned_by.sign_signature.decode())"
+                            <img t-att-src="image_data_uri(returned_by.sign_signature)"
                                 style="max-height: 46px; max-width: 140px;" />
                         </t>
                         <t t-elif="returned_by and returned_by.employee_id and returned_by.employee_id.emp_signature">
@@ -267,7 +267,7 @@
                 <div class="sra-approval-sig-wrap">
                     <div class="sra-sig-box">
                         <t t-if="o.approved_by and o.approved_by.sign_signature">
-                            <img t-att-src="'data:image/png;base64,%s' % (o.approved_by.sign_signature.decode())"
+                            <img t-att-src="image_data_uri(o.approved_by.sign_signature)"
                                 style="max-height: 46px; max-width: 140px;" />
                         </t>
                         <t t-elif="o.approved_by and o.approved_by.employee_id and o.approved_by.employee_id.emp_signature">
