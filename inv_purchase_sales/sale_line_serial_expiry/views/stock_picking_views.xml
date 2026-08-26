@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_picking_move_tree_restrict_lot" model="ir.ui.view">
+        <field name="name">stock.move.list.restrict.lot</field>
+        <field name="model">stock.move</field>
+        <field name="inherit_id" ref="stock.view_picking_move_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='product_id']" position="after">
+                <field name="restrict_lot_id" string="Serial Number" optional="show"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

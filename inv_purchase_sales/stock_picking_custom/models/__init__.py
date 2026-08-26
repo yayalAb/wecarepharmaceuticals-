@@ -9,5 +9,5 @@ from . import maintenance_equipment
 from . import store_request
 from . import hr_employee
 from . import res_users
-# from . import res_company
+# Company MRC field must load before/with settings (related field).
 from . import res_config_settings

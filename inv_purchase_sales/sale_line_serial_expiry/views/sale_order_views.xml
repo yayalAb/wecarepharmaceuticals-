@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_order_form_serial_expiry" model="ir.ui.view">
+        <field name="name">sale.order.form.serial.expiry</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <!-- Tree / list columns on order lines -->
+            <xpath expr="//field[@name='order_line']/list/field[@name='product_uom_qty']" position="before">
+                <field name="product_tracking" column_invisible="1"/>
+                <field name="lot_id"
+                       string="Serial Number"
+                       optional="show"
+                       domain="[('product_id', '=', product_id)]"
+                       context="{'default_product_id': product_id, 'default_company_id': parent.company_id}"
+                       options="{'no_create': True}"
+                       invisible="display_type or not product_id or product_tracking == 'none'"/>
+                <field name="expiration_date"
+                       string="Expiration Date"
+                       optional="show"
+                       invisible="display_type or not lot_id"/>
+            </xpath>
+            <!-- Keep Quantity label clear (already product_uom_qty) -->
+            <xpath expr="//field[@name='order_line']/list/field[@name='product_uom_qty']" position="attributes">
+                <attribute name="string">Quantity</attribute>
+            </xpath>
+            <!-- Line form (notebook) -->
+            <xpath expr="//field[@name='order_line']/form//field[@name='product_uom_qty']" position="before">
+                <field name="product_tracking" invisible="1"/>
+                <field name="lot_id"
+                       string="Serial Number"
+                       domain="[('product_id', '=', product_id)]"
+                       context="{'default_product_id': product_id}"
+                       options="{'no_create': True}"
+                       invisible="display_type or not product_id or product_tracking == 'none'"/>
+                <field name="expiration_date"
+                       string="Expiration Date"
+                       invisible="display_type or not lot_id"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>
