@@ -6,27 +6,27 @@
         <field name="sequence">10</field>
         <field name="is_required" eval="True"/>
     </record>
-    <record id="compliance_doc_type_business_license" model="customer.compliance.document.type">
-        <field name="name">Business License</field>
-        <field name="code">business_license</field>
+    <record id="compliance_doc_type_business_registration" model="customer.compliance.document.type">
+        <field name="name">Business Registration</field>
+        <field name="code">business_registration</field>
         <field name="sequence">20</field>
         <field name="is_required" eval="True"/>
     </record>
-    <record id="compliance_doc_type_registration" model="customer.compliance.document.type">
-        <field name="name">Registration Certificate</field>
-        <field name="code">registration</field>
+    <record id="compliance_doc_type_tax_certificate" model="customer.compliance.document.type">
+        <field name="name">Tax Certificate</field>
+        <field name="code">tax_certificate</field>
         <field name="sequence">30</field>
+        <field name="is_required" eval="False"/>
+    </record>
+    <record id="compliance_doc_type_business_license" model="customer.compliance.document.type">
+        <field name="name">Business License</field>
+        <field name="code">business_license</field>
+        <field name="sequence">40</field>
         <field name="is_required" eval="False"/>
     </record>
     <record id="compliance_doc_type_certificate" model="customer.compliance.document.type">
         <field name="name">Certificate</field>
         <field name="code">certificate</field>
-        <field name="sequence">40</field>
-        <field name="is_required" eval="False"/>
-    </record>
-    <record id="compliance_doc_type_vat" model="customer.compliance.document.type">
-        <field name="name">VAT / Tax Certificate</field>
-        <field name="code">vat_certificate</field>
         <field name="sequence">50</field>
         <field name="is_required" eval="False"/>
     </record>

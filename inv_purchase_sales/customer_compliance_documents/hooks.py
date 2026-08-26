@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
+import json
 import logging
+import re
 
 _logger = logging.getLogger(__name__)
 
@@ -13,16 +15,29 @@ _CORE_PARTNER_VIEW_MODULES = (
     'contacts',
 )
 
+# Replace fragile xpath on property_supplier_payment_term_id with a stable group inject.
+_PURCHASE_BUYER_BLOCK_RE = re.compile(
+    r'<field\s+name="property_supplier_payment_term_id"\s+position="before"\s*>'
+    r'(.*?)</field>',
+    re.DOTALL,
+)
+_PURCHASE_BUYER_BLOCK_REPL = (
+    r'<group name="purchase" position="inside">\1</group>'
+)
+
+
+def _arch_as_dict(arch_json):
+    if arch_json is None:
+        return None
+    if isinstance(arch_json, dict):
+        return dict(arch_json)
+    if isinstance(arch_json, str):
+        return {'en_US': arch_json}
+    return None
+
 
 def pre_init_hook(env):
-    """
-    Reactivate core partner form views.
-
-    A previous cleanup deactivated Accounting/Purchase partner inherits that
-    still mentioned stale field names. That removed
-    property_supplier_payment_term_id and broke Purchase's xpath. Stale fields
-    are handled by compatibility stubs on res.partner; views must stay active.
-    """
+    """Repair partner form views so Compliance Documents tab can be installed."""
     cr = env.cr
 
     cr.execute(
@@ -48,29 +63,50 @@ def pre_init_hook(env):
 
     cr.execute(
         """
-            UPDATE ir_ui_view
-               SET active = true
-             WHERE model = 'res.partner'
-               AND COALESCE(active, true) = false
-               AND (
-                    arch_db::text ILIKE '%%property_supplier_payment_term_id%%'
-                 OR arch_db::text ILIKE '%%name=\\"accounting\\"%%'
-                 OR name ILIKE '%%property.form.inherit%%'
-                 OR name ILIKE '%%purchase.property%%'
-               )
-         RETURNING id, name
+            SELECT v.id, v.name, v.arch_db
+              FROM ir_ui_view v
+              JOIN ir_model_data d
+                ON d.model = 'ir.ui.view' AND d.res_id = v.id
+             WHERE d.module = 'purchase'
+               AND d.name = 'view_partner_property_form'
         """
     )
-    extra = cr.fetchall()
-    if extra:
+    row = cr.fetchone()
+    if not row:
+        return
+
+    view_id, name, arch_json = row
+    arch_map = _arch_as_dict(arch_json)
+    if not arch_map:
+        return
+
+    changed = False
+    out = {}
+    for lang, xml in arch_map.items():
+        if isinstance(xml, str) and _PURCHASE_BUYER_BLOCK_RE.search(xml):
+            out[lang] = _PURCHASE_BUYER_BLOCK_RE.sub(_PURCHASE_BUYER_BLOCK_REPL, xml, count=1)
+            changed = True
+        else:
+            out[lang] = xml
+
+    if changed:
+        cr.execute(
+            """
+                UPDATE ir_ui_view
+                   SET arch_db = %s::jsonb
+                 WHERE id = %s
+            """,
+            (json.dumps(out), view_id),
+        )
         _logger.warning(
-            'customer_compliance_documents: reactivated related partner views: %s',
-            ', '.join(f'{vid}:{name}' for vid, name in extra),
+            'customer_compliance_documents: patched purchase partner view %s (%s)',
+            view_id,
+            name,
         )
 
 
 def post_init_hook(env):
-    """Ensure core partner form views stay active after install."""
+    """Keep core partner form views active after install/upgrade."""
     View = env['ir.ui.view'].sudo()
     Data = env['ir.model.data'].sudo()
     data_rows = Data.search([

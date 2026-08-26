@@ -16,17 +16,16 @@ class ResPartner(models.Model):
     )
     compliance_status = fields.Selection(
         [
-            ('ok', 'Compliant'),
+            ('ok', 'Valid'),
             ('warning', 'Expiring Soon'),
-            ('blocked', 'Non-Compliant'),
-            ('none', 'No Documents'),
+            ('blocked', 'Expired'),
+            ('none', 'Missing'),
         ],
         string='Compliance Status',
         compute='_compute_compliance_status',
         store=True,
     )
-    # Compatibility stubs for stale partner-form views left in the database
-    # (migrations / uninstalled modules). Prefer deactivation via pre_init_hook.
+    # Compatibility stubs for stale partner-form views left in the database.
     duplicate_bank_partner_ids = fields.Many2many(
         'res.partner',
         compute='_compute_duplicate_bank_partner_ids',
@@ -59,6 +58,7 @@ class ResPartner(models.Model):
     @api.depends(
         'compliance_document_ids',
         'compliance_document_ids.status',
+        'compliance_document_ids.expiry_date',
         'compliance_document_ids.document_type_id',
         'compliance_document_ids.document_type_id.is_required',
     )
@@ -76,12 +76,11 @@ class ResPartner(models.Model):
                 partner.compliance_status = 'ok'
 
     def _commercial_partner_for_compliance(self):
-        """Use the commercial entity for compliance checks."""
         self.ensure_one()
         return self.commercial_partner_id or self
 
     def _get_compliance_issues(self, for_blocking=True):
-        """Return list of human-readable compliance blockers for this partner."""
+        """Return human-readable compliance blockers (matches Wecare warning style)."""
         self.ensure_one()
         partner = self._commercial_partner_for_compliance()
         company = self.env.company
@@ -101,18 +100,50 @@ class ResPartner(models.Model):
 
         if required_types:
             for doc_type in required_types:
-                matching = docs.filtered(
-                    lambda d, t=doc_type: d.document_type_id == t and d.is_acceptable_for_sales()
+                type_docs = docs.filtered(lambda d, t=doc_type: d.document_type_id == t)
+                acceptable = type_docs.filtered(lambda d: d.is_acceptable_for_sales())
+                if acceptable:
+                    continue
+                expired = type_docs.filtered(lambda d: d.status == 'expired').sorted(
+                    'expiry_date', reverse=True
                 )
-                if not matching:
+                if expired:
+                    expiry = fields.Date.to_string(expired[0].expiry_date)
+                    # Format like 31-Dec-2025
+                    try:
+                        expiry = expired[0].expiry_date.strftime('%d-%b-%Y')
+                    except Exception:
+                        pass
                     issues.append(_(
-                        'Missing or expired required document: %s',
-                        doc_type.name,
+                        'Customer compliance document has expired. '
+                        '%(doc_type)s expired on %(expiry)s.',
+                        doc_type=doc_type.name,
+                        expiry=expiry,
+                    ))
+                else:
+                    issues.append(_(
+                        'Customer compliance document is missing: %(doc_type)s.',
+                        doc_type=doc_type.name,
                     ))
         elif not docs:
-            issues.append(_('No compliance documents on file.'))
+            issues.append(_('Customer compliance documents are missing.'))
         elif not any(d.is_acceptable_for_sales() for d in docs):
-            issues.append(_('All compliance documents are expired.'))
+            expired = docs.filtered(lambda d: d.status == 'expired').sorted(
+                'expiry_date', reverse=True
+            )
+            if expired:
+                try:
+                    expiry = expired[0].expiry_date.strftime('%d-%b-%Y')
+                except Exception:
+                    expiry = fields.Date.to_string(expired[0].expiry_date)
+                issues.append(_(
+                    'Customer compliance document has expired. '
+                    '%(doc_type)s expired on %(expiry)s.',
+                    doc_type=expired[0].document_type_id.name or _('Document'),
+                    expiry=expiry,
+                ))
+            else:
+                issues.append(_('All compliance documents are expired.'))
 
         return issues
 

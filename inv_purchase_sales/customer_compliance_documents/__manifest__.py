@@ -1,15 +1,21 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Customer Compliance Document Management',
-    'version': '18.0.1.0.4',
+    'version': '18.0.1.1.0',
     'category': 'Sales/CRM',
-    'summary': 'Track customer trade licenses and certificates; block Sales Orders when expired',
+    'summary': 'Customer Compliance Documents: licenses/certificates with SO confirmation control',
     'description': """
 Customer Compliance Document Management
 =======================================
-Maintain trade licenses, business licenses, registrations, and certificates
-per customer. Automatically compute Valid / Expiring Soon / Expired status
-and prevent confirming Sales Orders when required documents are missing or expired.
+Customer → Compliance Documents tab:
+- Document Type, Document Number, Issue Date, Expiry Date
+- Status: Valid / Expiring Soon / Expired
+- Attachment and Remarks
+
+Sales Order Control:
+- On confirm, check mandatory documents are valid
+- Block with warning when documents are missing or expired
+- Expiring Soon within configurable days (default 30)
     """,
     'author': 'Niyat Consultancy',
     'depends': [

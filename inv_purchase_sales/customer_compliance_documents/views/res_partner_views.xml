@@ -1,10 +1,58 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!--
-        Do not inherit base.view_partner_form: this database has broken
-        account/purchase partner-form extensions that fail combined validation.
-        Use an action binding on res.partner instead (Action menu + list).
-    -->
+    <!-- Customer form: Compliance Documents tab (Sales & Compliance) -->
+    <record id="view_partner_form_compliance_documents" model="ir.ui.view">
+        <field name="name">res.partner.form.compliance.documents</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="priority" eval="100"/>
+        <field name="arch" type="xml">
+            <div name="button_box" position="inside">
+                <button name="action_view_compliance_documents"
+                        type="object"
+                        class="oe_stat_button"
+                        icon="fa-id-card"
+                        invisible="not is_company and parent_id">
+                    <field name="compliance_document_count" widget="statinfo"
+                             string="Compliance Docs"/>
+                </button>
+            </div>
+            <xpath expr="//page[@name='sales_purchases']" position="after">
+                <page string="Compliance Documents" name="compliance_documents"
+                      invisible="not is_company and parent_id">
+                    <group>
+                        <group string="Sales &amp; Compliance">
+                            <field name="compliance_status" widget="badge"
+                                     decoration-success="compliance_status == 'ok'"
+                                     decoration-warning="compliance_status == 'warning'"
+                                     decoration-danger="compliance_status in ('blocked', 'none')"/>
+                        </group>
+                    </group>
+                    <field name="compliance_document_ids" mode="list"
+                             context="{'default_partner_id': id}">
+                        <list editable="bottom"
+                              decoration-danger="status == 'expired'"
+                              decoration-warning="status == 'expiring_soon'"
+                              decoration-success="status == 'valid'">
+                            <field name="document_type_id"/>
+                            <field name="document_number"/>
+                            <field name="issue_date"/>
+                            <field name="expiry_date"/>
+                            <field name="status" widget="badge"
+                                     decoration-danger="status == 'expired'"
+                                     decoration-warning="status == 'expiring_soon'"
+                                     decoration-success="status == 'valid'"/>
+                            <field name="attachment" filename="attachment_filename" widget="binary"/>
+                            <field name="attachment_filename" column_invisible="1"/>
+                            <field name="remarks"/>
+                        </list>
+                    </field>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Also available from Action menu on customer -->
     <record id="action_partner_compliance_documents" model="ir.actions.act_window">
         <field name="name">Compliance Documents</field>
         <field name="res_model">customer.compliance.document</field>
