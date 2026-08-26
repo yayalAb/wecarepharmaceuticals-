@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_config_settings_view_form_fs_mrc" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.fs.mrc</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="account.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//app[@name='account']" position="inside">
+                <block title="Sales Invoice FS / MRC" name="invoice_fs_mrc_setting">
+                    <setting string="MRC No"
+                             company_dependent="1"
+                             help="Fixed MRC number used on customer sales invoices.">
+                        <div class="content-group">
+                            <div class="row mt16">
+                                <label for="invoice_mrc_no" class="col-lg-3 o_light_label" string="MRC No"/>
+                                <field name="invoice_mrc_no" class="col-lg-4" placeholder="e.g. MRC-001"/>
+                            </div>
+                        </div>
+                    </setting>
+                    <setting string="FS No Sequence"
+                             help="FS numbers are assigned automatically from the Sales Invoice FS No sequence (Accounting → Configuration → Sequences).">
+                        <div class="text-muted">
+                            Sequence code: account.move.fs.no (prefix FS/YYYY/)
+                        </div>
+                    </setting>
+                </block>
+            </xpath>
+        </field>
+    </record>
+</odoo>

@@ -7,9 +7,14 @@
         <field name="arch" type="xml">
             <xpath expr="//button[@name='refresh_invoice_currency_rate']" position="replace"/>
             <xpath expr="//field[@name='partner_shipping_id']" position="after">
-                <field name="fs_no" invisible="move_type not in ('out_invoice', 'out_refund')"/>
-                <field name="mrc_no" invisible="move_type not in ('out_invoice', 'out_refund')"/>
-                <field name="payment_method" invisible="move_type not in ('out_invoice', 'out_refund')"/>
+                <field name="fs_no"
+                       readonly="1"
+                       force_save="1"
+                       invisible="move_type not in ('out_invoice', 'out_refund')"/>
+                <field name="mrc_no"
+                       invisible="move_type not in ('out_invoice', 'out_refund')"/>
+                <field name="payment_method"
+                       invisible="move_type not in ('out_invoice', 'out_refund')"/>
             </xpath>
         </field>
     </record>

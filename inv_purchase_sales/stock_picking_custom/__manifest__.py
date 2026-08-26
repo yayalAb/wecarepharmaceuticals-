@@ -3,6 +3,7 @@
     'name': 'Stock Picking Custom',
     'summary': 'Customizes the Delivery Slips and Receipts to match company format.',
     'category': 'Inventory',
+    'version': '18.0.1.1.0',
     'depends': [
         'stock',
         'store_request',
@@ -16,6 +17,7 @@
         'custom_report_layout',
     ],
     'data': [
+        'data/ir_sequence_data.xml',
         'data/stock_report_actions.xml',
         'data/sale_report_actions.xml',
         'data/mrp_report_actions.xml',
@@ -28,6 +30,7 @@
         # 'reports/report_deliveryslip.xml',
         'views/sale_order_views.xml',
         'views/account_move_views.xml',
+        'views/res_config_settings_views.xml',
         'views/stock_picking_view.xml',
         'views/stock_return_picking_views.xml',
         'views/maintenance_equipment_view.xml',

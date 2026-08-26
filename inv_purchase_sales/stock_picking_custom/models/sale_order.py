@@ -76,11 +76,12 @@ class SaleOrder(models.Model):
 
     def _prepare_invoice(self):
         invoice_vals = super()._prepare_invoice()
+        # FS No is assigned by sequence on the invoice; MRC comes from company config.
         invoice_vals.update({
-            'fs_no': self.fs_no,
-            'mrc_no': self.mrc_no,
+            'mrc_no': self.company_id.invoice_mrc_no or False,
             'payment_method': self.payment_method,
         })
+        invoice_vals.pop('fs_no', None)
         return invoice_vals
 
     def get_proforma_amount_in_words(self):
