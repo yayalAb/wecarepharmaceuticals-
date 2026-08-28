@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_wecare_share_history_list" model="ir.ui.view">
+        <field name="name">wecare.share.history.list</field>
+        <field name="model">wecare.share.history</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="share_date"/>
+                <field name="document_name"/>
+                <field name="channel"/>
+                <field name="partner_id"/>
+                <field name="user_id"/>
+                <field name="phone"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_wecare_share_history_form" model="ir.ui.view">
+        <field name="name">wecare.share.history.form</field>
+        <field name="model">wecare.share.history</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <field name="document_name"/>
+                        <field name="res_model"/>
+                        <field name="res_id"/>
+                        <field name="channel"/>
+                        <field name="partner_id"/>
+                        <field name="phone"/>
+                        <field name="user_id"/>
+                        <field name="share_date"/>
+                        <field name="attachment_id"/>
+                    </group>
+                    <field name="message"/>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_wecare_share_history" model="ir.actions.act_window">
+        <field name="name">Share History</field>
+        <field name="res_model">wecare.share.history</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>

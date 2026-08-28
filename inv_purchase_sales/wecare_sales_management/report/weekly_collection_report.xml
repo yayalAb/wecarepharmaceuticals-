@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_report_weekly_collection" model="ir.actions.report">
+        <field name="name">Weekly Collection Report</field>
+        <field name="model">wecare.weekly.report.wizard</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">wecare_sales_management.report_weekly_collection</field>
+        <field name="report_file">wecare_sales_management.report_weekly_collection</field>
+        <field name="print_report_name">'Weekly Collection - %s' % (object.date_from)</field>
+        <field name="paperformat_id" ref="paperformat_wecare_portrait"/>
+    </record>
+
+    <template id="report_weekly_collection">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+                <t t-set="data" t-value="doc.get_collection_data()"/>
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <h3 class="text-center">Weekly Collection</h3>
+                        <p class="text-center">
+                            <strong>Duration:</strong>
+                            <span t-esc="data['date_from']"/> – <span t-esc="data['date_to']"/><br/>
+                            <strong>Reporting Date:</strong> <span t-esc="data['reporting_date']"/><br/>
+                            Report: Weekly CK Received
+                        </p>
+                        <table class="table table-sm table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>No.</th>
+                                    <th>Sales Person</th>
+                                    <th>Customer Name</th>
+                                    <th>Amount</th>
+                                    <th>CK#</th>
+                                    <th>Bank Name</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-set="rowno" t-value="0"/>
+                                <t t-foreach="data['groups']" t-as="group">
+                                    <t t-foreach="group['lines']" t-as="line">
+                                        <t t-set="rowno" t-value="rowno + 1"/>
+                                        <tr>
+                                            <td><span t-esc="rowno"/></td>
+                                            <td><span t-esc="group['salesperson_name']"/></td>
+                                            <td><span t-field="line.partner_id"/></td>
+                                            <td class="text-end"><span t-field="line.amount"/></td>
+                                            <td><span t-field="line.name"/></td>
+                                            <td><span t-field="line.journal_id"/></td>
+                                            <td><span t-field="line.received_date"/></td>
+                                        </tr>
+                                    </t>
+                                    <tr>
+                                        <td colspan="3" class="text-end"><strong>Sub Total</strong></td>
+                                        <td class="text-end"><strong t-esc="group['subtotal']"
+                                                t-options="{'widget': 'monetary', 'display_currency': doc.company_id.currency_id}"/></td>
+                                        <td colspan="3"/>
+                                    </tr>
+                                </t>
+                                <tr>
+                                    <td colspan="3" class="text-end"><strong>GRAND TOTAL</strong></td>
+                                    <td class="text-end"><strong t-esc="data['grand_total']"
+                                            t-options="{'widget': 'monetary', 'display_currency': doc.company_id.currency_id}"/></td>
+                                    <td colspan="3"/>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

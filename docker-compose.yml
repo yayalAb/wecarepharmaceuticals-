@@ -27,6 +27,8 @@ services:
         image: odoo:18.0
         container_name: odoo18-web
         restart: unless-stopped
+        # Workers need >64MB /dev/shm or they crash silently and fall back to slow mode
+        shm_size: "512mb"
         depends_on:
             db:
                 condition: service_healthy
@@ -38,6 +40,7 @@ services:
             start_period: 120s
         ports:
             - "8069:8069"
+            - "8072:8072"
         environment:
             HOST: db
             USER: ${POSTGRES_USER:-odoo}

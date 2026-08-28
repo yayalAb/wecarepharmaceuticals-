@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem id="menu_wecare_root"
+              name="WeCare Sales"
+              sequence="45"
+              groups="wecare_sales_management.group_wecare_user"/>
+
+    <menuitem id="menu_wecare_planning"
+              name="Sales Planning"
+              parent="menu_wecare_root"
+              sequence="10"/>
+
+    <menuitem id="menu_wecare_sales_plan"
+              name="Sales Plans"
+              parent="menu_wecare_planning"
+              action="action_wecare_sales_plan"
+              sequence="10"/>
+
+    <menuitem id="menu_wecare_collections"
+              name="Collections &amp; Cheques"
+              parent="menu_wecare_root"
+              sequence="20"/>
+
+    <menuitem id="menu_wecare_cheque_register"
+              name="Cheque Register"
+              parent="menu_wecare_collections"
+              action="action_wecare_cheque_register"
+              sequence="10"/>
+
+    <menuitem id="menu_wecare_bounced"
+              name="Bounced Cheques"
+              parent="menu_wecare_collections"
+              action="action_wecare_bounced_cheques"
+              sequence="20"/>
+
+    <menuitem id="menu_wecare_outstanding"
+              name="Outstanding Collections"
+              parent="menu_wecare_collections"
+              action="action_wecare_outstanding_invoices"
+              sequence="30"/>
+
+    <menuitem id="menu_wecare_reporting"
+              name="Reporting"
+              parent="menu_wecare_root"
+              sequence="30"/>
+
+    <menuitem id="menu_wecare_weekly"
+              name="Weekly Reports"
+              parent="menu_wecare_reporting"
+              action="action_wecare_weekly_report_wizard"
+              sequence="10"/>
+
+    <menuitem id="menu_wecare_target_actual"
+              name="Target vs Actual"
+              parent="menu_wecare_reporting"
+              action="action_wecare_target_actual_wizard"
+              sequence="20"/>
+
+    <menuitem id="menu_wecare_kpi"
+              name="Management KPIs"
+              parent="menu_wecare_reporting"
+              action="action_wecare_kpi_wizard"
+              sequence="30"/>
+
+    <menuitem id="menu_wecare_share_history"
+              name="Share History"
+              parent="menu_wecare_reporting"
+              action="action_wecare_share_history"
+              sequence="40"/>
+
+    <menuitem id="menu_wecare_config"
+              name="Configuration"
+              parent="menu_wecare_root"
+              sequence="90"
+              groups="wecare_sales_management.group_wecare_manager"/>
+
+    <menuitem id="menu_wecare_territory"
+              name="Territories"
+              parent="menu_wecare_config"
+              action="action_wecare_sales_territory"
+              sequence="10"/>
+</odoo>

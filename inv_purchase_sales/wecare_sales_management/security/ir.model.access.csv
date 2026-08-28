@@ -1,0 +1,17 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_wecare_territory_user,wecare.sales.territory.user,model_wecare_sales_territory,wecare_sales_management.group_wecare_user,1,0,0,0
+access_wecare_territory_manager,wecare.sales.territory.manager,model_wecare_sales_territory,wecare_sales_management.group_wecare_manager,1,1,1,1
+access_wecare_sales_plan_user,wecare.sales.plan.user,model_wecare_sales_plan,wecare_sales_management.group_wecare_user,1,1,1,0
+access_wecare_sales_plan_manager,wecare.sales.plan.manager,model_wecare_sales_plan,wecare_sales_management.group_wecare_manager,1,1,1,1
+access_wecare_target_line_user,wecare.sales.target.line.user,model_wecare_sales_target_line,wecare_sales_management.group_wecare_user,1,1,1,0
+access_wecare_target_line_manager,wecare.sales.target.line.manager,model_wecare_sales_target_line,wecare_sales_management.group_wecare_manager,1,1,1,1
+access_wecare_cheque_user,wecare.cheque.register.user,model_wecare_cheque_register,wecare_sales_management.group_wecare_user,1,1,1,0
+access_wecare_cheque_invoice,wecare.cheque.register.invoice,model_wecare_cheque_register,account.group_account_invoice,1,1,1,0
+access_wecare_cheque_manager,wecare.cheque.register.manager,model_wecare_cheque_register,wecare_sales_management.group_wecare_manager,1,1,1,1
+access_wecare_share_history_user,wecare.share.history.user,model_wecare_share_history,base.group_user,1,1,1,0
+access_wecare_share_history_manager,wecare.share.history.manager,model_wecare_share_history,wecare_sales_management.group_wecare_manager,1,1,1,1
+access_wecare_weekly_wizard,wecare.weekly.report.wizard,model_wecare_weekly_report_wizard,wecare_sales_management.group_wecare_user,1,1,1,1
+access_wecare_target_wizard,wecare.target.actual.wizard,model_wecare_target_actual_wizard,wecare_sales_management.group_wecare_user,1,1,1,1
+access_wecare_target_wizard_line,wecare.target.actual.line,model_wecare_target_actual_line,wecare_sales_management.group_wecare_user,1,1,1,1
+access_wecare_share_wizard,wecare.share.media.wizard,model_wecare_share_media_wizard,base.group_user,1,1,1,1
+access_wecare_kpi_wizard,wecare.kpi.wizard,model_wecare_kpi_wizard,wecare_sales_management.group_wecare_user,1,1,1,1

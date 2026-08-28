@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_report_sales_plan" model="ir.actions.report">
+        <field name="name">Sales Plan</field>
+        <field name="model">wecare.sales.plan</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">wecare_sales_management.report_sales_plan</field>
+        <field name="report_file">wecare_sales_management.report_sales_plan</field>
+        <field name="print_report_name">'Sales Plan - %s' % (object.plan_no)</field>
+        <field name="binding_model_id" ref="model_wecare_sales_plan"/>
+        <field name="binding_type">report</field>
+        <field name="paperformat_id" ref="paperformat_wecare_landscape"/>
+    </record>
+
+    <template id="report_sales_plan">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <h3 class="text-center">Annual Sales Plan</h3>
+                        <p class="text-center"><span t-field="doc.name"/> (<span t-field="doc.plan_no"/>)</p>
+                        <div class="row mb-3">
+                            <div class="col-6">
+                                <strong>Fiscal Year:</strong> <span t-field="doc.fiscal_year"/><br/>
+                                <strong>Period:</strong> <span t-field="doc.date_start"/> – <span t-field="doc.date_end"/><br/>
+                                <strong>Sales Team:</strong> <span t-field="doc.team_id"/>
+                            </div>
+                            <div class="col-6">
+                                <strong>Manager:</strong> <span t-field="doc.manager_id"/><br/>
+                                <strong>Status:</strong> <span t-field="doc.state"/><br/>
+                                <strong>Total Target:</strong> <span t-field="doc.total_annual_revenue"/>
+                            </div>
+                        </div>
+                        <table class="table table-sm table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>No.</th>
+                                    <th>Salesperson</th>
+                                    <th>Territory</th>
+                                    <th>Customer</th>
+                                    <th>Product</th>
+                                    <th>UoM</th>
+                                    <th>Annual Qty</th>
+                                    <th>Unit Price</th>
+                                    <th>Annual Target</th>
+                                    <th>Monthly Target</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-set="n" t-value="0"/>
+                                <t t-foreach="doc.target_line_ids" t-as="line">
+                                    <t t-set="n" t-value="n + 1"/>
+                                    <tr>
+                                        <td><span t-esc="n"/></td>
+                                        <td><span t-field="line.salesperson_id"/></td>
+                                        <td><span t-field="line.territory_id"/></td>
+                                        <td><span t-field="line.partner_id"/></td>
+                                        <td><span t-field="line.product_id"/></td>
+                                        <td><span t-field="line.product_uom_id"/></td>
+                                        <td class="text-end"><span t-field="line.annual_qty"/></td>
+                                        <td class="text-end"><span t-field="line.unit_price"/></td>
+                                        <td class="text-end"><span t-field="line.annual_revenue"/></td>
+                                        <td class="text-end"><span t-field="line.monthly_target"/></td>
+                                    </tr>
+                                </t>
+                            </tbody>
+                        </table>
+                        <h4>Monthly Sales Target</h4>
+                        <table class="table table-sm table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Product</th>
+                                    <th>Salesperson</th>
+                                    <th>Jan</th><th>Feb</th><th>Mar</th><th>Apr</th>
+                                    <th>May</th><th>Jun</th><th>Jul</th><th>Aug</th>
+                                    <th>Sep</th><th>Oct</th><th>Nov</th><th>Dec</th>
+                                    <th>Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-foreach="doc.target_line_ids" t-as="line">
+                                    <tr>
+                                        <td><span t-field="line.product_id"/></td>
+                                        <td><span t-field="line.salesperson_id"/></td>
+                                        <td class="text-end"><span t-field="line.qty_jan"/></td>
+                                        <td class="text-end"><span t-field="line.qty_feb"/></td>
+                                        <td class="text-end"><span t-field="line.qty_mar"/></td>
+                                        <td class="text-end"><span t-field="line.qty_apr"/></td>
+                                        <td class="text-end"><span t-field="line.qty_may"/></td>
+                                        <td class="text-end"><span t-field="line.qty_jun"/></td>
+                                        <td class="text-end"><span t-field="line.qty_jul"/></td>
+                                        <td class="text-end"><span t-field="line.qty_aug"/></td>
+                                        <td class="text-end"><span t-field="line.qty_sep"/></td>
+                                        <td class="text-end"><span t-field="line.qty_oct"/></td>
+                                        <td class="text-end"><span t-field="line.qty_nov"/></td>
+                                        <td class="text-end"><span t-field="line.qty_dec"/></td>
+                                        <td class="text-end"><span t-field="line.monthly_qty_total"/></td>
+                                    </tr>
+                                </t>
+                            </tbody>
+                        </table>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

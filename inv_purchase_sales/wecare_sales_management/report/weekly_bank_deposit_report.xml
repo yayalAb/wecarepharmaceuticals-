@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_report_weekly_bank_deposit" model="ir.actions.report">
+        <field name="name">Weekly Bank Deposited Credit Sales</field>
+        <field name="model">wecare.weekly.report.wizard</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">wecare_sales_management.report_weekly_bank_deposit</field>
+        <field name="report_file">wecare_sales_management.report_weekly_bank_deposit</field>
+        <field name="print_report_name">'Weekly Bank Deposited - %s' % (object.date_from)</field>
+        <field name="paperformat_id" ref="paperformat_wecare_landscape"/>
+    </record>
+
+    <template id="report_weekly_bank_deposit">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+                <t t-set="data" t-value="doc.get_bank_deposit_data()"/>
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <h3 class="text-center">Weekly Bank Deposited Credit Sales</h3>
+                        <p class="text-center">
+                            <strong>Duration:</strong>
+                            <span t-esc="data['date_from']"/> – <span t-esc="data['date_to']"/>
+                            · <strong>Reporting Date:</strong> <span t-esc="data['reporting_date']"/>
+                        </p>
+                        <table class="table table-sm table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Sales Person</th>
+                                    <th>Customer Name</th>
+                                    <th>CK#</th>
+                                    <th>Bank Name</th>
+                                    <th>Date</th>
+                                    <th>Current</th>
+                                    <th>Previous</th>
+                                    <th>Bounce</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-foreach="data['groups']" t-as="group">
+                                    <t t-foreach="group['lines']" t-as="row">
+                                        <tr>
+                                            <td><span t-esc="group['salesperson_name']"/></td>
+                                            <td><span t-esc="row['cheque'].partner_id.display_name"/></td>
+                                            <td><span t-esc="row['cheque'].name"/></td>
+                                            <td><span t-esc="row['cheque'].journal_id.display_name"/></td>
+                                            <td><span t-esc="row['cheque'].deposit_date or ''"/></td>
+                                            <td class="text-end"><span t-esc="row['current']"
+                                                    t-options="{'widget': 'monetary', 'display_currency': doc.company_id.currency_id}"/></td>
+                                            <td class="text-end"><span t-esc="row['previous']"
+                                                    t-options="{'widget': 'monetary', 'display_currency': doc.company_id.currency_id}"/></td>
+                                            <td class="text-end"><span t-esc="row['bounce']"
+                                                    t-options="{'widget': 'monetary', 'display_currency': doc.company_id.currency_id}"/></td>
+                                        </tr>
+                                    </t>
+                                    <tr>
+                                        <td colspan="5" class="text-end"><strong>Sub Total</strong></td>
+                                        <td class="text-end"><strong t-esc="group['subtotal_current']"
+                                                t-options="{'widget': 'monetary', 'display_currency': doc.company_id.currency_id}"/></td>
+                                        <td class="text-end"><strong t-esc="group['subtotal_previous']"
+                                                t-options="{'widget': 'monetary', 'display_currency': doc.company_id.currency_id}"/></td>
+                                        <td class="text-end"><strong t-esc="group['subtotal_bounce']"
+                                                t-options="{'widget': 'monetary', 'display_currency': doc.company_id.currency_id}"/></td>
+                                    </tr>
+                                </t>
+                            </tbody>
+                        </table>
+                        <h4>Grand Summary</h4>
+                        <table class="table table-sm table-bordered" style="width: 50%;">
+                            <tr>
+                                <td>Grand Total – Current Deposited</td>
+                                <td class="text-end"><span t-esc="data['total_current']"
+                                        t-options="{'widget': 'monetary', 'display_currency': doc.company_id.currency_id}"/></td>
+                            </tr>
+                            <tr>
+                                <td>Grand Total – Previous</td>
+                                <td class="text-end"><span t-esc="data['total_previous']"
+                                        t-options="{'widget': 'monetary', 'display_currency': doc.company_id.currency_id}"/></td>
+                            </tr>
+                            <tr>
+                                <td>Current Existing Bounce</td>
+                                <td class="text-end"><span t-esc="data['existing_bounce']"
+                                        t-options="{'widget': 'monetary', 'display_currency': doc.company_id.currency_id}"/></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Grand Total</strong></td>
+                                <td class="text-end"><strong t-esc="data['total_current'] + data['total_previous'] + data['existing_bounce']"
+                                        t-options="{'widget': 'monetary', 'display_currency': doc.company_id.currency_id}"/></td>
+                            </tr>
+                        </table>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

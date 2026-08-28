@@ -28,6 +28,7 @@ Customer Invoices for traceability.
         'views/stock_picking_views.xml',
         'views/account_move_views.xml',
     ],
+    'pre_init_hook': 'pre_init_hook',
     'installable': True,
     'application': False,
     'license': 'LGPL-3',
