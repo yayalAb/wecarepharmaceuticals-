@@ -5,10 +5,10 @@ from . import res_partner
 from . import sales_territory
 from . import sales_plan
 from . import sales_target_line
+from . import share_mixin
+from . import share_history
 from . import cheque_register
 from . import account_payment
-from . import share_history
-from . import share_mixin
 from . import sale_order
 from . import sale_order_line
 from . import account_move
