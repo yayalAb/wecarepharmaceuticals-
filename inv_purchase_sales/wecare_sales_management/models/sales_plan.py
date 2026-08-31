@@ -181,13 +181,11 @@ class WecareSalesPlan(models.Model):
         return {
             'type': 'ir.actions.act_window',
             'name': self.env._('Target vs Actual'),
-            'res_model': 'wecare.target.actual.wizard',
-            'view_mode': 'form',
-            'target': 'new',
+            'res_model': 'wecare.sales.target.line',
+            'view_mode': 'list',
+            'domain': [('plan_id', '=', self.id)],
             'context': {
+                'search_default_group_salesperson': 1,
                 'default_plan_id': self.id,
-                'default_date_from': self.date_start,
-                'default_date_to': self.date_end,
-                'default_company_id': self.company_id.id,
             },
         }

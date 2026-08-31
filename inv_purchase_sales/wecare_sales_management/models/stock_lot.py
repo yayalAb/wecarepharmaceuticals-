@@ -7,6 +7,16 @@ from odoo import fields, models
 class StockLot(models.Model):
     _inherit = 'stock.lot'
 
+    def _records_for_print(self):
+        if self:
+            return self
+        return self.search(list(self.env.context.get('active_domain') or []))
+
+    def action_print_stock_expiry(self):
+        return self.env.ref(
+            'wecare_sales_management.action_report_stock_expiry'
+        ).report_action(self._records_for_print())
+
     def _cron_wecare_expiry_notification(self):
         companies = self.env['res.company'].search([])
         activity_type = self.env.ref('mail.mail_activity_data_todo')

@@ -1,199 +1,196 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <record id="action_report_cheque_classified" model="ir.actions.report">
-        <field name="name">Cheque Classification Report</field>
-        <field name="model">wecare.weekly.report.wizard</field>
+        <field name="name">Current / Previous / Bounced Cheques</field>
+        <field name="model">wecare.cheque.register</field>
         <field name="report_type">qweb-pdf</field>
         <field name="report_name">wecare_sales_management.report_cheque_classified</field>
         <field name="report_file">wecare_sales_management.report_cheque_classified</field>
+        <field name="binding_model_id" ref="model_wecare_cheque_register"/>
+        <field name="binding_type">report</field>
         <field name="paperformat_id" ref="paperformat_wecare_portrait"/>
     </record>
 
     <template id="report_cheque_classified">
         <t t-call="web.html_container">
-            <t t-foreach="docs" t-as="doc">
-                <t t-set="data" t-value="doc.get_classified_data()"/>
-                <t t-call="web.external_layout">
-                    <div class="page">
-                        <h3 class="text-center"><span t-esc="data['title']"/></h3>
-                        <p class="text-center">
-                            <span t-esc="data['date_from']"/> – <span t-esc="data['date_to']"/>
-                            · Reporting Date: <span t-esc="data['reporting_date']"/>
-                        </p>
-                        <table class="table table-sm table-bordered">
-                            <thead>
-                                <tr>
-                                    <th>No.</th>
-                                    <th>Sales Person</th>
-                                    <th>Customer Name</th>
-                                    <th>Amount</th>
-                                    <th>CK#</th>
-                                    <th>Bank Name</th>
-                                    <th>Date</th>
-                                    <th>Status</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <t t-set="rowno" t-value="0"/>
-                                <t t-foreach="data['groups']" t-as="group">
-                                    <t t-foreach="group['lines']" t-as="line">
-                                        <t t-set="rowno" t-value="rowno + 1"/>
-                                        <tr>
-                                            <td><span t-esc="rowno"/></td>
-                                            <td><span t-esc="group['salesperson_name']"/></td>
-                                            <td><span t-field="line.partner_id"/></td>
-                                            <td class="text-end"><span t-field="line.amount"/></td>
-                                            <td><span t-field="line.name"/></td>
-                                            <td><span t-field="line.journal_id"/></td>
-                                            <td><span t-field="line.deposit_date"/> <span t-field="line.received_date"/></td>
-                                            <td><span t-field="line.state"/></td>
-                                        </tr>
-                                    </t>
+            <t t-call="web.external_layout">
+                <div class="page">
+                    <h3 class="text-center"><span t-esc="data['title']"/></h3>
+                    <p class="text-center">
+                        <span t-esc="data['date_from']"/> – <span t-esc="data['date_to']"/>
+                        · Reporting Date: <span t-esc="data['reporting_date']"/>
+                    </p>
+                    <table class="table table-sm table-bordered">
+                        <thead>
+                            <tr>
+                                <th>No.</th>
+                                <th>Sales Person</th>
+                                <th>Customer Name</th>
+                                <th>Amount</th>
+                                <th>CK#</th>
+                                <th>Bank Name</th>
+                                <th>Date</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-set="rowno" t-value="0"/>
+                            <t t-foreach="data['groups']" t-as="group">
+                                <t t-foreach="group['lines']" t-as="line">
+                                    <t t-set="rowno" t-value="rowno + 1"/>
                                     <tr>
-                                        <td colspan="3" class="text-end"><strong>Sub Total</strong></td>
-                                        <td class="text-end"><strong t-esc="group['subtotal']"
-                                                t-options="{'widget': 'monetary', 'display_currency': doc.company_id.currency_id}"/></td>
-                                        <td colspan="4"/>
+                                        <td><span t-esc="rowno"/></td>
+                                        <td><span t-esc="group['salesperson_name']"/></td>
+                                        <td><span t-field="line.partner_id"/></td>
+                                        <td class="text-end"><span t-field="line.amount"/></td>
+                                        <td><span t-field="line.name"/></td>
+                                        <td><span t-field="line.journal_id"/></td>
+                                        <td><span t-field="line.deposit_date"/> <span t-field="line.received_date"/></td>
+                                        <td><span t-field="line.state"/></td>
                                     </tr>
                                 </t>
                                 <tr>
-                                    <td colspan="3" class="text-end"><strong>GRAND TOTAL</strong></td>
-                                    <td class="text-end"><strong t-esc="data['grand_total']"
-                                            t-options="{'widget': 'monetary', 'display_currency': doc.company_id.currency_id}"/></td>
+                                    <td colspan="3" class="text-end"><strong>Sub Total</strong></td>
+                                    <td class="text-end"><strong t-esc="group['subtotal']"
+                                            t-options="{'widget': 'monetary', 'display_currency': data['company'].currency_id}"/></td>
                                     <td colspan="4"/>
                                 </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </t>
+                            </t>
+                            <tr>
+                                <td colspan="3" class="text-end"><strong>GRAND TOTAL</strong></td>
+                                <td class="text-end"><strong t-esc="data['grand_total']"
+                                        t-options="{'widget': 'monetary', 'display_currency': data['company'].currency_id}"/></td>
+                                <td colspan="4"/>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </t>
         </t>
     </template>
 
     <record id="action_report_collection_performance" model="ir.actions.report">
         <field name="name">Salesperson Collection Performance</field>
-        <field name="model">wecare.weekly.report.wizard</field>
+        <field name="model">wecare.cheque.register</field>
         <field name="report_type">qweb-pdf</field>
         <field name="report_name">wecare_sales_management.report_collection_performance</field>
         <field name="report_file">wecare_sales_management.report_collection_performance</field>
+        <field name="binding_model_id" ref="model_wecare_cheque_register"/>
+        <field name="binding_type">report</field>
         <field name="paperformat_id" ref="paperformat_wecare_portrait"/>
     </record>
 
     <template id="report_collection_performance">
         <t t-call="web.html_container">
-            <t t-foreach="docs" t-as="doc">
-                <t t-set="data" t-value="doc.get_collection_performance_data()"/>
-                <t t-call="web.external_layout">
-                    <div class="page">
-                        <h3 class="text-center">Salesperson Collection Performance</h3>
-                        <p class="text-center">
-                            <span t-esc="data['date_from']"/> – <span t-esc="data['date_to']"/>
-                        </p>
-                        <table class="table table-sm table-bordered">
-                            <thead>
+            <t t-call="web.external_layout">
+                <div class="page">
+                    <h3 class="text-center">Salesperson Collection Performance</h3>
+                    <p class="text-center">
+                        <span t-esc="data['date_from']"/> – <span t-esc="data['date_to']"/>
+                    </p>
+                    <table class="table table-sm table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Salesperson</th>
+                                <th>Cheques Received</th>
+                                <th>Received Amount</th>
+                                <th>Deposited</th>
+                                <th>Bounced</th>
+                                <th>Net Deposited</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-foreach="data['lines']" t-as="line">
                                 <tr>
-                                    <th>Salesperson</th>
-                                    <th>Cheques Received</th>
-                                    <th>Received Amount</th>
-                                    <th>Deposited</th>
-                                    <th>Bounced</th>
-                                    <th>Net Deposited</th>
+                                    <td><span t-esc="line['salesperson_name']"/></td>
+                                    <td class="text-end"><span t-esc="line['received_count']"/></td>
+                                    <td class="text-end"><span t-esc="line['received_amt']"
+                                            t-options="{'widget': 'monetary', 'display_currency': data['company'].currency_id}"/></td>
+                                    <td class="text-end"><span t-esc="line['deposited_amt']"
+                                            t-options="{'widget': 'monetary', 'display_currency': data['company'].currency_id}"/></td>
+                                    <td class="text-end"><span t-esc="line['bounce_amt']"
+                                            t-options="{'widget': 'monetary', 'display_currency': data['company'].currency_id}"/></td>
+                                    <td class="text-end"><span t-esc="line['net']"
+                                            t-options="{'widget': 'monetary', 'display_currency': data['company'].currency_id}"/></td>
                                 </tr>
-                            </thead>
-                            <tbody>
-                                <t t-foreach="data['lines']" t-as="line">
-                                    <tr>
-                                        <td><span t-esc="line['salesperson_name']"/></td>
-                                        <td class="text-end"><span t-esc="line['received_count']"/></td>
-                                        <td class="text-end"><span t-esc="line['received_amt']"
-                                                t-options="{'widget': 'monetary', 'display_currency': doc.company_id.currency_id}"/></td>
-                                        <td class="text-end"><span t-esc="line['deposited_amt']"
-                                                t-options="{'widget': 'monetary', 'display_currency': doc.company_id.currency_id}"/></td>
-                                        <td class="text-end"><span t-esc="line['bounce_amt']"
-                                                t-options="{'widget': 'monetary', 'display_currency': doc.company_id.currency_id}"/></td>
-                                        <td class="text-end"><span t-esc="line['net']"
-                                                t-options="{'widget': 'monetary', 'display_currency': doc.company_id.currency_id}"/></td>
-                                    </tr>
-                                </t>
-                                <tr>
-                                    <td><strong>Total</strong></td>
-                                    <td/>
-                                    <td class="text-end"><strong t-esc="data['total_received']"
-                                            t-options="{'widget': 'monetary', 'display_currency': doc.company_id.currency_id}"/></td>
-                                    <td class="text-end"><strong t-esc="data['total_deposited']"
-                                            t-options="{'widget': 'monetary', 'display_currency': doc.company_id.currency_id}"/></td>
-                                    <td class="text-end"><strong t-esc="data['total_bounce']"
-                                            t-options="{'widget': 'monetary', 'display_currency': doc.company_id.currency_id}"/></td>
-                                    <td class="text-end"><strong t-esc="data['total_deposited'] - data['total_bounce']"
-                                            t-options="{'widget': 'monetary', 'display_currency': doc.company_id.currency_id}"/></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </t>
+                            </t>
+                            <tr>
+                                <td><strong>Total</strong></td>
+                                <td/>
+                                <td class="text-end"><strong t-esc="data['total_received']"
+                                        t-options="{'widget': 'monetary', 'display_currency': data['company'].currency_id}"/></td>
+                                <td class="text-end"><strong t-esc="data['total_deposited']"
+                                        t-options="{'widget': 'monetary', 'display_currency': data['company'].currency_id}"/></td>
+                                <td class="text-end"><strong t-esc="data['total_bounce']"
+                                        t-options="{'widget': 'monetary', 'display_currency': data['company'].currency_id}"/></td>
+                                <td class="text-end"><strong t-esc="data['total_deposited'] - data['total_bounce']"
+                                        t-options="{'widget': 'monetary', 'display_currency': data['company'].currency_id}"/></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </t>
         </t>
     </template>
 
     <record id="action_report_bank_deposit_summary" model="ir.actions.report">
         <field name="name">Bank Deposit Summary</field>
-        <field name="model">wecare.weekly.report.wizard</field>
+        <field name="model">wecare.cheque.register</field>
         <field name="report_type">qweb-pdf</field>
         <field name="report_name">wecare_sales_management.report_bank_deposit_summary</field>
         <field name="report_file">wecare_sales_management.report_bank_deposit_summary</field>
+        <field name="binding_model_id" ref="model_wecare_cheque_register"/>
+        <field name="binding_type">report</field>
         <field name="paperformat_id" ref="paperformat_wecare_portrait"/>
     </record>
 
     <template id="report_bank_deposit_summary">
         <t t-call="web.html_container">
-            <t t-foreach="docs" t-as="doc">
-                <t t-set="data" t-value="doc.get_bank_summary_data()"/>
-                <t t-call="web.external_layout">
-                    <div class="page">
-                        <h3 class="text-center">Bank Deposit Summary</h3>
-                        <p class="text-center">
-                            <span t-esc="data['date_from']"/> – <span t-esc="data['date_to']"/>
-                        </p>
-                        <table class="table table-sm table-bordered">
-                            <thead>
+            <t t-call="web.external_layout">
+                <div class="page">
+                    <h3 class="text-center">Bank Deposit Summary</h3>
+                    <p class="text-center">
+                        <span t-esc="data['date_from']"/> – <span t-esc="data['date_to']"/>
+                    </p>
+                    <table class="table table-sm table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Bank</th>
+                                <th>Current</th>
+                                <th>Previous</th>
+                                <th>Bounce</th>
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-foreach="data['lines']" t-as="line">
                                 <tr>
-                                    <th>Bank</th>
-                                    <th>Current</th>
-                                    <th>Previous</th>
-                                    <th>Bounce</th>
-                                    <th>Total</th>
+                                    <td><span t-esc="line['bank_name']"/></td>
+                                    <td class="text-end"><span t-esc="line['current']"
+                                            t-options="{'widget': 'monetary', 'display_currency': data['company'].currency_id}"/></td>
+                                    <td class="text-end"><span t-esc="line['previous']"
+                                            t-options="{'widget': 'monetary', 'display_currency': data['company'].currency_id}"/></td>
+                                    <td class="text-end"><span t-esc="line['bounce']"
+                                            t-options="{'widget': 'monetary', 'display_currency': data['company'].currency_id}"/></td>
+                                    <td class="text-end"><span t-esc="line['total']"
+                                            t-options="{'widget': 'monetary', 'display_currency': data['company'].currency_id}"/></td>
                                 </tr>
-                            </thead>
-                            <tbody>
-                                <t t-foreach="data['lines']" t-as="line">
-                                    <tr>
-                                        <td><span t-esc="line['bank_name']"/></td>
-                                        <td class="text-end"><span t-esc="line['current']"
-                                                t-options="{'widget': 'monetary', 'display_currency': doc.company_id.currency_id}"/></td>
-                                        <td class="text-end"><span t-esc="line['previous']"
-                                                t-options="{'widget': 'monetary', 'display_currency': doc.company_id.currency_id}"/></td>
-                                        <td class="text-end"><span t-esc="line['bounce']"
-                                                t-options="{'widget': 'monetary', 'display_currency': doc.company_id.currency_id}"/></td>
-                                        <td class="text-end"><span t-esc="line['total']"
-                                                t-options="{'widget': 'monetary', 'display_currency': doc.company_id.currency_id}"/></td>
-                                    </tr>
-                                </t>
-                            </tbody>
-                        </table>
-                        <p>
-                            Current Existing Bounce:
-                            <strong t-esc="data['existing_bounce']"
-                                    t-options="{'widget': 'monetary', 'display_currency': doc.company_id.currency_id}"/>
-                        </p>
-                    </div>
-                </t>
+                            </t>
+                        </tbody>
+                    </table>
+                    <p>
+                        Current Existing Bounce:
+                        <strong t-esc="data['existing_bounce']"
+                                t-options="{'widget': 'monetary', 'display_currency': data['company'].currency_id}"/>
+                    </p>
+                </div>
             </t>
         </t>
     </template>
 
     <record id="action_report_sales_analysis" model="ir.actions.report">
         <field name="name">Customer / Product Sales</field>
-        <field name="model">wecare.sales.analysis.wizard</field>
+        <field name="model">account.move.line</field>
         <field name="report_type">qweb-pdf</field>
         <field name="report_name">wecare_sales_management.report_sales_analysis</field>
         <field name="report_file">wecare_sales_management.report_sales_analysis</field>
@@ -202,145 +199,139 @@
 
     <template id="report_sales_analysis">
         <t t-call="web.html_container">
-            <t t-foreach="docs" t-as="doc">
-                <t t-set="data" t-value="doc.get_report_data()"/>
-                <t t-call="web.external_layout">
-                    <div class="page">
-                        <h3 class="text-center"><span t-esc="data['title']"/></h3>
-                        <p class="text-center">
-                            <span t-esc="data['date_from']"/> – <span t-esc="data['date_to']"/>
-                        </p>
-                        <table class="table table-sm table-bordered">
-                            <thead>
+            <t t-call="web.external_layout">
+                <div class="page">
+                    <h3 class="text-center"><span t-esc="data['title']"/></h3>
+                    <p class="text-center">
+                        <span t-esc="data['date_from']"/> – <span t-esc="data['date_to']"/>
+                    </p>
+                    <table class="table table-sm table-bordered">
+                        <thead>
+                            <tr>
+                                <th><span t-esc="data['group_label']"/></th>
+                                <th>Quantity</th>
+                                <th>Revenue</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-foreach="data['lines']" t-as="line">
                                 <tr>
-                                    <th><t t-if="doc.report_type == 'customer'">Customer</t>
-                                        <t t-else="">Product</t></th>
-                                    <th>Quantity</th>
-                                    <th>Revenue</th>
+                                    <td><span t-esc="line['name']"/></td>
+                                    <td class="text-end"><span t-esc="line['qty']"/></td>
+                                    <td class="text-end"><span t-esc="line['amount']"
+                                            t-options="{'widget': 'monetary', 'display_currency': data['company'].currency_id}"/></td>
                                 </tr>
-                            </thead>
-                            <tbody>
-                                <t t-foreach="data['lines']" t-as="line">
-                                    <tr>
-                                        <td><span t-esc="line['name']"/></td>
-                                        <td class="text-end"><span t-esc="line['qty']"/></td>
-                                        <td class="text-end"><span t-esc="line['amount']"
-                                                t-options="{'widget': 'monetary', 'display_currency': doc.company_id.currency_id}"/></td>
-                                    </tr>
-                                </t>
-                                <tr>
-                                    <td><strong>Total</strong></td>
-                                    <td class="text-end"><strong t-esc="data['total_qty']"/></td>
-                                    <td class="text-end"><strong t-esc="data['total_amount']"
-                                            t-options="{'widget': 'monetary', 'display_currency': doc.company_id.currency_id}"/></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </t>
+                            </t>
+                            <tr>
+                                <td><strong>Total</strong></td>
+                                <td class="text-end"><strong t-esc="data['total_qty']"/></td>
+                                <td class="text-end"><strong t-esc="data['total_amount']"
+                                        t-options="{'widget': 'monetary', 'display_currency': data['company'].currency_id}"/></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </t>
         </t>
     </template>
 
     <record id="action_report_stock_valuation" model="ir.actions.report">
         <field name="name">Stock Valuation</field>
-        <field name="model">wecare.stock.valuation.wizard</field>
+        <field name="model">stock.valuation.layer</field>
         <field name="report_type">qweb-pdf</field>
         <field name="report_name">wecare_sales_management.report_stock_valuation</field>
         <field name="report_file">wecare_sales_management.report_stock_valuation</field>
+        <field name="binding_model_id" ref="stock_account.model_stock_valuation_layer"/>
+        <field name="binding_type">report</field>
         <field name="paperformat_id" ref="paperformat_wecare_landscape"/>
     </record>
 
     <template id="report_stock_valuation">
         <t t-call="web.html_container">
-            <t t-foreach="docs" t-as="doc">
-                <t t-set="data" t-value="doc.get_valuation_data()"/>
-                <t t-call="web.external_layout">
-                    <div class="page">
-                        <h3 class="text-center">Stock Valuation Report</h3>
-                        <p class="text-center">Stock deducted at invoice validation ·
-                            <span t-esc="data['date_from']"/> – <span t-esc="data['date_to']"/>
-                        </p>
-                        <table class="table table-sm table-bordered">
-                            <thead>
+            <t t-call="web.external_layout">
+                <div class="page">
+                    <h3 class="text-center">Stock Valuation Report</h3>
+                    <p class="text-center">Stock deducted at invoice validation ·
+                        <span t-esc="data['date_from']"/> – <span t-esc="data['date_to']"/>
+                    </p>
+                    <table class="table table-sm table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Reference</th>
+                                <th>Product</th>
+                                <th>Qty</th>
+                                <th>Location</th>
+                                <th>Batch</th>
+                                <th>Expiry</th>
+                                <th>Valuation</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-foreach="data['lines']" t-as="line">
                                 <tr>
-                                    <th>Date</th>
-                                    <th>Reference</th>
-                                    <th>Product</th>
-                                    <th>Qty</th>
-                                    <th>Location</th>
-                                    <th>Batch</th>
-                                    <th>Expiry</th>
-                                    <th>Valuation</th>
+                                    <td><span t-esc="line['date']"/></td>
+                                    <td><span t-esc="line['reference']"/></td>
+                                    <td><span t-esc="line['product']"/></td>
+                                    <td class="text-end"><span t-esc="line['qty']"/></td>
+                                    <td><span t-esc="line['location']"/></td>
+                                    <td><span t-esc="line['lot']"/></td>
+                                    <td><span t-esc="line['expiry'] or ''"/></td>
+                                    <td class="text-end"><span t-esc="line['value']"
+                                            t-options="{'widget': 'monetary', 'display_currency': data['company'].currency_id}"/></td>
                                 </tr>
-                            </thead>
-                            <tbody>
-                                <t t-foreach="data['lines']" t-as="line">
-                                    <tr>
-                                        <td><span t-esc="line['date']"/></td>
-                                        <td><span t-esc="line['reference']"/></td>
-                                        <td><span t-esc="line['product']"/></td>
-                                        <td class="text-end"><span t-esc="line['qty']"/></td>
-                                        <td><span t-esc="line['location']"/></td>
-                                        <td><span t-esc="line['lot']"/></td>
-                                        <td><span t-esc="line['expiry'] or ''"/></td>
-                                        <td class="text-end"><span t-esc="line['value']"
-                                                t-options="{'widget': 'monetary', 'display_currency': doc.company_id.currency_id}"/></td>
-                                    </tr>
-                                </t>
-                                <tr>
-                                    <td colspan="3"><strong>Total</strong></td>
-                                    <td class="text-end"><strong t-esc="data['total_qty']"/></td>
-                                    <td colspan="3"/>
-                                    <td class="text-end"><strong t-esc="data['total_value']"
-                                            t-options="{'widget': 'monetary', 'display_currency': doc.company_id.currency_id}"/></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </t>
+                            </t>
+                            <tr>
+                                <td colspan="3"><strong>Total</strong></td>
+                                <td class="text-end"><strong t-esc="data['total_qty']"/></td>
+                                <td colspan="3"/>
+                                <td class="text-end"><strong t-esc="data['total_value']"
+                                        t-options="{'widget': 'monetary', 'display_currency': data['company'].currency_id}"/></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </t>
         </t>
     </template>
 
     <record id="action_report_stock_expiry" model="ir.actions.report">
         <field name="name">Stock Expiry</field>
-        <field name="model">wecare.stock.valuation.wizard</field>
+        <field name="model">stock.lot</field>
         <field name="report_type">qweb-pdf</field>
         <field name="report_name">wecare_sales_management.report_stock_expiry</field>
         <field name="report_file">wecare_sales_management.report_stock_expiry</field>
+        <field name="binding_model_id" ref="stock.model_stock_lot"/>
+        <field name="binding_type">report</field>
         <field name="paperformat_id" ref="paperformat_wecare_portrait"/>
     </record>
 
     <template id="report_stock_expiry">
         <t t-call="web.html_container">
-            <t t-foreach="docs" t-as="doc">
-                <t t-set="data" t-value="doc.get_expiry_data()"/>
-                <t t-call="web.external_layout">
-                    <div class="page">
-                        <h3 class="text-center">Stock Expiry Report</h3>
-                        <table class="table table-sm table-bordered">
-                            <thead>
+            <t t-call="web.external_layout">
+                <div class="page">
+                    <h3 class="text-center">Stock Expiry Report</h3>
+                    <table class="table table-sm table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Product</th>
+                                <th>Batch / Serial</th>
+                                <th>Expiry Date</th>
+                                <th>On Hand Qty</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-foreach="docs" t-as="lot">
                                 <tr>
-                                    <th>Product</th>
-                                    <th>Batch / Serial</th>
-                                    <th>Expiry Date</th>
-                                    <th>On Hand Qty</th>
+                                    <td><span t-field="lot.product_id"/></td>
+                                    <td><span t-field="lot.name"/></td>
+                                    <td><span t-field="lot.expiration_date"/></td>
+                                    <td class="text-end"><span t-field="lot.product_qty"/></td>
                                 </tr>
-                            </thead>
-                            <tbody>
-                                <t t-foreach="data['lines']" t-as="line">
-                                    <tr>
-                                        <td><span t-esc="line['product']"/></td>
-                                        <td><span t-esc="line['lot']"/></td>
-                                        <td><span t-esc="line['expiry']"/></td>
-                                        <td class="text-end"><span t-esc="line['qty']"/></td>
-                                    </tr>
-                                </t>
-                            </tbody>
-                        </table>
-                    </div>
-                </t>
+                            </t>
+                        </tbody>
+                    </table>
+                </div>
             </t>
         </t>
     </template>

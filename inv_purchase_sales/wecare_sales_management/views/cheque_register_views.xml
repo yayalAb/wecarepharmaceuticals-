@@ -5,15 +5,25 @@
         <field name="model">wecare.cheque.register</field>
         <field name="arch" type="xml">
             <list decoration-danger="state == 'bounced'" decoration-success="state == 'cleared'" decoration-warning="state == 'received'">
+                <header>
+                    <button name="action_print_weekly_collection" type="object" string="Print Collection"/>
+                    <button name="action_print_weekly_bank_deposit" type="object" string="Print Bank Deposited"/>
+                    <button name="action_print_current_cheques" type="object" string="Print Current"/>
+                    <button name="action_print_previous_cheques" type="object" string="Print Previous"/>
+                    <button name="action_print_bounced_cheques" type="object" string="Print Bounced"/>
+                    <button name="action_print_collection_performance" type="object" string="Print Performance"/>
+                    <button name="action_print_bank_summary" type="object" string="Print Bank Summary"/>
+                </header>
                 <field name="collection_no"/>
                 <field name="name"/>
                 <field name="salesperson_id"/>
                 <field name="partner_id"/>
-                <field name="amount"/>
+                <field name="amount" sum="Total"/>
                 <field name="cheque_date"/>
                 <field name="received_date"/>
                 <field name="deposit_date"/>
                 <field name="journal_id"/>
+                <field name="is_credit_sale" optional="show"/>
                 <field name="state" widget="badge"
                        decoration-warning="state == 'received'"
                        decoration-info="state == 'deposited'"
@@ -102,21 +112,45 @@
                 <field name="partner_id"/>
                 <field name="salesperson_id"/>
                 <field name="journal_id"/>
+                <field name="state"/>
                 <filter name="received" string="Received" domain="[('state', '=', 'received')]"/>
                 <filter name="deposited" string="Deposited" domain="[('state', '=', 'deposited')]"/>
                 <filter name="cleared" string="Cleared" domain="[('state', '=', 'cleared')]"/>
                 <filter name="bounced" string="Bounced" domain="[('state', '=', 'bounced')]"/>
                 <filter name="open_bounce" string="Current Existing Bounce" domain="[('outstanding', '=', True)]"/>
                 <filter name="inbound" string="Customer Collections" domain="[('payment_type', '=', 'inbound')]"/>
+                <filter name="outbound" string="Vendor Payments" domain="[('payment_type', '=', 'outbound')]"/>
+                <filter name="credit" string="Credit Sales" domain="[('is_credit_sale', '=', True)]"/>
+                <filter name="cash" string="Cash Sales" domain="[('is_credit_sale', '=', False)]"/>
                 <separator/>
                 <filter name="filter_received_date" string="Received Date" date="received_date"/>
                 <filter name="filter_deposit_date" string="Deposit Date" date="deposit_date"/>
+                <filter name="filter_cheque_date" string="Cheque Date" date="cheque_date"/>
+                <filter name="filter_bounce_date" string="Bounce Date" date="bounce_date"/>
                 <group>
                     <filter name="group_salesperson" string="Salesperson" context="{'group_by': 'salesperson_id'}"/>
-                    <filter name="group_state" string="Status" context="{'group_by': 'state'}"/>
+                    <filter name="group_customer" string="Customer" context="{'group_by': 'partner_id'}"/>
                     <filter name="group_bank" string="Bank" context="{'group_by': 'journal_id'}"/>
+                    <filter name="group_state" string="Status" context="{'group_by': 'state'}"/>
+                    <filter name="group_credit" string="Credit / Cash" context="{'group_by': 'is_credit_sale'}"/>
+                    <filter name="group_received" string="Received Date" context="{'group_by': 'received_date'}"/>
+                    <filter name="group_deposit" string="Deposit Date" context="{'group_by': 'deposit_date'}"/>
                 </group>
             </search>
+        </field>
+    </record>
+
+    <record id="action_wecare_weekly_reports" model="ir.actions.act_window">
+        <field name="name">Weekly Reports</field>
+        <field name="res_model">wecare.cheque.register</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{
+            'search_default_inbound': 1,
+            'search_default_group_salesperson': 1,
+        }</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">No collections in this filter</p>
+            <p>Use Filters (Received Date, Salesperson, Bank, Status) and Group By, then Print from the buttons or the Print menu.</p>
         </field>
     </record>
 
@@ -148,13 +182,5 @@
         <field name="view_mode">list,form</field>
         <field name="domain">[('payment_type', '=', 'outbound')]</field>
         <field name="context">{'default_payment_type': 'outbound'}</field>
-    </record>
-
-    <record id="action_wecare_lot_expiry" model="ir.actions.act_window">
-        <field name="name">Batch / Expiry Dates</field>
-        <field name="res_model">stock.lot</field>
-        <field name="view_mode">list,form</field>
-        <field name="domain">[('expiration_date', '!=', False)]</field>
-        <field name="context">{'search_default_product_id': 1}</field>
     </record>
 </odoo>

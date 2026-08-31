@@ -308,3 +308,220 @@ class WecareChequeRegister(models.Model):
             'view_mode': 'form',
             'target': 'current',
         }
+
+    def _records_for_print(self):
+        if self:
+            return self
+        domain = list(self.env.context.get('active_domain') or [])
+        return self.search(domain)
+
+    def _report_period(self):
+        dates = [
+            d for d in (
+                self.mapped('received_date')
+                + self.mapped('deposit_date')
+                + self.mapped('cheque_date')
+                + self.mapped('bounce_date')
+            ) if d
+        ]
+        today = fields.Date.context_today(self)
+        return (min(dates) if dates else today, max(dates) if dates else today)
+
+    def _group_by_salesperson_report(self):
+        from collections import defaultdict
+        buckets = defaultdict(lambda: self.env['wecare.cheque.register'])
+        for rec in self:
+            buckets[rec.salesperson_id] |= rec
+        groups = []
+        for user, recs in buckets.items():
+            groups.append({
+                'salesperson_name': user.name if user else self.env._('Undefined'),
+                'lines': recs,
+                'subtotal': sum(recs.mapped('amount')),
+            })
+        groups.sort(key=lambda g: g['salesperson_name'])
+        return groups
+
+    def _report_company(self):
+        return self[:1].company_id or self.env.company
+
+    def _get_collection_report_data(self):
+        date_from, date_to = self._report_period()
+        groups = self._group_by_salesperson_report()
+        company = self._report_company()
+        return {
+            'groups': groups,
+            'grand_total': sum(g['subtotal'] for g in groups),
+            'company': company,
+            'date_from': date_from,
+            'date_to': date_to,
+            'reporting_date': fields.Date.context_today(self),
+        }
+
+    def _get_bank_deposit_report_data(self):
+        date_from, date_to = self._report_period()
+        company = self._report_company()
+        rows = []
+        for cheque in self:
+            klass = cheque.classify_for_period(date_from, date_to)
+            if not klass:
+                continue
+            rows.append({
+                'cheque': cheque,
+                'current': cheque.amount if klass == 'current' else 0.0,
+                'previous': cheque.amount if klass == 'previous' else 0.0,
+                'bounce': cheque.amount if klass == 'bounce' else 0.0,
+            })
+        from collections import defaultdict
+        buckets = defaultdict(list)
+        for row in rows:
+            buckets[row['cheque'].salesperson_id].append(row)
+        groups = []
+        for user, recs in buckets.items():
+            groups.append({
+                'salesperson_name': user.name if user else self.env._('Undefined'),
+                'lines': recs,
+                'subtotal_current': sum(r['current'] for r in recs),
+                'subtotal_previous': sum(r['previous'] for r in recs),
+                'subtotal_bounce': sum(r['bounce'] for r in recs),
+            })
+        groups.sort(key=lambda g: g['salesperson_name'])
+        existing_bounce = self.filtered(lambda c: c.state == 'bounced' and c.outstanding)
+        return {
+            'groups': groups,
+            'total_current': sum(g['subtotal_current'] for g in groups),
+            'total_previous': sum(g['subtotal_previous'] for g in groups),
+            'total_bounce': sum(g['subtotal_bounce'] for g in groups),
+            'existing_bounce': sum(existing_bounce.mapped('amount')),
+            'company': company,
+            'date_from': date_from,
+            'date_to': date_to,
+            'reporting_date': fields.Date.context_today(self),
+        }
+
+    def _get_classified_report_data(self, klass):
+        date_from, date_to = self._report_period()
+        cheques = self.filtered(
+            lambda c: c.classify_for_period(date_from, date_to) == klass
+        )
+        groups = cheques._group_by_salesperson_report()
+        titles = {
+            'current': self.env._('Current Cheque Report'),
+            'previous': self.env._('Previous Cheque Report'),
+            'bounce': self.env._('Bounced Cheque Report'),
+        }
+        return {
+            'title': titles.get(klass, self.env._('Cheque Report')),
+            'groups': groups,
+            'grand_total': sum(g['subtotal'] for g in groups),
+            'company': self._report_company(),
+            'date_from': date_from,
+            'date_to': date_to,
+            'reporting_date': fields.Date.context_today(self),
+        }
+
+    def _get_collection_performance_report_data(self):
+        date_from, date_to = self._report_period()
+        from collections import defaultdict
+        buckets = defaultdict(lambda: {
+            'received_amt': 0.0, 'received_count': 0,
+            'deposited_amt': 0.0, 'bounce_amt': 0.0,
+        })
+        for cheque in self:
+            key = cheque.salesperson_id
+            buckets[key]['received_amt'] += cheque.amount
+            buckets[key]['received_count'] += 1
+            if cheque.deposit_date:
+                buckets[key]['deposited_amt'] += cheque.amount
+            if cheque.state == 'bounced':
+                buckets[key]['bounce_amt'] += cheque.amount
+        lines = []
+        for salesperson, vals in buckets.items():
+            lines.append({
+                'salesperson_name': salesperson.name if salesperson else self.env._('Undefined'),
+                **vals,
+                'net': vals['deposited_amt'] - vals['bounce_amt'],
+            })
+        lines.sort(key=lambda l: l['salesperson_name'])
+        return {
+            'lines': lines,
+            'total_received': sum(l['received_amt'] for l in lines),
+            'total_deposited': sum(l['deposited_amt'] for l in lines),
+            'total_bounce': sum(l['bounce_amt'] for l in lines),
+            'company': self._report_company(),
+            'date_from': date_from,
+            'date_to': date_to,
+            'reporting_date': fields.Date.context_today(self),
+        }
+
+    def _get_bank_summary_report_data(self):
+        data = self._get_bank_deposit_report_data()
+        from collections import defaultdict
+        banks = defaultdict(lambda: {'current': 0.0, 'previous': 0.0, 'bounce': 0.0})
+        for group in data['groups']:
+            for row in group['lines']:
+                bank = row['cheque'].journal_id
+                banks[bank]['current'] += row['current']
+                banks[bank]['previous'] += row['previous']
+                banks[bank]['bounce'] += row['bounce']
+        lines = []
+        for bank, vals in banks.items():
+            lines.append({
+                'bank_name': bank.display_name if bank else self.env._('Undefined'),
+                **vals,
+                'total': vals['current'] + vals['previous'] + vals['bounce'],
+            })
+        lines.sort(key=lambda l: l['bank_name'])
+        return {
+            'lines': lines,
+            'total_current': sum(l['current'] for l in lines),
+            'total_previous': sum(l['previous'] for l in lines),
+            'total_bounce': sum(l['bounce'] for l in lines),
+            'existing_bounce': data['existing_bounce'],
+            'company': data['company'],
+            'date_from': data['date_from'],
+            'date_to': data['date_to'],
+            'reporting_date': data['reporting_date'],
+        }
+
+    def action_print_weekly_collection(self):
+        return self.env.ref(
+            'wecare_sales_management.action_report_weekly_collection'
+        ).report_action(self._records_for_print())
+
+    def action_print_weekly_bank_deposit(self):
+        return self.env.ref(
+            'wecare_sales_management.action_report_weekly_bank_deposit'
+        ).report_action(self._records_for_print())
+
+    def action_print_current_cheques(self):
+        return self.env.ref(
+            'wecare_sales_management.action_report_cheque_classified'
+        ).with_context(cheque_classification='current').report_action(
+            self._records_for_print()
+        )
+
+    def action_print_previous_cheques(self):
+        return self.env.ref(
+            'wecare_sales_management.action_report_cheque_classified'
+        ).with_context(cheque_classification='previous').report_action(
+            self._records_for_print()
+        )
+
+    def action_print_bounced_cheques(self):
+        return self.env.ref(
+            'wecare_sales_management.action_report_cheque_classified'
+        ).with_context(cheque_classification='bounce').report_action(
+            self._records_for_print()
+        )
+
+    def action_print_collection_performance(self):
+        return self.env.ref(
+            'wecare_sales_management.action_report_collection_performance'
+        ).report_action(self._records_for_print())
+
+    def action_print_bank_summary(self):
+        return self.env.ref(
+            'wecare_sales_management.action_report_bank_deposit_summary'
+        ).report_action(self._records_for_print())
+

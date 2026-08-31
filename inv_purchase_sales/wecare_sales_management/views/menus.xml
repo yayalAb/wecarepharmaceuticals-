@@ -1,14 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+    <!-- Hide the standalone WeCare Sales app; items live under Sales, Inventory and Invoicing. -->
     <menuitem id="menu_wecare_root"
               name="WeCare Sales"
               sequence="45"
+              active="False"
               groups="wecare_sales_management.group_wecare_user"/>
 
+    <menuitem id="menu_wecare_reporting"
+              name="Reporting"
+              active="False"/>
+
+    <!-- Sales -->
     <menuitem id="menu_wecare_planning"
               name="Sales Planning"
-              parent="menu_wecare_root"
-              sequence="10"/>
+              parent="sale.sale_menu_root"
+              sequence="15"
+              groups="wecare_sales_management.group_wecare_user"/>
 
     <menuitem id="menu_wecare_sales_plan"
               name="Sales Plans"
@@ -16,10 +24,49 @@
               action="action_wecare_sales_plan"
               sequence="10"/>
 
-    <menuitem id="menu_wecare_collections"
-              name="Collections &amp; Cheques"
-              parent="menu_wecare_root"
+    <menuitem id="menu_wecare_target_actual"
+              name="Target vs Actual"
+              parent="menu_wecare_planning"
+              action="action_wecare_target_vs_actual"
               sequence="20"/>
+
+    <menuitem id="menu_wecare_sales_analysis"
+              name="Customer / Product Sales"
+              parent="menu_wecare_planning"
+              action="action_wecare_sales_analysis"
+              sequence="30"/>
+
+    <menuitem id="menu_wecare_share_history"
+              name="Share History"
+              parent="menu_wecare_planning"
+              action="action_wecare_share_history"
+              sequence="40"/>
+
+    <menuitem id="menu_wecare_kpi"
+              name="Management KPIs"
+              parent="sale.menu_sale_report"
+              action="action_wecare_kpi_wizard"
+              sequence="51"
+              groups="wecare_sales_management.group_wecare_manager"/>
+
+    <menuitem id="menu_wecare_config"
+              name="WeCare"
+              parent="sale.menu_sale_config"
+              sequence="25"
+              groups="wecare_sales_management.group_wecare_manager"/>
+
+    <menuitem id="menu_wecare_territory"
+              name="Territories"
+              parent="menu_wecare_config"
+              action="action_wecare_sales_territory"
+              sequence="10"/>
+
+    <!-- Payments / Invoicing -->
+    <menuitem id="menu_wecare_collections"
+              name="Cheques &amp; Collections"
+              parent="account.menu_finance"
+              sequence="5"
+              groups="wecare_sales_management.group_wecare_user"/>
 
     <menuitem id="menu_wecare_cheque_register"
               name="Cheque Register"
@@ -33,74 +80,38 @@
               action="action_wecare_bounced_cheques"
               sequence="20"/>
 
-    <menuitem id="menu_wecare_vendor_cheques"
-              name="Vendor Cheque Payments"
-              parent="menu_wecare_collections"
-              action="action_wecare_vendor_cheques"
-              sequence="25"/>
-
     <menuitem id="menu_wecare_outstanding"
               name="Outstanding Collections"
               parent="menu_wecare_collections"
               action="action_wecare_outstanding_invoices"
               sequence="30"/>
 
-    <menuitem id="menu_wecare_reporting"
-              name="Reporting"
-              parent="menu_wecare_root"
-              sequence="30"/>
+    <menuitem id="menu_wecare_vendor_cheques"
+              name="Vendor Cheque Payments"
+              parent="account.menu_finance_payables"
+              action="action_wecare_vendor_cheques"
+              sequence="21"
+              groups="wecare_sales_management.group_wecare_user"/>
 
     <menuitem id="menu_wecare_weekly"
-              name="Weekly Reports"
-              parent="menu_wecare_reporting"
-              action="action_wecare_weekly_report_wizard"
-              sequence="10"/>
+              name="Weekly Collection Reports"
+              parent="account.menu_finance_reports"
+              action="action_wecare_weekly_reports"
+              sequence="5"
+              groups="wecare_sales_management.group_wecare_user"/>
 
-    <menuitem id="menu_wecare_target_actual"
-              name="Target vs Actual"
-              parent="menu_wecare_reporting"
-              action="action_wecare_target_actual_wizard"
-              sequence="20"/>
-
-    <menuitem id="menu_wecare_sales_analysis"
-              name="Customer / Product Sales"
-              parent="menu_wecare_reporting"
-              action="action_wecare_sales_analysis_wizard"
-              sequence="25"/>
-
-    <menuitem id="menu_wecare_kpi"
-              name="Management KPIs"
-              parent="menu_wecare_reporting"
-              action="action_wecare_kpi_wizard"
-              sequence="30"/>
-
-    <menuitem id="menu_wecare_stock_reports"
-              name="Stock Valuation / Expiry"
-              parent="menu_wecare_reporting"
-              action="action_wecare_stock_valuation_wizard"
-              sequence="35"/>
-
+    <!-- Inventory -->
     <menuitem id="menu_wecare_lot_expiry"
               name="Batch / Expiry Dates"
-              parent="menu_wecare_reporting"
+              parent="stock.menu_stock_inventory_control"
               action="action_wecare_lot_expiry"
-              sequence="36"/>
+              sequence="30"
+              groups="wecare_sales_management.group_wecare_user"/>
 
-    <menuitem id="menu_wecare_share_history"
-              name="Share History"
-              parent="menu_wecare_reporting"
-              action="action_wecare_share_history"
-              sequence="40"/>
-
-    <menuitem id="menu_wecare_config"
-              name="Configuration"
-              parent="menu_wecare_root"
-              sequence="90"
-              groups="wecare_sales_management.group_wecare_manager"/>
-
-    <menuitem id="menu_wecare_territory"
-              name="Territories"
-              parent="menu_wecare_config"
-              action="action_wecare_sales_territory"
-              sequence="10"/>
+    <menuitem id="menu_wecare_stock_reports"
+              name="Stock Valuation"
+              parent="stock.menu_stock_inventory_control"
+              action="action_wecare_stock_valuation"
+              groups="wecare_sales_management.group_wecare_manager"
+              sequence="31"/>
 </odoo>

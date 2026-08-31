@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_wecare_sales_analysis_list" model="ir.ui.view">
+        <field name="name">account.move.line.wecare.sales.analysis.list</field>
+        <field name="model">account.move.line</field>
+        <field name="priority">99</field>
+        <field name="arch" type="xml">
+            <list create="0" delete="0">
+                <header>
+                    <button name="action_print_customer_sales" type="object" string="Print Customer Sales"/>
+                    <button name="action_print_product_sales" type="object" string="Print Product Sales"/>
+                </header>
+                <field name="move_id"/>
+                <field name="wecare_invoice_date"/>
+                <field name="wecare_salesperson_id"/>
+                <field name="partner_id"/>
+                <field name="product_id"/>
+                <field name="quantity" sum="Qty"/>
+                <field name="price_subtotal" sum="Revenue"/>
+                <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_wecare_sales_analysis_search" model="ir.ui.view">
+        <field name="name">account.move.line.wecare.sales.analysis.search</field>
+        <field name="model">account.move.line</field>
+        <field name="priority">99</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="partner_id"/>
+                <field name="product_id"/>
+                <field name="wecare_salesperson_id"/>
+                <field name="move_id"/>
+                <filter name="filter_invoice_date" string="Invoice Date" date="wecare_invoice_date"/>
+                <group>
+                    <filter name="group_customer" string="Customer" context="{'group_by': 'partner_id'}"/>
+                    <filter name="group_product" string="Product" context="{'group_by': 'product_id'}"/>
+                    <filter name="group_salesperson" string="Salesperson" context="{'group_by': 'wecare_salesperson_id'}"/>
+                    <filter name="group_date" string="Invoice Date" context="{'group_by': 'wecare_invoice_date'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_wecare_sales_analysis" model="ir.actions.act_window">
+        <field name="name">Customer / Product Sales</field>
+        <field name="res_model">account.move.line</field>
+        <field name="view_mode">list</field>
+        <field name="view_id" ref="view_wecare_sales_analysis_list"/>
+        <field name="search_view_id" ref="view_wecare_sales_analysis_search"/>
+        <field name="domain">[
+            ('move_id.move_type', '=', 'out_invoice'),
+            ('move_id.state', '=', 'posted'),
+            ('display_type', '=', 'product'),
+            ('product_id', '!=', False),
+        ]</field>
+        <field name="context">{'search_default_group_customer': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">No posted invoice lines</p>
+            <p>Filter by invoice date, salesperson, customer or product, Group By, then print Customer or Product sales.</p>
+        </field>
+    </record>
+
+    <record id="view_wecare_stock_valuation_list" model="ir.ui.view">
+        <field name="name">stock.valuation.layer.wecare.list</field>
+        <field name="model">stock.valuation.layer</field>
+        <field name="priority">99</field>
+        <field name="arch" type="xml">
+            <list create="0" delete="0">
+                <header>
+                    <button name="action_print_stock_valuation" type="object" string="Print Valuation"/>
+                </header>
+                <field name="create_date"/>
+                <field name="product_id"/>
+                <field name="quantity" sum="Qty"/>
+                <field name="value" sum="Value"/>
+                <field name="remaining_qty" optional="hide"/>
+                <field name="description"/>
+                <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_wecare_stock_valuation_search" model="ir.ui.view">
+        <field name="name">stock.valuation.layer.wecare.search</field>
+        <field name="model">stock.valuation.layer</field>
+        <field name="priority">99</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="product_id"/>
+                <field name="description"/>
+                <filter name="filter_date" string="Date" date="create_date"/>
+                <group>
+                    <filter name="group_product" string="Product" context="{'group_by': 'product_id'}"/>
+                    <filter name="group_date" string="Date" context="{'group_by': 'create_date'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_wecare_stock_valuation" model="ir.actions.act_window">
+        <field name="name">Stock Valuation</field>
+        <field name="res_model">stock.valuation.layer</field>
+        <field name="view_mode">list</field>
+        <field name="view_id" ref="view_wecare_stock_valuation_list"/>
+        <field name="search_view_id" ref="view_wecare_stock_valuation_search"/>
+        <field name="context">{'search_default_group_product': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">No valuation layers</p>
+            <p>Filter by date or product, Group By, then Print Valuation.</p>
+        </field>
+    </record>
+
+    <record id="view_wecare_lot_expiry_list" model="ir.ui.view">
+        <field name="name">stock.lot.wecare.expiry.list</field>
+        <field name="model">stock.lot</field>
+        <field name="priority">99</field>
+        <field name="arch" type="xml">
+            <list create="0" delete="0">
+                <header>
+                    <button name="action_print_stock_expiry" type="object" string="Print Expiry"/>
+                </header>
+                <field name="name"/>
+                <field name="product_id"/>
+                <field name="expiration_date"/>
+                <field name="product_qty"/>
+                <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_wecare_lot_expiry_search" model="ir.ui.view">
+        <field name="name">stock.lot.wecare.expiry.search</field>
+        <field name="model">stock.lot</field>
+        <field name="priority">99</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="product_id"/>
+                <filter name="filter_expiry" string="Expiry Date" date="expiration_date"/>
+                <filter name="on_hand" string="On Hand" domain="[('product_qty', '&gt;', 0)]"/>
+                <group>
+                    <filter name="group_product" string="Product" context="{'group_by': 'product_id'}"/>
+                    <filter name="group_expiry" string="Expiry Date" context="{'group_by': 'expiration_date'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_wecare_lot_expiry" model="ir.actions.act_window">
+        <field name="name">Batch / Expiry Dates</field>
+        <field name="res_model">stock.lot</field>
+        <field name="view_mode">list,form</field>
+        <field name="view_id" ref="view_wecare_lot_expiry_list"/>
+        <field name="search_view_id" ref="view_wecare_lot_expiry_search"/>
+        <field name="domain">[('expiration_date', '!=', False)]</field>
+        <field name="context">{
+            'search_default_on_hand': 1,
+            'search_default_group_product': 1,
+        }</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">No batches with expiry dates</p>
+            <p>Filter by expiry date or product, Group By, then Print Expiry.</p>
+        </field>
+    </record>
+</odoo>

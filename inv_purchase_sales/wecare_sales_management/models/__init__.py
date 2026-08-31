@@ -21,3 +21,4 @@ from . import purchase_order
 from . import supplies_rfp
 from . import stock_scrap
 from . import store_request
+from . import stock_valuation_layer

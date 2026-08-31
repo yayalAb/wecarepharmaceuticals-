@@ -8,9 +8,10 @@ class ReportWeeklyCollection(models.AbstractModel):
 
     @api.model
     def _get_report_values(self, docids, data=None):
-        docs = self.env['wecare.weekly.report.wizard'].browse(docids)
+        docs = self.env['wecare.cheque.register'].browse(docids)
         return {
             'doc_ids': docids,
-            'doc_model': 'wecare.weekly.report.wizard',
+            'doc_model': 'wecare.cheque.register',
             'docs': docs,
+            'data': docs._get_collection_report_data(),
         }

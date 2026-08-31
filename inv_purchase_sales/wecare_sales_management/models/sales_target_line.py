@@ -189,6 +189,12 @@ class WecareSalesTargetLine(models.Model):
         if self.annual_qty and not any(self[field] for field in MONTH_FIELDS):
             self._distribute_evenly()
 
+    def action_print_target_vs_actual(self):
+        records = self if self else self.search(list(self.env.context.get('active_domain') or []))
+        return self.env.ref(
+            'wecare_sales_management.action_report_target_vs_actual'
+        ).report_action(records)
+
     def action_distribute_evenly(self):
         for line in self:
             line._distribute_evenly()

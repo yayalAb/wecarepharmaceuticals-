@@ -2,52 +2,49 @@
 <odoo>
     <record id="action_report_target_vs_actual" model="ir.actions.report">
         <field name="name">Target vs Actual</field>
-        <field name="model">wecare.target.actual.wizard</field>
+        <field name="model">wecare.sales.target.line</field>
         <field name="report_type">qweb-pdf</field>
         <field name="report_name">wecare_sales_management.report_target_vs_actual</field>
         <field name="report_file">wecare_sales_management.report_target_vs_actual</field>
+        <field name="binding_model_id" ref="model_wecare_sales_target_line"/>
+        <field name="binding_type">report</field>
         <field name="paperformat_id" ref="paperformat_wecare_landscape"/>
     </record>
 
     <template id="report_target_vs_actual">
         <t t-call="web.html_container">
-            <t t-foreach="docs" t-as="doc">
-                <t t-call="web.external_layout">
-                    <div class="page">
-                        <h3 class="text-center">Salesperson Target vs Actual</h3>
-                        <p class="text-center">
-                            <span t-field="doc.date_from"/> – <span t-field="doc.date_to"/>
-                        </p>
-                        <table class="table table-sm table-bordered">
-                            <thead>
+            <t t-call="web.external_layout">
+                <div class="page">
+                    <h3 class="text-center">Salesperson Target vs Actual</h3>
+                    <table class="table table-sm table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Salesperson</th>
+                                <th>Customer</th>
+                                <th>Product</th>
+                                <th>Target Qty</th>
+                                <th>Actual Qty</th>
+                                <th>Target Revenue</th>
+                                <th>Actual Revenue</th>
+                                <th>Achievement %</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-foreach="docs" t-as="line">
                                 <tr>
-                                    <th>Salesperson</th>
-                                    <th>Customer</th>
-                                    <th>Product</th>
-                                    <th>Target Qty</th>
-                                    <th>Actual Qty</th>
-                                    <th>Target Revenue</th>
-                                    <th>Actual Revenue</th>
-                                    <th>Achievement %</th>
+                                    <td><span t-field="line.salesperson_id"/></td>
+                                    <td><span t-field="line.partner_id"/></td>
+                                    <td><span t-field="line.product_id"/></td>
+                                    <td class="text-end"><span t-field="line.annual_qty"/></td>
+                                    <td class="text-end"><span t-field="line.actual_qty"/></td>
+                                    <td class="text-end"><span t-field="line.annual_revenue"/></td>
+                                    <td class="text-end"><span t-field="line.actual_revenue"/></td>
+                                    <td class="text-end"><span t-field="line.achievement_pct"/></td>
                                 </tr>
-                            </thead>
-                            <tbody>
-                                <t t-foreach="doc.line_ids" t-as="line">
-                                    <tr>
-                                        <td><span t-field="line.salesperson_id"/></td>
-                                        <td><span t-field="line.partner_id"/></td>
-                                        <td><span t-field="line.product_id"/></td>
-                                        <td class="text-end"><span t-field="line.target_qty"/></td>
-                                        <td class="text-end"><span t-field="line.actual_qty"/></td>
-                                        <td class="text-end"><span t-field="line.target_revenue"/></td>
-                                        <td class="text-end"><span t-field="line.actual_revenue"/></td>
-                                        <td class="text-end"><span t-field="line.achievement_pct"/></td>
-                                    </tr>
-                                </t>
-                            </tbody>
-                        </table>
-                    </div>
-                </t>
+                            </t>
+                        </tbody>
+                    </table>
+                </div>
             </t>
         </t>
     </template>

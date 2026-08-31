@@ -8,9 +8,9 @@ class ReportTargetVsActual(models.AbstractModel):
 
     @api.model
     def _get_report_values(self, docids, data=None):
-        docs = self.env['wecare.target.actual.wizard'].browse(docids)
+        docs = self.env['wecare.sales.target.line'].browse(docids)
         return {
             'doc_ids': docids,
-            'doc_model': 'wecare.target.actual.wizard',
+            'doc_model': 'wecare.sales.target.line',
             'docs': docs,
         }

@@ -8,11 +8,13 @@ class ReportChequeClassified(models.AbstractModel):
 
     @api.model
     def _get_report_values(self, docids, data=None):
-        docs = self.env['wecare.weekly.report.wizard'].browse(docids)
+        docs = self.env['wecare.cheque.register'].browse(docids)
+        klass = self.env.context.get('cheque_classification') or 'current'
         return {
             'doc_ids': docids,
-            'doc_model': 'wecare.weekly.report.wizard',
+            'doc_model': 'wecare.cheque.register',
             'docs': docs,
+            'data': docs._get_classified_report_data(klass),
         }
 
 
@@ -22,11 +24,12 @@ class ReportCollectionPerformance(models.AbstractModel):
 
     @api.model
     def _get_report_values(self, docids, data=None):
-        docs = self.env['wecare.weekly.report.wizard'].browse(docids)
+        docs = self.env['wecare.cheque.register'].browse(docids)
         return {
             'doc_ids': docids,
-            'doc_model': 'wecare.weekly.report.wizard',
+            'doc_model': 'wecare.cheque.register',
             'docs': docs,
+            'data': docs._get_collection_performance_report_data(),
         }
 
 
@@ -36,11 +39,12 @@ class ReportBankDepositSummary(models.AbstractModel):
 
     @api.model
     def _get_report_values(self, docids, data=None):
-        docs = self.env['wecare.weekly.report.wizard'].browse(docids)
+        docs = self.env['wecare.cheque.register'].browse(docids)
         return {
             'doc_ids': docids,
-            'doc_model': 'wecare.weekly.report.wizard',
+            'doc_model': 'wecare.cheque.register',
             'docs': docs,
+            'data': docs._get_bank_summary_report_data(),
         }
 
 
@@ -50,11 +54,13 @@ class ReportSalesAnalysis(models.AbstractModel):
 
     @api.model
     def _get_report_values(self, docids, data=None):
-        docs = self.env['wecare.sales.analysis.wizard'].browse(docids)
+        lines = self.env['account.move.line'].browse(docids)
+        group_by = self.env.context.get('wecare_sales_group', 'customer')
         return {
             'doc_ids': docids,
-            'doc_model': 'wecare.sales.analysis.wizard',
-            'docs': docs,
+            'doc_model': 'account.move.line',
+            'docs': lines,
+            'data': lines._wecare_sales_analysis_data(group_by),
         }
 
 
@@ -64,11 +70,12 @@ class ReportStockValuation(models.AbstractModel):
 
     @api.model
     def _get_report_values(self, docids, data=None):
-        docs = self.env['wecare.stock.valuation.wizard'].browse(docids)
+        docs = self.env['stock.valuation.layer'].browse(docids)
         return {
             'doc_ids': docids,
-            'doc_model': 'wecare.stock.valuation.wizard',
+            'doc_model': 'stock.valuation.layer',
             'docs': docs,
+            'data': docs._wecare_valuation_report_data(),
         }
 
 
@@ -78,9 +85,9 @@ class ReportStockExpiry(models.AbstractModel):
 
     @api.model
     def _get_report_values(self, docids, data=None):
-        docs = self.env['wecare.stock.valuation.wizard'].browse(docids)
+        docs = self.env['stock.lot'].browse(docids)
         return {
             'doc_ids': docids,
-            'doc_model': 'wecare.stock.valuation.wizard',
+            'doc_model': 'stock.lot',
             'docs': docs,
         }

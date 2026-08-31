@@ -17,3 +17,5 @@ access_wecare_share_wizard,wecare.share.media.wizard,model_wecare_share_media_wi
 access_wecare_kpi_wizard,wecare.kpi.wizard,model_wecare_kpi_wizard,wecare_sales_management.group_wecare_user,1,1,1,1
 access_wecare_sales_analysis_wizard,wecare.sales.analysis.wizard,model_wecare_sales_analysis_wizard,wecare_sales_management.group_wecare_user,1,1,1,1
 access_wecare_stock_valuation_wizard,wecare.stock.valuation.wizard,model_wecare_stock_valuation_wizard,wecare_sales_management.group_wecare_user,1,1,1,1
+access_wecare_svl_manager,stock.valuation.layer.wecare.manager,stock_account.model_stock_valuation_layer,wecare_sales_management.group_wecare_manager,1,0,0,0
+access_wecare_lot_user,stock.lot.wecare.user,stock.model_stock_lot,wecare_sales_management.group_wecare_user,1,0,0,0
