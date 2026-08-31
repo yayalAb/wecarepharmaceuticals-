@@ -10,9 +10,8 @@
     'category': 'Base',
     'website': 'https://www..et/',
     'license': 'LGPL-3',
-    'depends': ['base', 'web', 'web_editor'],
+    'depends': ['base', 'web', 'web_editor', 'hr_payroll_account'],
     'data': [
-        # 'data/company_logo.xml',
         'view/icons_view.xml'
     ],
 
