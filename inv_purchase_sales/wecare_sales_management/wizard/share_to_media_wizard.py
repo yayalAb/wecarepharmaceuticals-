@@ -32,6 +32,21 @@ DEFAULT_MESSAGES = {
         'Please find attached Payment Receipt {name} from {company}.\n'
         'Thank you.'
     ),
+    'supplies.rfp': (
+        'Dear Supplier,\n'
+        'Please find attached Purchase Request {name} from {company}.\n'
+        'Kindly confirm receipt.'
+    ),
+    'stock.scrap': (
+        'Dear Team,\n'
+        'Please find attached Inventory Adjustment / Scrap {name} from {company}.\n'
+        'Thank you.'
+    ),
+    'store.request': (
+        'Dear Team,\n'
+        'Please find attached Store Request {name} from {company}.\n'
+        'Thank you.'
+    ),
 }
 
 
@@ -70,6 +85,38 @@ class WecareShareMediaWizard(models.TransientModel):
         if res_model and res_id and 'message' in fields_list and not res.get('message'):
             record = self.env[res_model].browse(res_id)
             template = DEFAULT_MESSAGES.get(res_model, DEFAULT_MESSAGES['sale.order'])
+            if res_model == 'account.move':
+                move_type = record.move_type
+                if move_type == 'in_invoice':
+                    template = (
+                        'Dear Supplier,\n'
+                        'Please find attached Vendor Bill {name} from {company}.\n'
+                        'Kindly confirm receipt.'
+                    )
+                elif move_type == 'out_refund':
+                    template = (
+                        'Dear Customer,\n'
+                        'Please find attached Credit Note {name} from {company}.\n'
+                        'Thank you.'
+                    )
+                elif move_type == 'in_refund':
+                    template = (
+                        'Dear Supplier,\n'
+                        'Please find attached Vendor Credit Note {name} from {company}.\n'
+                        'Thank you.'
+                    )
+            elif res_model == 'purchase.order' and record.state in ('draft', 'sent'):
+                template = (
+                    'Dear Supplier,\n'
+                    'Please find attached RFQ {name} from {company}.\n'
+                    'Kindly confirm receipt.'
+                )
+            elif res_model == 'account.payment' and record.payment_type == 'outbound':
+                template = (
+                    'Dear Supplier,\n'
+                    'Please find attached Payment {name} from {company}.\n'
+                    'Kindly confirm receipt.'
+                )
             res['message'] = template.format(
                 name=record.display_name,
                 company=record.company_id.name if 'company_id' in record._fields else self.env.company.name,

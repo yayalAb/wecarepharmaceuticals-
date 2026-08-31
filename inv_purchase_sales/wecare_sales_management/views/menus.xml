@@ -33,6 +33,12 @@
               action="action_wecare_bounced_cheques"
               sequence="20"/>
 
+    <menuitem id="menu_wecare_vendor_cheques"
+              name="Vendor Cheque Payments"
+              parent="menu_wecare_collections"
+              action="action_wecare_vendor_cheques"
+              sequence="25"/>
+
     <menuitem id="menu_wecare_outstanding"
               name="Outstanding Collections"
               parent="menu_wecare_collections"
@@ -56,11 +62,29 @@
               action="action_wecare_target_actual_wizard"
               sequence="20"/>
 
+    <menuitem id="menu_wecare_sales_analysis"
+              name="Customer / Product Sales"
+              parent="menu_wecare_reporting"
+              action="action_wecare_sales_analysis_wizard"
+              sequence="25"/>
+
     <menuitem id="menu_wecare_kpi"
               name="Management KPIs"
               parent="menu_wecare_reporting"
               action="action_wecare_kpi_wizard"
               sequence="30"/>
+
+    <menuitem id="menu_wecare_stock_reports"
+              name="Stock Valuation / Expiry"
+              parent="menu_wecare_reporting"
+              action="action_wecare_stock_valuation_wizard"
+              sequence="35"/>
+
+    <menuitem id="menu_wecare_lot_expiry"
+              name="Batch / Expiry Dates"
+              parent="menu_wecare_reporting"
+              action="action_wecare_lot_expiry"
+              sequence="36"/>
 
     <menuitem id="menu_wecare_share_history"
               name="Share History"

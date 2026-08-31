@@ -18,3 +18,6 @@ from . import stock_move
 from . import stock_picking
 from . import stock_lot
 from . import purchase_order
+from . import supplies_rfp
+from . import stock_scrap
+from . import store_request

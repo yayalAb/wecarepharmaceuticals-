@@ -19,15 +19,33 @@
                         <field name="cheque_state"/>
                         <field name="classification"/>
                         <field name="credit_only"/>
+                        <field name="print_title" invisible="1"/>
+                        <field name="print_classification" invisible="1"/>
                     </group>
                 </group>
-                <footer>
+                <separator string="Weekly collection &amp; deposits"/>
+                <div class="d-flex flex-wrap gap-1 mb-2">
                     <button name="action_print_collection" type="object"
                             string="Weekly Collection / CK Received" class="btn-primary"/>
                     <button name="action_print_bank_deposit" type="object"
-                            string="Weekly Bank Deposited Credit Sales" class="btn-primary"/>
+                            string="Weekly Bank Deposited Credit/Cash Sales" class="btn-primary"/>
+                </div>
+                <separator string="Cheque classification"/>
+                <div class="d-flex flex-wrap gap-1 mb-2">
+                    <button name="action_print_current" type="object" string="Current Cheques"/>
+                    <button name="action_print_previous" type="object" string="Previous Cheques"/>
+                    <button name="action_print_bounce" type="object" string="Bounced Cheques"/>
                     <button name="action_view_cheques" type="object" string="View Cheques"/>
-                    <button string="Cancel" special="cancel" class="btn-secondary"/>
+                </div>
+                <separator string="Performance &amp; bank summary"/>
+                <div class="d-flex flex-wrap gap-1 mb-2">
+                    <button name="action_print_collection_performance" type="object"
+                            string="Salesperson Collection Performance"/>
+                    <button name="action_print_bank_summary" type="object"
+                            string="Bank Deposit Summary"/>
+                </div>
+                <footer>
+                    <button string="Close" special="cancel" class="btn-secondary"/>
                 </footer>
             </form>
         </field>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_supplies_rfp_form_wecare_share" model="ir.ui.view">
+        <field name="name">supplies.rfp.form.wecare.share</field>
+        <field name="model">supplies.rfp</field>
+        <field name="inherit_id" ref="purchase_request.view_supplies_rfp_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//header" position="inside">
+                <button name="action_share_to_media" type="object"
+                        string="Share to Media" class="btn-secondary"
+                        invisible="state == 'cancelled'"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

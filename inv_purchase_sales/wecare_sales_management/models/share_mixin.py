@@ -8,6 +8,9 @@ REPORT_XMLIDS = {
     'stock.picking': 'stock.action_report_picking',
     'purchase.order': 'purchase.action_report_purchase_order',
     'account.payment': False,
+    'supplies.rfp': 'purchase_request.action_report_purchase_request',
+    'stock.scrap': False,
+    'store.request': False,
 }
 
 
