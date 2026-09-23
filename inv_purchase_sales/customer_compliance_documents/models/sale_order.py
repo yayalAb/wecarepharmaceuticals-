@@ -7,7 +7,7 @@ class SaleOrder(models.Model):
     _inherit = 'sale.order'
 
     compliance_status = fields.Selection(
-        related='partner_id.commercial_partner_id.compliance_status',
+        related='partner_id.compliance_status',
         string='Customer Compliance',
         readonly=True,
     )

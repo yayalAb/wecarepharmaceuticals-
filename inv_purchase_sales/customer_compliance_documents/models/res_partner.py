@@ -18,7 +18,7 @@ class ResPartner(models.Model):
         [
             ('ok', 'Valid'),
             ('warning', 'Expiring Soon'),
-            ('blocked', 'Expired'),
+            ('blocked', 'Non-Compliant'),
             ('none', 'Missing'),
         ],
         string='Compliance Status',
@@ -53,7 +53,8 @@ class ResPartner(models.Model):
     @api.depends('compliance_document_ids')
     def _compute_compliance_document_count(self):
         for partner in self:
-            partner.compliance_document_count = len(partner.compliance_document_ids)
+            partner.compliance_document_count = len(
+                partner.compliance_document_ids)
 
     @api.depends(
         'compliance_document_ids',
@@ -100,8 +101,10 @@ class ResPartner(models.Model):
 
         if required_types:
             for doc_type in required_types:
-                type_docs = docs.filtered(lambda d, t=doc_type: d.document_type_id == t)
-                acceptable = type_docs.filtered(lambda d: d.is_acceptable_for_sales())
+                type_docs = docs.filtered(
+                    lambda d, t=doc_type: d.document_type_id == t)
+                acceptable = type_docs.filtered(
+                    lambda d: d.is_acceptable_for_sales())
                 if acceptable:
                     continue
                 expired = type_docs.filtered(lambda d: d.status == 'expired').sorted(
