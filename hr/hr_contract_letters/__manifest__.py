@@ -53,5 +53,4 @@
     'installable': True,
     'auto_install': False,
     'application': False,
-    'post_init_hook': 'models.hr_training_requisition_init.post_init_hook',
 }
