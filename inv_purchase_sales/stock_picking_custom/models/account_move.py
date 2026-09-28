@@ -11,7 +11,7 @@ class AccountMove(models.Model):
         copy=False,
         readonly=True,
         default=False,
-        help='Auto-generated sequence number for customer invoices.',
+        help='Sequence number assigned when a customer invoice is posted.',
     )
     mrc_no = fields.Char(
         string='MRC No',
@@ -58,26 +58,29 @@ class AccountMove(models.Model):
                 )
                 if company.invoice_mrc_no:
                     vals['mrc_no'] = company.invoice_mrc_no
-        moves = super().create(vals_list)
-        moves.filtered(
-            lambda m: m.move_type in customer_types and not m.fs_no
-        )._assign_fs_no()
-        return moves
+        return super().create(vals_list)
 
     def action_post(self):
-        # Ensure FS/MRC exist even if invoice was created before this feature.
-        to_fix = self.filtered(
+        missing = self.filtered(
             lambda m: m.move_type in ('out_invoice', 'out_refund')
+            and not m.payment_method
         )
-        missing = to_fix.filtered(lambda m: not m.payment_method)
         if missing:
             raise UserError(_(
                 'Please select a Payment Method before posting: %s',
                 ', '.join(missing.mapped('display_name')),
             ))
+        return super().action_post()
+
+    def _post(self, soft=True):
+        # FS No is only consumed once the invoice is actually posted (never on drafts).
+        posted = super()._post(soft=soft)
+        to_fix = posted.filtered(
+            lambda m: m.move_type in ('out_invoice', 'out_refund')
+        )
         to_fix._assign_mrc_no_from_company()
         to_fix.filtered(lambda m: not m.fs_no)._assign_fs_no()
-        return super().action_post()
+        return posted
 
     def refresh_invoice_currency_rate(self):
         """Support legacy invoice form buttons from Studio or older customizations."""
