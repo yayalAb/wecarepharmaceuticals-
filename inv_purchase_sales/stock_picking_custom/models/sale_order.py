@@ -91,6 +91,15 @@ class SaleOrder(models.Model):
         invoice_vals.pop('fs_no', None)
         return invoice_vals
 
+    def get_proforma_total_discount(self):
+        self.ensure_one()
+        total_discount = sum(
+            line.price_unit * line.product_uom_qty * line.discount / 100
+            for line in self.order_line
+            if not line.display_type
+        )
+        return (self.currency_id or self.company_id.currency_id).round(total_discount)
+
     def get_proforma_amount_in_words(self):
         self.ensure_one()
         total = self.amount_total

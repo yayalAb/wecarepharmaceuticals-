@@ -308,6 +308,30 @@
 
             <div class="soa-totals">
                 <div class="soa-totals-row">
+                    <span class="soa-totals-lbl">Total Unit Amount</span>
+                    <span class="soa-totals-val">
+                        <div class="soa-und soa-und-dashed">
+                            <span t-esc="'{0:,.2f}'.format(doc.amount_untaxed or 0.0)" />
+                        </div>
+                    </span>
+                </div>
+                <div class="soa-totals-row">
+                    <span class="soa-totals-lbl">Total Discount</span>
+                    <span class="soa-totals-val">
+                        <div class="soa-und soa-und-dashed">
+                            <span t-esc="'{0:,.2f}'.format(doc.get_proforma_total_discount() or 0.0)" />
+                        </div>
+                    </span>
+                </div>
+                <div class="soa-totals-row">
+                    <span class="soa-totals-lbl">VAT</span>
+                    <span class="soa-totals-val">
+                        <div class="soa-und soa-und-dashed">
+                            <span t-esc="'{0:,.2f}'.format(doc.amount_tax or 0.0)" />
+                        </div>
+                    </span>
+                </div>
+                <div class="soa-totals-row">
                     <span class="soa-totals-lbl">Total Birr</span>
                     <span class="soa-totals-val">
                         <div class="soa-und soa-und-dashed">

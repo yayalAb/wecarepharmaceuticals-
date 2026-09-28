@@ -4,18 +4,23 @@ from odoo import _, fields, models
 class SaleOrder(models.Model):
     _inherit = 'sale.order'
 
+    def _get_total_discount_amount(self):
+        """Sum of line discounts (price before discount - price after), in order currency."""
+        self.ensure_one()
+        total_discount = sum(
+            line.price_unit * line.product_uom_qty * line.discount / 100
+            for line in self.order_line
+            if not line.display_type
+        )
+        return self.currency_id.round(total_discount)
+
     def _compute_tax_totals(self):
         super()._compute_tax_totals()
         for order in self:
             if not order.tax_totals:
                 continue
 
-            total_discount = sum(
-                line.price_unit * line.product_uom_qty * line.discount / 100
-                for line in order.order_line
-                if not line.display_type
-            )
-            total_discount = order.currency_id.round(total_discount)
+            total_discount = order._get_total_discount_amount()
             company_discount = order.currency_id._convert(
                 total_discount,
                 order.company_id.currency_id,

@@ -290,6 +290,30 @@
 
             <div class="spi-totals">
                 <div class="spi-totals-row">
+                    <span class="spi-totals-lbl">Total Unit Amount</span>
+                    <span class="spi-totals-val">
+                        <div class="spi-und">
+                            <span t-esc="'{0:,.2f}'.format(doc.amount_untaxed or 0.0)" />
+                        </div>
+                    </span>
+                </div>
+                <div class="spi-totals-row">
+                    <span class="spi-totals-lbl">Total Discount</span>
+                    <span class="spi-totals-val">
+                        <div class="spi-und">
+                            <span t-esc="'{0:,.2f}'.format(doc.get_proforma_total_discount() or 0.0)" />
+                        </div>
+                    </span>
+                </div>
+                <div class="spi-totals-row">
+                    <span class="spi-totals-lbl">VAT</span>
+                    <span class="spi-totals-val">
+                        <div class="spi-und">
+                            <span t-esc="'{0:,.2f}'.format(doc.amount_tax or 0.0)" />
+                        </div>
+                    </span>
+                </div>
+                <div class="spi-totals-row">
                     <span class="spi-totals-lbl">Total Birr</span>
                     <span class="spi-totals-val">
                         <div class="spi-und">
