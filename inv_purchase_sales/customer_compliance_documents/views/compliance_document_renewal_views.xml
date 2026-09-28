@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_compliance_document_renewal_list" model="ir.ui.view">
+        <field name="name">customer.compliance.document.renewal.list</field>
+        <field name="model">customer.compliance.document.renewal</field>
+        <field name="arch" type="xml">
+            <list decoration-info="state == 'submitted'"
+                  decoration-muted="state == 'cancelled'">
+                <field name="name"/>
+                <field name="renewal_date"/>
+                <field name="partner_id"/>
+                <field name="document_type_id"/>
+                <field name="old_document_number"/>
+                <field name="old_expiry_date"/>
+                <field name="new_document_number"/>
+                <field name="new_expiry_date"/>
+                <field name="user_id" optional="show"/>
+                <field name="approved_by_id" optional="hide"/>
+                <field name="state" widget="badge"
+                       decoration-info="state == 'submitted'"
+                       decoration-success="state == 'approved'"
+                       decoration-muted="state == 'cancelled'"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_compliance_document_renewal_form" model="ir.ui.view">
+        <field name="name">customer.compliance.document.renewal.form</field>
+        <field name="model">customer.compliance.document.renewal</field>
+        <field name="arch" type="xml">
+            <form string="Compliance Document Renewal">
+                <header>
+                    <button name="action_submit" type="object" string="Submit"
+                            class="btn-primary" invisible="state != 'draft'"/>
+                    <button name="action_approve" type="object" string="Approve"
+                            class="btn-primary" invisible="state != 'submitted'"
+                            groups="sales_team.group_sale_manager"/>
+                    <button name="action_draft" type="object" string="Reset to Draft"
+                            invisible="state not in ('submitted', 'cancelled')"/>
+                    <button name="action_cancel" type="object" string="Cancel"
+                            invisible="state not in ('draft', 'submitted')"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,submitted,approved"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="document_id" readonly="id"/>
+                            <field name="partner_id"/>
+                            <field name="document_type_id"/>
+                        </group>
+                        <group>
+                            <field name="renewal_date" readonly="state != 'draft'"/>
+                            <field name="user_id"/>
+                            <field name="approved_by_id" invisible="state != 'approved'"/>
+                            <field name="approved_date" invisible="state != 'approved'"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group string="Current / Previous">
+                            <field name="old_document_number"/>
+                            <field name="old_issue_date"/>
+                            <field name="old_expiry_date"/>
+                            <field name="old_attachment" filename="old_attachment_filename"/>
+                            <field name="old_attachment_filename" invisible="1"/>
+                        </group>
+                        <group string="Renewed">
+                            <field name="new_document_number" readonly="state != 'draft'"/>
+                            <field name="new_issue_date" readonly="state != 'draft'"/>
+                            <field name="new_expiry_date" readonly="state != 'draft'"/>
+                            <field name="new_attachment" filename="new_attachment_filename"
+                                   readonly="state != 'draft'"/>
+                            <field name="new_attachment_filename" invisible="1"/>
+                        </group>
+                    </group>
+                    <field name="remarks" placeholder="Remarks..."/>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_compliance_document_renewal_search" model="ir.ui.view">
+        <field name="name">customer.compliance.document.renewal.search</field>
+        <field name="model">customer.compliance.document.renewal</field>
+        <field name="arch" type="xml">
+            <search string="Renewals">
+                <field name="name"/>
+                <field name="document_id"/>
+                <field name="partner_id"/>
+                <field name="document_type_id"/>
+                <filter name="filter_draft" string="Draft" domain="[('state', '=', 'draft')]"/>
+                <filter name="filter_submitted" string="Submitted" domain="[('state', '=', 'submitted')]"/>
+                <filter name="filter_approved" string="Approved" domain="[('state', '=', 'approved')]"/>
+                <filter name="filter_cancelled" string="Cancelled" domain="[('state', '=', 'cancelled')]"/>
+                <separator/>
+                <filter name="groupby_document" string="Document" context="{'group_by': 'document_id'}"/>
+                <filter name="groupby_partner" string="Customer" context="{'group_by': 'partner_id'}"/>
+                <filter name="groupby_state" string="State" context="{'group_by': 'state'}"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_compliance_document_renewal" model="ir.actions.act_window">
+        <field name="name">Renewals</field>
+        <field name="res_model">customer.compliance.document.renewal</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="view_compliance_document_renewal_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No renewals yet
+            </p>
+            <p>
+                Use the Renew button on an approved compliance document. Once the renewal
+                is approved, the document is updated and the previous values stay here as history.
+            </p>
+        </field>
+    </record>
+
+    <menuitem id="menu_compliance_document_renewals"
+              name="Renewals"
+              parent="menu_compliance_documents_root"
+              action="action_compliance_document_renewal"
+              sequence="15"/>
+</odoo>

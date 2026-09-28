@@ -41,17 +41,15 @@ class CustomerComplianceDocument(models.Model):
         index=True,
         tracking=True,
     )
-    previous_document_id = fields.Many2one(
-        'customer.compliance.document',
-        string='Renewal Of',
-        copy=False,
-        readonly=True,
-        ondelete='set null',
-    )
-    renewal_document_ids = fields.One2many(
-        'customer.compliance.document',
-        'previous_document_id',
+    renewal_ids = fields.One2many(
+        'customer.compliance.document.renewal',
+        'document_id',
         string='Renewals',
+        copy=False,
+    )
+    renewal_count = fields.Integer(
+        string='Renewal Count',
+        compute='_compute_renewal_count',
     )
     document_number = fields.Char(string='Document Number', tracking=True)
     issue_date = fields.Date(string='Issue Date', tracking=True)
@@ -91,6 +89,11 @@ class CustomerComplianceDocument(models.Model):
                 parts.append(doc.partner_id.display_name)
             doc.display_name = ' - '.join(parts) if parts else _('Compliance Document')
 
+    @api.depends('renewal_ids')
+    def _compute_renewal_count(self):
+        for doc in self:
+            doc.renewal_count = len(doc.renewal_ids)
+
     @api.depends('expiry_date')
     def _compute_status(self):
         today = fields.Date.context_today(self)
@@ -124,7 +127,7 @@ class CustomerComplianceDocument(models.Model):
     def is_acceptable_for_sales(self):
         """Approved Valid / Expiring Soon documents are acceptable for Sales Orders."""
         self.ensure_one()
-        return self.state == 'approved' and self.status in ('valid', 'expiring_soon')
+        return self.state in ('approved', 'renewed') and self.status in ('valid', 'expiring_soon')
 
     # ------------------------------------------------------------------
     # Workflow
@@ -147,13 +150,9 @@ class CustomerComplianceDocument(models.Model):
             raise UserError(_('Only Sales Managers can approve compliance documents.'))
         self._check_state(('submitted',), _('approve'))
         self.write({'state': 'approved'})
-        previous = self.mapped('previous_document_id').filtered(
-            lambda d: d.state == 'approved')
-        if previous:
-            previous.write({'state': 'renewed'})
 
     def action_cancel(self):
-        self._check_state(('draft', 'submitted', 'approved'), _('cancel'))
+        self._check_state(('draft', 'submitted', 'approved', 'renewed'), _('cancel'))
         self.write({'state': 'cancelled'})
 
     def action_draft(self):
@@ -161,20 +160,32 @@ class CustomerComplianceDocument(models.Model):
         self.write({'state': 'draft'})
 
     def action_renew(self):
-        """Open a new draft document; this one becomes Renewed once the new one is approved."""
+        """Open a renewal request; the document is updated when the renewal is approved."""
         self.ensure_one()
-        self._check_state(('approved',), _('renew'))
+        self._check_state(('approved', 'renewed'), _('renew'))
+        if self.renewal_ids.filtered(lambda r: r.state in ('draft', 'submitted')):
+            raise UserError(_(
+                'A renewal is already in progress for %(doc)s.',
+                doc=self.display_name,
+            ))
         return {
             'type': 'ir.actions.act_window',
             'name': _('Renew Compliance Document'),
-            'res_model': 'customer.compliance.document',
+            'res_model': 'customer.compliance.document.renewal',
             'view_mode': 'form',
             'target': 'current',
-            'context': {
-                'default_partner_id': self.partner_id.id,
-                'default_document_type_id': self.document_type_id.id,
-                'default_previous_document_id': self.id,
-            },
+            'context': {'default_document_id': self.id},
+        }
+
+    def action_view_renewals(self):
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('Renewals'),
+            'res_model': 'customer.compliance.document.renewal',
+            'view_mode': 'list,form',
+            'domain': [('document_id', '=', self.id)],
+            'context': {'default_document_id': self.id},
         }
 
     @api.model

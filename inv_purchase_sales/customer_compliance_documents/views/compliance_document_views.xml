@@ -18,8 +18,8 @@
                          decoration-success="status == 'valid'"/>
                 <field name="state" widget="badge"
                          decoration-info="state == 'submitted'"
-                         decoration-success="state == 'approved'"
-                         decoration-muted="state in ('cancelled', 'renewed')"/>
+                         decoration-success="state in ('approved', 'renewed')"
+                         decoration-muted="state == 'cancelled'"/>
                 <field name="attachment_filename" string="Attachment"/>
             </list>
         </field>
@@ -37,15 +37,21 @@
                             class="btn-primary" invisible="state != 'submitted'"
                             groups="sales_team.group_sale_manager"/>
                     <button name="action_renew" type="object" string="Renew"
-                            class="btn-primary" invisible="state != 'approved'"/>
+                            class="btn-primary" invisible="state not in ('approved', 'renewed')"/>
                     <button name="action_draft" type="object" string="Reset to Draft"
                             invisible="state not in ('submitted', 'cancelled')"/>
                     <button name="action_cancel" type="object" string="Cancel"
-                            invisible="state not in ('draft', 'submitted', 'approved')"/>
+                            invisible="state not in ('draft', 'submitted', 'approved', 'renewed')"/>
                     <field name="state" widget="statusbar"
-                           statusbar_visible="draft,submitted,approved"/>
+                           statusbar_visible="draft,submitted,approved,renewed"/>
                 </header>
                 <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_renewals" type="object"
+                                class="oe_stat_button" icon="fa-refresh">
+                            <field name="renewal_count" widget="statinfo" string="Renewals"/>
+                        </button>
+                    </div>
                     <div class="oe_title">
                         <label for="document_number" string="Document Number"/>
                         <h1>
@@ -61,7 +67,6 @@
                         <group>
                             <field name="partner_id" readonly="state != 'draft'"/>
                             <field name="document_type_id" readonly="state != 'draft'"/>
-                            <field name="previous_document_id" invisible="not previous_document_id"/>
                             <field name="remarks"/>
                         </group>
                         <group>

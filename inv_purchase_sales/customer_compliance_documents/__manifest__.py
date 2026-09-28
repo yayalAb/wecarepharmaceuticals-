@@ -11,6 +11,7 @@ Customer → Compliance Documents tab:
 - Document Type, Document Number, Issue Date, Expiry Date
 - Status: Valid / Expiring Soon / Expired
 - State: Draft / Submitted / Approved / Cancelled / Renewed
+- Renewals: approved renewal updates the document and keeps history
 - Attachment and Remarks
 
 Sales Order Control:
@@ -30,8 +31,10 @@ Sales Order Control:
         'security/ir.model.access.csv',
         'data/compliance_document_type_data.xml',
         'data/ir_cron_data.xml',
+        'data/ir_sequence_data.xml',
         'views/compliance_document_type_views.xml',
         'views/compliance_document_views.xml',
+        'views/compliance_document_renewal_views.xml',
         'views/res_partner_views.xml',
         'views/sale_order_views.xml',
         'views/res_config_settings_views.xml',

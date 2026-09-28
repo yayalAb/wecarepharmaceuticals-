@@ -44,8 +44,8 @@
                                      decoration-success="status == 'valid'"/>
                             <field name="state" widget="badge"
                                      decoration-info="state == 'submitted'"
-                                     decoration-success="state == 'approved'"
-                                     decoration-muted="state in ('cancelled', 'renewed')"/>
+                                     decoration-success="state in ('approved', 'renewed')"
+                                     decoration-muted="state == 'cancelled'"/>
                             <field name="attachment" filename="attachment_filename" widget="binary"
                                    readonly="state != 'draft'"/>
                             <field name="attachment_filename" column_invisible="1"/>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="seq_compliance_document_renewal" model="ir.sequence">
+        <field name="name">Compliance Document Renewal</field>
+        <field name="code">customer.compliance.document.renewal</field>
+        <field name="prefix">REN/%(year)s/</field>
+        <field name="padding">4</field>
+        <field name="company_id" eval="False"/>
+    </record>
+</odoo>
