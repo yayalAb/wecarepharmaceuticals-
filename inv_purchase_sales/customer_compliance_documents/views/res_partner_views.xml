@@ -51,10 +51,11 @@
                             <field name="attachment_filename" column_invisible="1"/>
                             <field name="remarks"/>
                             <button name="action_submit" type="object" string="Submit"
-                                    icon="fa-paper-plane" invisible="state != 'draft'"/>
+                                    icon="fa-paper-plane" invisible="state != 'draft'"
+                                    groups="customer_compliance_documents.group_compliance_submit"/>
                             <button name="action_approve" type="object" string="Approve"
                                     icon="fa-check" invisible="state != 'submitted'"
-                                    groups="sales_team.group_sale_manager"/>
+                                    groups="customer_compliance_documents.group_compliance_approve"/>
                         </list>
                     </field>
                 </page>

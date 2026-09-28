@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="module_category_compliance_documents" model="ir.module.category">
+        <field name="name">Compliance Documents</field>
+        <field name="description">Workflow rights on customer compliance documents and renewals.</field>
+        <field name="sequence">50</field>
+    </record>
+
+    <record id="group_compliance_submit" model="res.groups">
+        <field name="name">Submit</field>
+        <field name="category_id" ref="module_category_compliance_documents"/>
+        <field name="implied_ids" eval="[(4, ref('sales_team.group_sale_salesman'))]"/>
+        <field name="users" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/>
+    </record>
+
+    <record id="group_compliance_approve" model="res.groups">
+        <field name="name">Approve</field>
+        <field name="category_id" ref="module_category_compliance_documents"/>
+        <field name="implied_ids" eval="[(4, ref('sales_team.group_sale_salesman'))]"/>
+        <field name="users" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/>
+    </record>
+
+    <record id="group_compliance_renew" model="res.groups">
+        <field name="name">Renew</field>
+        <field name="category_id" ref="module_category_compliance_documents"/>
+        <field name="implied_ids" eval="[(4, ref('sales_team.group_sale_salesman'))]"/>
+        <field name="users" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/>
+    </record>
+
+    <record id="group_compliance_reset_draft" model="res.groups">
+        <field name="name">Reset to Draft</field>
+        <field name="category_id" ref="module_category_compliance_documents"/>
+        <field name="implied_ids" eval="[(4, ref('sales_team.group_sale_salesman'))]"/>
+        <field name="users" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/>
+    </record>
+</odoo>

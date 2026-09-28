@@ -141,13 +141,17 @@ class CustomerComplianceDocument(models.Model):
                 docs=', '.join(invalid.mapped('display_name')),
             ))
 
+    def _check_group(self, group, action):
+        if not self.env.user.has_group('customer_compliance_documents.group_compliance_' + group):
+            raise UserError(_('You are not allowed to %(action)s compliance documents.', action=action))
+
     def action_submit(self):
+        self._check_group('submit', _('submit'))
         self._check_state(('draft',), _('submit'))
         self.write({'state': 'submitted'})
 
     def action_approve(self):
-        if not self.env.user.has_group('sales_team.group_sale_manager'):
-            raise UserError(_('Only Sales Managers can approve compliance documents.'))
+        self._check_group('approve', _('approve'))
         self._check_state(('submitted',), _('approve'))
         self.write({'state': 'approved'})
 
@@ -156,12 +160,14 @@ class CustomerComplianceDocument(models.Model):
         self.write({'state': 'cancelled'})
 
     def action_draft(self):
+        self._check_group('reset_draft', _('reset to draft'))
         self._check_state(('submitted', 'cancelled'), _('reset to draft'))
         self.write({'state': 'draft'})
 
     def action_renew(self):
         """Open a renewal request; the document is updated when the renewal is approved."""
         self.ensure_one()
+        self._check_group('renew', _('renew'))
         self._check_state(('approved', 'renewed'), _('renew'))
         if self.renewal_ids.filtered(lambda r: r.state in ('draft', 'submitted')):
             raise UserError(_(

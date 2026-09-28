@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Customer Compliance Document Management',
-    'version': '18.0.1.2.0',
+    'version': '18.0.1.3.0',
     'category': 'Sales/CRM',
     'summary': 'Customer Compliance Documents: licenses/certificates with SO confirmation control',
     'description': """
@@ -28,6 +28,7 @@ Sales Order Control:
         'sale_management',
     ],
     'data': [
+        'security/security.xml',
         'security/ir.model.access.csv',
         'data/compliance_document_type_data.xml',
         'data/ir_cron_data.xml',

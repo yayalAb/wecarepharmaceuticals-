@@ -31,12 +31,14 @@
             <form string="Compliance Document Renewal">
                 <header>
                     <button name="action_submit" type="object" string="Submit"
-                            class="btn-primary" invisible="state != 'draft'"/>
+                            class="btn-primary" invisible="state != 'draft'"
+                            groups="customer_compliance_documents.group_compliance_submit"/>
                     <button name="action_approve" type="object" string="Approve"
                             class="btn-primary" invisible="state != 'submitted'"
-                            groups="sales_team.group_sale_manager"/>
+                            groups="customer_compliance_documents.group_compliance_approve"/>
                     <button name="action_draft" type="object" string="Reset to Draft"
-                            invisible="state not in ('submitted', 'cancelled')"/>
+                            invisible="state not in ('submitted', 'cancelled')"
+                            groups="customer_compliance_documents.group_compliance_reset_draft"/>
                     <button name="action_cancel" type="object" string="Cancel"
                             invisible="state not in ('draft', 'submitted')"/>
                     <field name="state" widget="statusbar"

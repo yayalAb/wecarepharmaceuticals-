@@ -103,6 +103,7 @@ class CustomerComplianceDocumentRenewal(models.Model):
 
     @api.model_create_multi
     def create(self, vals_list):
+        self._check_group('renew', _('create'))
         Document = self.env['customer.compliance.document']
         for vals in vals_list:
             if vals.get('name', _('New')) == _('New'):
@@ -139,14 +140,18 @@ class CustomerComplianceDocumentRenewal(models.Model):
                 refs=', '.join(invalid.mapped('name')),
             ))
 
+    def _check_group(self, group, action):
+        if not self.env.user.has_group('customer_compliance_documents.group_compliance_' + group):
+            raise UserError(_('You are not allowed to %(action)s renewals.', action=action))
+
     def action_submit(self):
+        self._check_group('submit', _('submit'))
         self._check_state(('draft',), _('submit'))
         self.write({'state': 'submitted'})
 
     def action_approve(self):
         """Apply the new values to the original document; this record keeps the history."""
-        if not self.env.user.has_group('sales_team.group_sale_manager'):
-            raise UserError(_('Only Sales Managers can approve renewals.'))
+        self._check_group('approve', _('approve'))
         self._check_state(('submitted',), _('approve'))
         for renewal in self:
             document = renewal.document_id
@@ -185,6 +190,7 @@ class CustomerComplianceDocumentRenewal(models.Model):
         self.write({'state': 'cancelled'})
 
     def action_draft(self):
+        self._check_group('reset_draft', _('reset to draft'))
         self._check_state(('submitted', 'cancelled'), _('reset to draft'))
         self.write({'state': 'draft'})
 
