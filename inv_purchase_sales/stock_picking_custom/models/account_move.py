@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-from odoo import api, fields, models
+from odoo import _, api, fields, models
+from odoo.exceptions import UserError
 
 
 class AccountMove(models.Model):
@@ -21,7 +22,7 @@ class AccountMove(models.Model):
             ('cash', 'Cash'),
             ('credit', 'Credit'),
         ],
-        string='Method',
+        string='Payment Method',
     )
 
     def _is_customer_invoice_for_fs_mrc(self):
@@ -68,6 +69,12 @@ class AccountMove(models.Model):
         to_fix = self.filtered(
             lambda m: m.move_type in ('out_invoice', 'out_refund')
         )
+        missing = to_fix.filtered(lambda m: not m.payment_method)
+        if missing:
+            raise UserError(_(
+                'Please select a Payment Method before posting: %s',
+                ', '.join(missing.mapped('display_name')),
+            ))
         to_fix._assign_mrc_no_from_company()
         to_fix.filtered(lambda m: not m.fs_no)._assign_fs_no()
         return super().action_post()

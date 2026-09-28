@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Rename "Quotation #" / "Order #" to "Sales Quotation #" / "Sales Order #" on the
+         native Quotation / Order print report, and fill the letterhead's Doc Title and
+         Document No boxes (which otherwise fall back to "Document" / empty). -->
+    <template id="report_saleorder_document_quotation_title" inherit_id="sale.report_saleorder_document">
+        <xpath expr="//t[@t-set='forced_vat']" position="after">
+            <t t-set="doc_title" t-value="'Sales Quotation' if doc.state in ('draft', 'sent') else 'Sales Order'" />
+            <t t-set="doc_number" t-value="doc.name" />
+            <t t-set="issue_number" t-value="'1'" />
+        </xpath>
+        <xpath expr="//span[@t-elif=&quot;doc.state in ['draft','sent']&quot;]" position="replace">
+            <span t-elif="doc.state in ['draft','sent']">Sales Quotation # </span>
+        </xpath>
+        <xpath expr="//t[@t-set='layout_document_title']//span[@t-else='']" position="replace">
+            <span t-else="">Sales Order # </span>
+        </xpath>
+
+        <!-- Salesperson phone under the Salesperson name -->
+        <xpath expr="//div[@t-field='doc.user_id']" position="after">
+            <t t-set="salesperson_phone" t-value="doc.user_id.partner_id.phone or doc.user_id.partner_id.mobile"/>
+            <div t-if="salesperson_phone" t-out="salesperson_phone"/>
+        </xpath>
+
+        <!-- Add a Currency column between Quantity and Unit Price -->
+        <xpath expr="//th[@name='th_priceunit']" position="before">
+            <th name="th_currency" class="text-end text-nowrap">Currency</th>
+        </xpath>
+        <xpath expr="//td[@name='td_priceunit']" position="before">
+            <td name="td_currency" class="text-end text-nowrap">
+                <span t-esc="doc.currency_id.name" />
+            </td>
+        </xpath>
+
+        <!-- Rename "Taxes" to "VAT%" -->
+        <xpath expr="//th[@name='th_taxes']" position="replace">
+            <th name="th_taxes" class="text-end">VAT%</th>
+        </xpath>
+    </template>
+
+    <!-- Rename the "Untaxed Amount" subtotal label to "Total Unit Amount" on sale reports -->
+    <template id="sale_document_tax_totals_untaxed_label" inherit_id="sale.document_tax_totals">
+        <xpath expr="//span[@t-out=&quot;subtotal['name']&quot;]" position="replace">
+            <span t-out="'Total Unit Amount' if subtotal['name'] == 'Untaxed Amount' else subtotal['name']">Untaxed Amount</span>
+        </xpath>
+    </template>
+</odoo>

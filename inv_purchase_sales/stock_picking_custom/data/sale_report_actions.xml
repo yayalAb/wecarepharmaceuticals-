@@ -3,16 +3,25 @@
     <!-- Remove separate print menu entry if module was upgraded from earlier version -->
     <delete model="ir.actions.report" id="action_report_sales_proforma_attachment" />
 
-    <!-- Use custom Performa Attachment template on standard PRO-FORMA Invoice action -->
+    <!-- Use custom Proforma Invoice template on standard PRO-FORMA Invoice action -->
     <record id="sale.action_report_pro_forma_invoice" model="ir.actions.report">
+        <field name="name">Proforma Invoice</field>
+        <field name="print_report_name">'Proforma Invoice - %s' % (object.name)</field>
         <field name="report_name">stock_picking_custom.report_sales_proforma_attachment</field>
         <field name="report_file">stock_picking_custom.report_sales_proforma_attachment</field>
     </record>
 
-    <!-- Sales Attachment on PDF Quote action; label shown as Order -->
+    <!-- Sales Quotation / Sales Order attachment on PDF Quote action -->
     <record id="sale.action_report_saleorder" model="ir.actions.report">
-        <field name="name">Order</field>
+        <field name="name">Sales Quotation / Order</field>
+        <field name="print_report_name">('Sales Quotation - %s' if object.state in ('draft', 'sent') else 'Sales Order - %s') % (object.name)</field>
         <field name="report_name">stock_picking_custom.report_sales_order_attachment</field>
         <field name="report_file">stock_picking_custom.report_sales_order_attachment</field>
+    </record>
+
+    <!-- Native "Quotation / Order" print action added by sale_pdf_quote_builder -->
+    <record id="sale_pdf_quote_builder.action_report_saleorder_raw" model="ir.actions.report">
+        <field name="name">Sales Quotation</field>
+        <field name="print_report_name">('Sales Quotation - %s' if object.state in ('draft', 'sent') else 'Sales Order - %s') % (object.name)</field>
     </record>
 </odoo>

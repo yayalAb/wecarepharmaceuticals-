@@ -24,6 +24,7 @@
         'reports/picking_operations_template.xml',
         'reports/sales_proforma_invoice_report.xml',
         'reports/sales_order_attachment_report.xml',
+        'reports/sale_quotation_title.xml',
         'reports/report_invoice.xml',
         'reports/manufacturing_order_attachment_report.xml',
         'reports/store_return_attachment_report.xml',

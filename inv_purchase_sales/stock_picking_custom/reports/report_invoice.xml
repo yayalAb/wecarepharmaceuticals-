@@ -11,12 +11,53 @@
                 <div t-field="o.mrc_no"/>
             </div>
             <div class="col" t-if="o.payment_method" name="payment_method">
-                <strong>Method</strong>
+                <strong>Payment Method</strong>
                 <div t-field="o.payment_method"/>
+            </div>
+            <div class="col" t-if="o.invoice_user_id" name="salesperson">
+                <strong>Salesperson</strong>
+                <div t-field="o.invoice_user_id.name"/>
+                <t t-set="salesperson_phone" t-value="o.invoice_user_id.partner_id.phone or o.invoice_user_id.partner_id.mobile"/>
+                <div t-if="salesperson_phone" t-out="salesperson_phone"/>
             </div>
         </xpath>
         <xpath expr="//div[@id='informations']" position="attributes">
-            <attribute name="t-if">o.invoice_date or (o.invoice_date_due and o.move_type == 'out_invoice' and o.state == 'posted') or o.delivery_date or o.invoice_origin or o.partner_id.ref or o.ref or o.invoice_incoterm_id or o.fs_no or o.mrc_no or o.payment_method</attribute>
+            <attribute name="t-if">o.invoice_date or (o.invoice_date_due and o.move_type == 'out_invoice' and o.state == 'posted') or o.delivery_date or o.invoice_origin or o.partner_id.ref or o.ref or o.invoice_incoterm_id or o.fs_no or o.mrc_no or o.payment_method or o.invoice_user_id</attribute>
+        </xpath>
+    </template>
+
+    <!-- Fill the letterhead's Doc Title / Document No boxes, add a Currency column
+         and rename "Taxes" to "VAT%" on the invoice print (same as KAD). -->
+    <template id="report_invoice_document_letterhead_header" inherit_id="account.report_invoice_document">
+        <xpath expr="//t[@t-set='forced_vat']" position="after">
+            <t t-set="doc_title" t-value="{
+                'out_invoice': 'Invoice',
+                'out_refund': 'Credit Note',
+                'in_invoice': 'Vendor Bill',
+                'in_refund': 'Vendor Credit Note',
+            }.get(o.move_type, 'Invoice')" />
+            <t t-set="doc_number" t-value="o.name if o.name and o.name != '/' else ''" />
+            <t t-set="issue_number" t-value="'1'" />
+        </xpath>
+
+        <xpath expr="//th[@name='th_priceunit']" position="before">
+            <th name="th_currency" t-attf-class="text-end text-nowrap {{ 'd-none d-md-table-cell' if report_type == 'html' else '' }}">Currency</th>
+        </xpath>
+        <xpath expr="//td[@name='td_price_unit']" position="before">
+            <td name="td_currency" t-attf-class="text-end text-nowrap {{ 'd-none d-md-table-cell' if report_type == 'html' else '' }}">
+                <span t-esc="o.currency_id.name" />
+            </td>
+        </xpath>
+
+        <xpath expr="//th[@name='th_taxes']/span" position="replace">
+            <span>VAT%</span>
+        </xpath>
+    </template>
+
+    <!-- Rename the "Untaxed Amount" subtotal label to "Total Unit Amount" on invoices -->
+    <template id="account_document_tax_totals_untaxed_label" inherit_id="account.document_tax_totals">
+        <xpath expr="//span[@t-out=&quot;subtotal['name']&quot;]" position="replace">
+            <span t-out="'Total Unit Amount' if subtotal['name'] == 'Untaxed Amount' else subtotal['name']">Untaxed Amount</span>
         </xpath>
     </template>
 </odoo>

@@ -1,4 +1,5 @@
-from odoo import api, fields, models
+from odoo import _, api, fields, models
+from odoo.exceptions import UserError
 
 
 class SaleOrderLine(models.Model):
@@ -70,6 +71,12 @@ class SaleOrder(models.Model):
         return res
 
     def action_confirm(self):
+        missing = self.filtered(lambda o: not o.payment_method)
+        if missing:
+            raise UserError(_(
+                'Please select a Payment Method before confirming: %s',
+                ', '.join(missing.mapped('name')),
+            ))
         res = super().action_confirm()
         self._sync_driver_to_pickings()
         return res
