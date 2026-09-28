@@ -59,6 +59,7 @@ class ResPartner(models.Model):
     @api.depends(
         'compliance_document_ids',
         'compliance_document_ids.status',
+        'compliance_document_ids.state',
         'compliance_document_ids.expiry_date',
         'compliance_document_ids.document_type_id',
         'compliance_document_ids.document_type_id.is_required',
@@ -71,7 +72,7 @@ class ResPartner(models.Model):
                 continue
             if partner._get_compliance_issues(for_blocking=False):
                 partner.compliance_status = 'blocked'
-            elif any(d.status == 'expiring_soon' for d in docs):
+            elif any(d.is_acceptable_for_sales() and d.status == 'expiring_soon' for d in docs):
                 partner.compliance_status = 'warning'
             else:
                 partner.compliance_status = 'ok'
@@ -110,7 +111,16 @@ class ResPartner(models.Model):
                 expired = type_docs.filtered(lambda d: d.status == 'expired').sorted(
                     'expiry_date', reverse=True
                 )
-                if expired:
+                pending = type_docs.filtered(
+                    lambda d: d.state in ('draft', 'submitted')
+                    and d.status != 'expired')
+                if pending:
+                    issues.append(_(
+                        'Customer compliance document is not approved yet: '
+                        '%(doc_type)s.',
+                        doc_type=doc_type.name,
+                    ))
+                elif expired:
                     expiry = fields.Date.to_string(expired[0].expiry_date)
                     # Format like 31-Dec-2025
                     try:
@@ -134,7 +144,10 @@ class ResPartner(models.Model):
             expired = docs.filtered(lambda d: d.status == 'expired').sorted(
                 'expiry_date', reverse=True
             )
-            if expired:
+            if docs.filtered(lambda d: d.state in ('draft', 'submitted')
+                             and d.status != 'expired'):
+                issues.append(_('Customer compliance documents are not approved yet.'))
+            elif expired:
                 try:
                     expiry = expired[0].expiry_date.strftime('%d-%b-%Y')
                 except Exception:
@@ -146,7 +159,7 @@ class ResPartner(models.Model):
                     expiry=expiry,
                 ))
             else:
-                issues.append(_('All compliance documents are expired.'))
+                issues.append(_('No approved and valid compliance document found.'))
 
         return issues
 

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Customer Compliance Document Management',
-    'version': '18.0.1.1.0',
+    'version': '18.0.1.2.0',
     'category': 'Sales/CRM',
     'summary': 'Customer Compliance Documents: licenses/certificates with SO confirmation control',
     'description': """
@@ -10,10 +10,11 @@ Customer Compliance Document Management
 Customer → Compliance Documents tab:
 - Document Type, Document Number, Issue Date, Expiry Date
 - Status: Valid / Expiring Soon / Expired
+- State: Draft / Submitted / Approved / Cancelled / Renewed
 - Attachment and Remarks
 
 Sales Order Control:
-- On confirm, check mandatory documents are valid
+- On confirm, check mandatory documents are approved and valid
 - Block with warning when documents are missing or expired
 - Expiring Soon within configurable days (default 30)
     """,

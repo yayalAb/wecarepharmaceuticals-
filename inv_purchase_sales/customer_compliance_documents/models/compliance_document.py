@@ -2,7 +2,7 @@
 from dateutil.relativedelta import relativedelta
 
 from odoo import _, api, fields, models
-from odoo.exceptions import ValidationError
+from odoo.exceptions import UserError, ValidationError
 
 
 class CustomerComplianceDocument(models.Model):
@@ -25,6 +25,33 @@ class CustomerComplianceDocument(models.Model):
         string='Document Type',
         required=True,
         tracking=True,
+    )
+    state = fields.Selection(
+        [
+            ('draft', 'Draft'),
+            ('submitted', 'Submitted'),
+            ('approved', 'Approved'),
+            ('cancelled', 'Cancelled'),
+            ('renewed', 'Renewed'),
+        ],
+        string='State',
+        default='draft',
+        required=True,
+        copy=False,
+        index=True,
+        tracking=True,
+    )
+    previous_document_id = fields.Many2one(
+        'customer.compliance.document',
+        string='Renewal Of',
+        copy=False,
+        readonly=True,
+        ondelete='set null',
+    )
+    renewal_document_ids = fields.One2many(
+        'customer.compliance.document',
+        'previous_document_id',
+        string='Renewals',
     )
     document_number = fields.Char(string='Document Number', tracking=True)
     issue_date = fields.Date(string='Issue Date', tracking=True)
@@ -95,9 +122,60 @@ class CustomerComplianceDocument(models.Model):
                 ))
 
     def is_acceptable_for_sales(self):
-        """Valid and Expiring Soon documents are still acceptable for Sales Orders."""
+        """Approved Valid / Expiring Soon documents are acceptable for Sales Orders."""
         self.ensure_one()
-        return self.status in ('valid', 'expiring_soon')
+        return self.state == 'approved' and self.status in ('valid', 'expiring_soon')
+
+    # ------------------------------------------------------------------
+    # Workflow
+    # ------------------------------------------------------------------
+    def _check_state(self, allowed, action):
+        invalid = self.filtered(lambda d: d.state not in allowed)
+        if invalid:
+            raise UserError(_(
+                'You cannot %(action)s document(s) in this state: %(docs)s',
+                action=action,
+                docs=', '.join(invalid.mapped('display_name')),
+            ))
+
+    def action_submit(self):
+        self._check_state(('draft',), _('submit'))
+        self.write({'state': 'submitted'})
+
+    def action_approve(self):
+        if not self.env.user.has_group('sales_team.group_sale_manager'):
+            raise UserError(_('Only Sales Managers can approve compliance documents.'))
+        self._check_state(('submitted',), _('approve'))
+        self.write({'state': 'approved'})
+        previous = self.mapped('previous_document_id').filtered(
+            lambda d: d.state == 'approved')
+        if previous:
+            previous.write({'state': 'renewed'})
+
+    def action_cancel(self):
+        self._check_state(('draft', 'submitted', 'approved'), _('cancel'))
+        self.write({'state': 'cancelled'})
+
+    def action_draft(self):
+        self._check_state(('submitted', 'cancelled'), _('reset to draft'))
+        self.write({'state': 'draft'})
+
+    def action_renew(self):
+        """Open a new draft document; this one becomes Renewed once the new one is approved."""
+        self.ensure_one()
+        self._check_state(('approved',), _('renew'))
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _('Renew Compliance Document'),
+            'res_model': 'customer.compliance.document',
+            'view_mode': 'form',
+            'target': 'current',
+            'context': {
+                'default_partner_id': self.partner_id.id,
+                'default_document_type_id': self.document_type_id.id,
+                'default_previous_document_id': self.id,
+            },
+        }
 
     @api.model
     def _cron_recompute_status(self):
