@@ -11,10 +11,12 @@
                        force_save="1"
                        invisible="move_type not in ('out_invoice', 'out_refund')"/>
                 <field name="mrc_no"
-                       invisible="move_type not in ('out_invoice', 'out_refund')"/>
+                       invisible="move_type not in ('out_invoice', 'out_refund')"
+                       readonly="state != 'draft'"/>
                 <field name="payment_method"
                        invisible="move_type not in ('out_invoice', 'out_refund')"
-                       required="move_type in ('out_invoice', 'out_refund')"/>
+                       required="move_type in ('out_invoice', 'out_refund')"
+                       readonly="state != 'draft'"/>
             </xpath>
         </field>
     </record>
