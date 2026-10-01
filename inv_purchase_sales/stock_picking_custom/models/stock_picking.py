@@ -272,6 +272,26 @@ class StockMove(models.Model):
             move.line_unit_price = price
             move.line_subtotal = price * qty
 
+    def get_report_lot_lines(self):
+        """Lot lines printed under the product name on operation documents, e.g.
+        "[Batch No : 1192225] [Exp. Date : 07-Dec-27]" (Serial No for serial products)."""
+        self.ensure_one()
+        label = 'Serial No' if self.product_id.tracking == 'serial' else 'Batch No'
+        lines = {}
+        for line in self.move_line_ids:
+            lot_name = line.lot_id.name or line.lot_name
+            if not lot_name or lot_name in lines:
+                continue
+            # expiration_date only exists when product_expiry is installed
+            expiry = (
+                'expiration_date' in line.lot_id._fields and line.lot_id.expiration_date
+            ) or ('expiration_date' in line._fields and line.expiration_date)
+            text = f'[{label} : {lot_name}]'
+            if expiry:
+                text += f' [Exp. Date : {expiry:%d-%b-%y}]'
+            lines[lot_name] = text
+        return list(lines.values())
+
     @api.constrains('quantity')
     def _check_quantity(self):
         for move in self:

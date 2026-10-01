@@ -10,6 +10,20 @@
         </xpath>
     </template>
 
+    <!-- Single-line approval row shared by all inventory operation documents:
+         Prepared By ____   Received By ____   Approved By ____
+         Callers set prepared_name / received_name / approved_name. -->
+    <template id="op_approval_line">
+        <div style="width: 100%; margin-top: 36px; font-size: 11px; white-space: nowrap; page-break-inside: avoid;">
+            <strong>Prepared By:</strong>
+            <span style="display: inline-block; width: 21%; border-bottom: 1px solid #000; padding: 0 4px 2px 4px; margin-right: 3%; vertical-align: bottom;"><t t-out="prepared_name or ''"/>&#160;</span>
+            <strong>Received By:</strong>
+            <span style="display: inline-block; width: 21%; border-bottom: 1px solid #000; padding: 0 4px 2px 4px; margin-right: 3%; vertical-align: bottom;"><t t-out="received_name or ''"/>&#160;</span>
+            <strong>Approved By:</strong>
+            <span style="display: inline-block; width: 21%; border-bottom: 1px solid #000; padding: 0 4px 2px 4px; vertical-align: bottom;"><t t-out="approved_name or ''"/>&#160;</span>
+        </div>
+    </template>
+
     <template id="cgrn_body">
         <style>
             .cgrn-page {
@@ -220,152 +234,69 @@
 
         <t t-set="storeman_user"
             t-value="o.location_dest_id.warehouse_id.storeman_id if o.location_dest_id and o.location_dest_id.warehouse_id else False" />
-        <t t-set="vendor_phone" t-value="o.partner_id.phone or o.partner_id.mobile or ''" />
-        <t t-set="driver_name" t-value="o.driver_name or ''" />
-        <t t-set="driver_phone" t-value="o.driver_phone or ''" />
-        <t t-set="driver_address" t-value="o.partner_id.contact_address or ''" />
 
-        <div class="page cgrn-page">
+        <div class="page cgrn-page" style="position: relative; min-height: 850px; padding-bottom: 110px;">
 
             <div class="oe_structure" />
 
-            <h3 class="cgrn-title">መረከቢያ ሰነድ/Customer Good Receiving Note</h3>
-
-            <div class="cgrn-form-row">
-                <div class="cgrn-form-third">
-                    <div class="cgrn-form-group">
-                        <span class="cgrn-label cgrn-label-sm">SO/PO Doc Ref No:</span>
-                        <span class="cgrn-field-wrap">
-                            <span class="cgrn-field-line cgrn-field-line-dashed">
-                                <span t-esc="o.get_grn_so_po_ref()" />
-                            </span>
-                        </span>
+            <!-- Vendor information (left) and document header (right) boxes -->
+            <t t-set="box" t-value="'display: table-cell; vertical-align: top; border: 1px solid #555; border-radius: 4px; padding: 6px 10px;'" />
+            <t t-set="lbl" t-value="'display: table-cell; width: 70px; white-space: nowrap; color: #333; padding: 2px 0;'" />
+            <t t-set="val" t-value="'display: table-cell; padding: 2px 0 2px 6px;'" />
+            <div style="display: table; width: 100%; border-collapse: separate; border-spacing: 0; margin: 6px 0 12px 0; font-size: 11px;">
+                <div t-att-style="box + ' width: 62%;'">
+                    <div style="display: table; width: 100%;">
+                        <div style="display: table-row;">
+                            <span t-att-style="lbl">To</span>
+                            <span t-att-style="val + ' font-weight: bold;'" t-esc="o.partner_id.display_name or ''" />
+                        </div>
+                        <div style="display: table-row;">
+                            <span t-att-style="lbl">TIN No</span>
+                            <span t-att-style="val" t-esc="o.partner_id.vat or ''" />
+                        </div>
+                        <div style="display: table-row;">
+                            <span t-att-style="lbl">Address</span>
+                            <span t-att-style="val" t-esc="o.partner_id.contact_address_complete or ''" />
+                        </div>
+                        <div style="display: table-row;">
+                            <span t-att-style="lbl">Ref.</span>
+                            <span t-att-style="val" t-esc="o.get_grn_so_po_ref() or o.origin or ''" />
+                        </div>
+                        <div style="display: table-row;">
+                            <span t-att-style="lbl">Remark</span>
+                            <span t-att-style="val"><span t-if="o.note" t-field="o.note" /></span>
+                        </div>
                     </div>
                 </div>
-                <div class="cgrn-form-third">
-                    <div class="cgrn-form-group">
-                        <span class="cgrn-label cgrn-label-sm">GRN No:</span>
-                        <span class="cgrn-field-wrap">
-                            <span class="cgrn-field-line cgrn-field-line-dashed">
-                                <span t-field="o.name" />
-                            </span>
-                        </span>
-                    </div>
-                </div>
-                <div class="cgrn-form-third">
-                    <div class="cgrn-form-group">
-                        <span class="cgrn-label cgrn-label-sm">GRN Date:</span>
-                        <span class="cgrn-field-wrap">
-                            <span class="cgrn-field-line">
-                                <t t-if="o.date_done">
-                                    <span t-field="o.date_done" t-options='{"widget": "date"}' />
-                                </t>
-                                <t t-elif="o.scheduled_date">
-                                    <span t-field="o.scheduled_date" t-options='{"widget": "date"}' />
-                                </t>
-                            </span>
-                        </span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="cgrn-form-row">
-                <div class="cgrn-form-third">
-                    <div class="cgrn-form-group">
-                        <span class="cgrn-label cgrn-label-lg">አቅራቢው ስም<br />(Vendor Name):</span>
-                        <span class="cgrn-field-wrap">
-                            <span class="cgrn-field-line">
-                                <span t-esc="o.partner_id.display_name or ''" />
-                            </span>
-                        </span>
-                    </div>
-                </div>
-                <div class="cgrn-form-third">
-                    <div class="cgrn-form-group">
-                        <span class="cgrn-label cgrn-label-sm">Tin No:</span>
-                        <span class="cgrn-field-wrap">
-                            <span class="cgrn-field-line">
-                                <span t-esc="o.partner_id.vat or ''" />
-                            </span>
-                        </span>
-                    </div>
-                </div>
-                <div class="cgrn-form-third">
-                    <div class="cgrn-form-group">
-                        <span class="cgrn-label cgrn-label-sm">Phone No:</span>
-                        <span class="cgrn-field-wrap">
-                            <span class="cgrn-field-line">
-                                <span t-esc="vendor_phone" />
-                            </span>
-                        </span>
+                <div style="display: table-cell; width: 2%;" />
+                <div t-att-style="box + ' width: 36%;'">
+                    <div style="display: table; width: 100%;">
+                        <div style="display: table-row;">
+                            <span t-att-style="lbl">Voucher No</span>
+                            <span t-att-style="val + ' font-weight: bold;'" t-esc="o.name" />
+                        </div>
+                        <div style="display: table-row;">
+                            <span t-att-style="lbl">Date</span>
+                            <span t-att-style="val" t-field="o.date_done" t-if="o.date_done" />
+                            <span t-att-style="val" t-field="o.scheduled_date" t-else="" />
+                        </div>
+                        <div style="display: table-row;">
+                            <span t-att-style="lbl">Cert</span>
+                            <span t-att-style="val" t-esc="('certificate_number' in o.partner_id._fields and o.partner_id.certificate_number) or ''" />
+                        </div>
+                        <div style="display: table-row;">
+                            <span t-att-style="lbl">Store</span>
+                            <span t-att-style="val" t-esc="'=&gt;' + (o.location_dest_id.complete_name or '')" />
+                        </div>
                     </div>
                 </div>
             </div>
-
-            <div class="cgrn-form-row">
-                <div class="cgrn-form-third">
-                    <div class="cgrn-form-group">
-                        <span class="cgrn-label cgrn-label-md">Driver Name:</span>
-                        <span class="cgrn-field-wrap">
-                            <span class="cgrn-field-line">
-                                <span t-esc="driver_name" />
-                            </span>
-                        </span>
-                    </div>
-                </div>
-                <div class="cgrn-form-third">
-                    <div class="cgrn-form-group">
-                        <span class="cgrn-label cgrn-label-sm">Address:</span>
-                        <span class="cgrn-field-wrap">
-                            <span class="cgrn-field-line">
-                                <span t-esc="driver_address" />
-                            </span>
-                        </span>
-                    </div>
-                </div>
-                <div class="cgrn-form-third">
-                    <div class="cgrn-form-group">
-                        <span class="cgrn-label cgrn-label-sm">Phone No:</span>
-                        <span class="cgrn-field-wrap">
-                            <span class="cgrn-field-line">
-                                <span t-esc="driver_phone" />
-                            </span>
-                        </span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="cgrn-form-row">
-                <div class="cgrn-form-half">
-                    <div class="cgrn-form-group">
-                        <span class="cgrn-label cgrn-label-lg">የመኪናው ሰሌዳ ቁጥር/<br />Truck No:</span>
-                        <span class="cgrn-field-wrap">
-                            <span class="cgrn-field-line">
-                                <span t-field="o.vehicle_plate" />
-                            </span>
-                        </span>
-                    </div>
-                </div>
-                <div class="cgrn-form-half">
-                    <div class="cgrn-form-group">
-                        <span class="cgrn-label cgrn-label-md">Destination Location:</span>
-                        <span class="cgrn-field-wrap">
-                            <span class="cgrn-field-line">
-                                <span t-field="o.location_dest_id.complete_name" />
-                            </span>
-                        </span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="cgrn-section-title">የእህሉ/የእቃው አይነት /Item Details</div>
 
             <table id="cgrn_item_table" class="cgrn-items-table">
                 <thead style="display: table-header-group;">
                     <tr>
                         <th style="width:4%;">S.N</th>
-                        <th style="width:12%;">Item Code</th>
-                        <th style="width:24%;">Item Description</th>
+                        <th style="width:36%; text-align: left;">Item Description</th>
                         <th style="width:10%;">UOM</th>
                         <th style="width:12%;">Quantity</th>
                         <th style="width:12%;">Unit Price</th>
@@ -380,11 +311,8 @@
                             <t t-set="line_total" t-value="o.get_grn_line_total(move)" />
                             <tr style="page-break-inside: avoid;">
                                 <td class="cgrn-td-center"><span t-esc="row_count" /></td>
-                                <td class="cgrn-td-center">
-                                    <span t-esc="move.product_id.default_code or ''" />
-                                </td>
                                 <td class="cgrn-td-desc">
-                                    <span t-esc="move.product_id.display_name or move.name or ''" />
+                                    <div t-esc="move.product_id.name or move.name or ''" /><div t-foreach="move.get_report_lot_lines()" t-as="lot_line" t-esc="lot_line" style="font-size: 0.9em;" />
                                 </td>
                                 <td class="cgrn-td-center">
                                     <span t-esc="move.product_uom.name or ''" />
@@ -423,96 +351,18 @@
                 </div>
             </div>
 
-            <div class="cgrn-section-title">የእህሉ/የእቃው ገቢ የሆነበት ምክንያት/ Reason/Justification / Purpose</div>
-            <div class="cgrn-field-full">
-                <span class="cgrn-field-line cgrn-field-line-tall">
-                    <t t-if="o.reason_for_entry"><span t-field="o.reason_for_entry" /></t>
-                    <t t-elif="o.note"><span t-field="o.note" /></t>
-                </span>
-            </div>
-            <div class="cgrn-field-full">
-                <span class="cgrn-field-line cgrn-field-line-tall" />
-            </div>
-
-            <!-- <div class="cgrn-section-title">Approval Flow</div> -->
-
-            <div class="cgrn-approval-row">
-                <div class="cgrn-approval-role">ያዘጋጀው ስም እና ፊርማ/<br />Prepared By:</div>
-                <div class="cgrn-approval-name-wrap">
-                    <span class="cgrn-field-line">
-                        <span t-esc="o.create_uid.name or ''" />
-                    </span>
+            <!-- Approval + copy distribution pinned to the bottom of the page -->
+            <div style="position: absolute; left: 20px; right: 20px; bottom: 0;">
+                <t t-call="stock_picking_custom.op_approval_line">
+                    <t t-set="prepared_name" t-value="o.create_uid.name"/>
+                    <t t-set="received_name" t-value="storeman_user.name if storeman_user else ''"/>
+                    <t t-set="approved_name" t-value="o.approved_by.name or ''"/>
+                </t>
+                <div class="cgrn-copy-dist" style="display: block; width: 100%; text-align: center;">
+                    <strong>Copy Distribution:</strong>
+                    Original-Store
+                    <span style="margin-left: 16px;">1st Copy Finance</span>
                 </div>
-                <div class="cgrn-approval-sig-label">Sig:</div>
-                <div class="cgrn-approval-sig-wrap">
-                    <div class="cgrn-sig-box">
-                        <t t-if="o.create_uid.sign_signature">
-                            <img t-att-src="image_data_uri(o.create_uid.sign_signature)"
-                                style="max-height: 46px; max-width: 140px;" />
-                        </t>
-                    </div>
-                </div>
-                <div class="cgrn-approval-date-label">Date:</div>
-                <div class="cgrn-approval-date-wrap">
-                    <span class="cgrn-field-line">
-                        <t t-if="o.date_done">
-                            <span t-field="o.date_done" t-options='{"widget": "date"}' />
-                        </t>
-                    </span>
-                </div>
-            </div>
-
-            <div class="cgrn-approval-row">
-                <div class="cgrn-approval-role">የአስረካቢው ስም እና ፊርማ:</div>
-                <div class="cgrn-approval-name-wrap">
-                    <span class="cgrn-field-line">
-                        <span t-esc="o.partner_id.display_name or ''" />
-                    </span>
-                </div>
-                <div class="cgrn-approval-sig-label">Sig:</div>
-                <div class="cgrn-approval-sig-wrap">
-                    <div class="cgrn-sig-box">&#160;</div>
-                </div>
-                <div class="cgrn-approval-date-label">Date:</div>
-                <div class="cgrn-approval-date-wrap">
-                    <span class="cgrn-field-line">&#160;</span>
-                </div>
-            </div>
-
-            <div class="cgrn-approval-row">
-                <div class="cgrn-approval-role">የክምችት ክፍል ሐላፊ ስም እና ፊርማ:</div>
-                <div class="cgrn-approval-name-wrap">
-                    <span class="cgrn-field-line">
-                        <t t-if="storeman_user"><span t-field="storeman_user.name" /></t>
-                    </span>
-                </div>
-                <div class="cgrn-approval-sig-label">Sig:</div>
-                <div class="cgrn-approval-sig-wrap">
-                    <div class="cgrn-sig-box">
-                        <t t-if="storeman_user and storeman_user.sign_signature">
-                            <img t-att-src="image_data_uri(storeman_user.sign_signature)"
-                                style="max-height: 46px; max-width: 140px;" />
-                        </t>
-                        <t t-elif="storeman_user and storeman_user.employee_id and storeman_user.employee_id.emp_signature">
-                            <img t-att-src="'data:image/png;base64,%s' % (storeman_user.employee_id.emp_signature.decode())"
-                                style="max-height: 46px; max-width: 140px;" />
-                        </t>
-                    </div>
-                </div>
-                <div class="cgrn-approval-date-label">Date:</div>
-                <div class="cgrn-approval-date-wrap">
-                    <span class="cgrn-field-line">
-                        <t t-if="o.date_done">
-                            <span t-field="o.date_done" t-options='{"widget": "date"}' />
-                        </t>
-                    </span>
-                </div>
-            </div>
-
-            <div class="cgrn-copy-dist">
-                <strong>Copy Distribution:</strong>
-                Original-Store
-                <span style="margin-left: 16px;">1st Copy Finance</span>
             </div>
 
         </div>
@@ -733,16 +583,16 @@
         <t t-set="driver_phone" t-value="o.driver_phone or ''" />
         <t t-set="driver_address" t-value="o.partner_id.contact_address or ''" />
 
-        <div class="page cdn-page">
+        <div class="page cdn-page" style="position: relative; min-height: 850px; padding-bottom: 110px;">
 
             <div class="oe_structure" />
 
-            <h3 class="cdn-title">ለደንበኛ ማስረከቢያ ሰነድ/ Customer Delivery Note</h3>
+            <h3 class="cdn-title">Customer Delivery Note</h3>
 
             <div class="cdn-form-row">
                 <div class="cdn-form-third">
                     <div class="cdn-form-group">
-                        <span class="cdn-label cdn-label-lg">Invoice / የተመረትበት ሰነድ<br />Doc Ref No:</span>
+                        <span class="cdn-label cdn-label-lg">Invoice / Doc Ref No:</span>
                         <span class="cdn-field-wrap">
                             <span class="cdn-field-line cdn-field-line-dashed">
                                 <span t-esc="o.get_cdn_invoice_ref()" />
@@ -780,7 +630,7 @@
             <div class="cdn-form-row">
                 <div class="cdn-form-third">
                     <div class="cdn-form-group">
-                        <span class="cdn-label cdn-label-lg">የተረካቢው ስም<br />(Customer Name):</span>
+                        <span class="cdn-label cdn-label-lg">Customer Name:</span>
                         <span class="cdn-field-wrap">
                             <span class="cdn-field-line">
                                 <span t-esc="o.partner_id.display_name or ''" />
@@ -846,7 +696,7 @@
             <div class="cdn-form-row">
                 <div class="cdn-form-half">
                     <div class="cdn-form-group">
-                        <span class="cdn-label cdn-label-lg">የመኪናው ሰሌዳ ቁጥር/<br />Truck No:</span>
+                        <span class="cdn-label cdn-label-lg">Truck No:</span>
                         <span class="cdn-field-wrap">
                             <span class="cdn-field-line">
                                 <span t-field="o.vehicle_plate" />
@@ -857,14 +707,11 @@
                 <div class="cdn-form-half" />
             </div>
 
-            <div class="cdn-section-title">የአሁኑ/የእቃው አይነት /Item Details</div>
-
             <table id="cdn_item_table" class="cdn-items-table">
                 <thead style="display: table-header-group;">
                     <tr>
                         <th style="width:4%;">S.N</th>
-                        <th style="width:12%;">Item Code</th>
-                        <th style="width:24%;">Item Description</th>
+                        <th style="width:36%; text-align: left;">Item Description</th>
                         <th style="width:10%;">UOM</th>
                         <th style="width:12%;">Quantity</th>
                         <th style="width:12%;">Unit Price</th>
@@ -879,11 +726,8 @@
                             <t t-set="line_total" t-value="o.get_grn_line_total(move)" />
                             <tr style="page-break-inside: avoid;">
                                 <td class="cdn-td-center"><span t-esc="row_count" /></td>
-                                <td class="cdn-td-center">
-                                    <span t-esc="move.product_id.default_code or ''" />
-                                </td>
                                 <td class="cdn-td-desc">
-                                    <span t-esc="move.product_id.display_name or move.name or ''" />
+                                    <div t-esc="move.product_id.name or move.name or ''" /><div t-foreach="move.get_report_lot_lines()" t-as="lot_line" t-esc="lot_line" style="font-size: 0.9em;" />
                                 </td>
                                 <td class="cdn-td-center">
                                     <span t-esc="move.product_uom.name or ''" />
@@ -905,7 +749,6 @@
                     <t t-foreach="range(pad_rows)" t-as="pad">
                         <tr>
                             <td class="cdn-td-center"><span t-esc="row_count + pad + 1" /></td>
-                            <td>&#160;</td>
                             <td>&#160;</td>
                             <td>&#160;</td>
                             <td>&#160;</td>
@@ -935,21 +778,8 @@
                 </div>
             </div>
 
-            <div class="cdn-section-title">
-                እሁኑ/የእቃው ወጪ የሆነበት ምክንያት/ Reason
-            </div>
-            <div class="cdn-field-full">
-                <span class="cdn-field-line cdn-field-line-tall">
-                    <t t-if="o.reason_for_entry"><span t-field="o.reason_for_entry" /></t>
-                    <t t-elif="o.note"><span t-field="o.note" /></t>
-                </span>
-            </div>
-            <div class="cdn-field-full">
-                <span class="cdn-field-line cdn-field-line-tall" />
-            </div>
-
             <div class="cdn-quality-row">
-                የተጠራበት ጥራት
+                Quality
                 <span class="cdn-field-line cdn-field-line-dashed"
                     style="display:inline-block; width:80px; margin:0 8px; vertical-align:bottom;">
                     <t t-if="o.get_grn_cleaning_quality()">
@@ -958,116 +788,19 @@
                 </span>%
             </div>
 
-            <div class="cdn-section-title">Approval Flow</div>
-
-            <div class="cdn-approval-row">
-                <div class="cdn-approval-role">ያዘጋጀው ስም እና ፊርማ/<br />Prepared By:</div>
-                <div class="cdn-approval-name-wrap">
-                    <span class="cdn-field-line">
-                        <span t-esc="o.create_uid.name or ''" />
-                    </span>
+            <!-- Approval + copy distribution pinned to the bottom of the page -->
+            <div style="position: absolute; left: 20px; right: 20px; bottom: 0;">
+                <t t-call="stock_picking_custom.op_approval_line">
+                    <t t-set="prepared_name" t-value="o.create_uid.name"/>
+                    <t t-set="received_name" t-value="o.partner_id.display_name or ''"/>
+                    <t t-set="approved_name" t-value="o.approved_by.name or ''"/>
+                </t>
+                <div class="cdn-copy-dist" style="display: block; width: 100%; text-align: center;">
+                    <strong>Copy Distribution:</strong>
+                    Original-Driver
+                    <span style="margin-left: 16px;">1st Copy Store Keeper</span>
+                    <span style="margin-left: 16px;">2nd Copy-Pad</span>
                 </div>
-                <div class="cdn-approval-sig-label">Sig:</div>
-                <div class="cdn-approval-sig-wrap">
-                    <div class="cdn-sig-box">
-                        <t t-if="o.create_uid.sign_signature">
-                            <img t-att-src="image_data_uri(o.create_uid.sign_signature)"
-                                style="max-height: 46px; max-width: 140px;" />
-                        </t>
-                    </div>
-                </div>
-                <div class="cdn-approval-date-label">Date:</div>
-                <div class="cdn-approval-date-wrap">
-                    <span class="cdn-field-line">
-                        <t t-if="o.date_done">
-                            <span t-field="o.date_done" t-options='{"widget": "date"}' />
-                        </t>
-                    </span>
-                </div>
-            </div>
-
-            <div class="cdn-approval-row">
-                <div class="cdn-approval-role">የሃላፊ ስም እና ፊርማ/<br />Approved By:</div>
-                <div class="cdn-approval-name-wrap">
-                    <span class="cdn-field-line">
-                        <t t-if="o.approved_by"><span t-field="o.approved_by.name" /></t>
-                    </span>
-                </div>
-                <div class="cdn-approval-sig-label">Sig:</div>
-                <div class="cdn-approval-sig-wrap">
-                    <div class="cdn-sig-box">
-                        <t t-if="o.approved_by and o.approved_by.sign_signature">
-                            <img t-att-src="image_data_uri(o.approved_by.sign_signature)"
-                                style="max-height: 46px; max-width: 140px;" />
-                        </t>
-                        <t t-elif="o.approved_by and o.approved_by.employee_id and o.approved_by.employee_id.emp_signature">
-                            <img t-att-src="'data:image/png;base64,%s' % (o.approved_by.employee_id.emp_signature.decode())"
-                                style="max-height: 46px; max-width: 140px;" />
-                        </t>
-                    </div>
-                </div>
-                <div class="cdn-approval-date-label">Date:</div>
-                <div class="cdn-approval-date-wrap">
-                    <span class="cdn-field-line">
-                        <t t-if="o.date_done">
-                            <span t-field="o.date_done" t-options='{"widget": "date"}' />
-                        </t>
-                    </span>
-                </div>
-            </div>
-
-            <div class="cdn-approval-row">
-                <div class="cdn-approval-role">የተረካቢው ስም እና ፊርማ:</div>
-                <div class="cdn-approval-name-wrap">
-                    <span class="cdn-field-line">
-                        <span t-esc="o.partner_id.display_name or ''" />
-                    </span>
-                </div>
-                <div class="cdn-approval-sig-label">Sig:</div>
-                <div class="cdn-approval-sig-wrap">
-                    <div class="cdn-sig-box">&#160;</div>
-                </div>
-                <div class="cdn-approval-date-label">Date:</div>
-                <div class="cdn-approval-date-wrap">
-                    <span class="cdn-field-line">&#160;</span>
-                </div>
-            </div>
-
-            <div class="cdn-approval-row">
-                <div class="cdn-approval-role">የመጋዘን ክፍል ሃላፊ ስም እና ፊርማ:</div>
-                <div class="cdn-approval-name-wrap">
-                    <span class="cdn-field-line">
-                        <t t-if="storeman_user"><span t-field="storeman_user.name" /></t>
-                    </span>
-                </div>
-                <div class="cdn-approval-sig-label">Sig:</div>
-                <div class="cdn-approval-sig-wrap">
-                    <div class="cdn-sig-box">
-                        <t t-if="storeman_user and storeman_user.sign_signature">
-                            <img t-att-src="image_data_uri(storeman_user.sign_signature)"
-                                style="max-height: 46px; max-width: 140px;" />
-                        </t>
-                        <t t-elif="storeman_user and storeman_user.employee_id and storeman_user.employee_id.emp_signature">
-                            <img t-att-src="'data:image/png;base64,%s' % (storeman_user.employee_id.emp_signature.decode())"
-                                style="max-height: 46px; max-width: 140px;" />
-                        </t>
-                    </div>
-                </div>
-                <div class="cdn-approval-date-label">Date:</div>
-                <div class="cdn-approval-date-wrap">
-                    <span class="cdn-field-line">
-                        <t t-if="o.date_done">
-                            <span t-field="o.date_done" t-options='{"widget": "date"}' />
-                        </t>
-                    </span>
-                </div>
-            </div>
-
-            <div class="cdn-copy-dist">
-                <strong>Copy Distribution:</strong>
-                Original-Driver
-                <span style="margin-left: 16px;">1st Copy Store Keeper</span>
-                <span style="margin-left: 16px;">2nd Copy-Pad</span>
             </div>
 
         </div>
@@ -1102,7 +835,7 @@
             .sia-copy-dist { margin-top: 28px; font-size: 11px; text-align: center; }
         </style>
 
-        <div class="page sia-page">
+        <div class="page sia-page" style="position: relative; min-height: 850px; padding-bottom: 110px;">
             <div class="oe_structure" />
             <div class="sia-title">Store Issue Attachment</div>
 
@@ -1200,14 +933,11 @@
                 </div>
             </div>
 
-            <div class="sia-section-title">የእህሉ/የእቃው አይነት /Item Details</div>
-
             <table class="sia-items-table">
                 <thead style="display: table-header-group;">
                     <tr>
                         <th style="width: 4%;">S.N</th>
-                        <th style="width: 10%;">Item Code</th>
-                        <th style="width: 22%;">Item Description</th>
+                        <th style="width: 32%; text-align: left;">Item Description</th>
                         <th style="width: 10%;">Unit of Measure</th>
                         <th style="width: 11%;">Quantity Requested</th>
                         <th style="width: 11%;">Issued Quantity</th>
@@ -1221,8 +951,7 @@
                         <t t-set="row_count" t-value="row_count + 1" />
                         <tr style="page-break-inside: avoid;">
                             <td class="text-center"><span t-esc="row_count" /></td>
-                            <td><span t-field="move.product_id.default_code" /></td>
-                            <td><span t-field="move.product_id.name" /></td>
+                            <td><div t-esc="move.product_id.name or move.name or ''" /><div t-foreach="move.get_report_lot_lines()" t-as="lot_line" t-esc="lot_line" style="font-size: 0.9em;" /></td>
                             <td class="text-center"><span t-field="move.product_uom.name" /></td>
                             <td class="text-end">
                                 <span t-esc="'{0:,.2f}'.format(move.product_uom_qty)" />
@@ -1249,99 +978,30 @@
                             <td>&#160;</td>
                             <td>&#160;</td>
                             <td>&#160;</td>
-                            <td>&#160;</td>
                         </tr>
                     </t>
                 </tbody>
             </table>
 
-            <div class="sia-section-title">
-                የእህሉ/የእቃው የተላከበት ምክንያት Justification / Purpose/Reason
-            </div>
-
-            <div class="sia-field-full">
-                <span class="sia-field-line" style="min-height: 28px;">
-                    <span t-field="o.note" />
-                </span>
-            </div>
-            <div class="sia-field-full">
-                <span class="sia-field-line" style="min-height: 28px;" />
-            </div>
-
             <t t-set="storeman_user" t-value="o.location_id.warehouse_id.storeman_id" />
 
-            <div class="sia-approval-row">
-                <div class="sia-approval-role">Issued By:</div>
-                <div class="sia-approval-name-wrap">
-                    <span class="sia-field-line">
-                        <t t-if="storeman_user">
-                            <span t-field="storeman_user.name" />
-                        </t>
-                    </span>
+            <!-- Approval + copy distribution pinned to the bottom of the page -->
+            <div style="position: absolute; left: 4px; right: 4px; bottom: 0;">
+                <t t-call="stock_picking_custom.op_approval_line">
+                    <t t-set="prepared_name" t-value="o.create_uid.name"/>
+                    <t t-set="received_name" t-value="o.store_request_id.requested_by.name if o.store_request_id else '' or ''"/>
+                    <t t-set="approved_name" t-value="o.approved_by.name or ''"/>
+                </t>
+                <div class="sia-copy-dist" style="display: block; width: 100%; text-align: center;">
+                    <strong>Copy Distribution:</strong>
+                    <span style="margin-left: 10px;">Original-Accounts</span>
+                    <span style="margin-left: 16px;">1st Requisitioning</span>
+                    <span style="margin-left: 16px;">3rd Store Keeper</span>
+                    <span style="margin-left: 16px;">4th Pad</span>
                 </div>
-                <div class="sia-approval-sig-label">Sig:</div>
-                <div class="sia-approval-sig-wrap">
-                    <div class="sia-sig-box">
-                        <t t-if="storeman_user and storeman_user.sign_signature">
-                            <img t-att-src="image_data_uri(storeman_user.sign_signature)"
-                                style="max-height: 46px; max-width: 140px;" />
-                        </t>
-                        <t t-elif="storeman_user and storeman_user.employee_id and storeman_user.employee_id.emp_signature">
-                            <img t-att-src="'data:image/png;base64,%s' % (storeman_user.employee_id.emp_signature.decode())"
-                                style="max-height: 46px; max-width: 140px;" />
-                        </t>
-                    </div>
-                </div>
-                <div class="sia-approval-date-label">Date:</div>
-                <div class="sia-approval-date-wrap">
-                    <span class="sia-field-line">
-                        <t t-if="o.date_done">
-                            <span t-field="o.date_done" t-options='{"widget": "date"}' />
-                        </t>
-                    </span>
-                </div>
-            </div>
-
-            <div class="sia-approval-row">
-                <div class="sia-approval-role">Approved By:</div>
-                <div class="sia-approval-name-wrap">
-                    <span class="sia-field-line">
-                        <span t-field="o.approved_by.name" />
-                    </span>
-                </div>
-                <div class="sia-approval-sig-label">Sig:</div>
-                <div class="sia-approval-sig-wrap">
-                    <div class="sia-sig-box">
-                        <t t-if="o.approved_by and o.approved_by.sign_signature">
-                            <img t-att-src="image_data_uri(o.approved_by.sign_signature)"
-                                style="max-height: 46px; max-width: 140px;" />
-                        </t>
-                        <t t-elif="o.approved_by and o.approved_by.employee_id and o.approved_by.employee_id.emp_signature">
-                            <img t-att-src="'data:image/png;base64,%s' % (o.approved_by.employee_id.emp_signature.decode())"
-                                style="max-height: 46px; max-width: 140px;" />
-                        </t>
-                    </div>
-                </div>
-                <div class="sia-approval-date-label">Date:</div>
-                <div class="sia-approval-date-wrap">
-                    <span class="sia-field-line">
-                        <t t-if="o.date_done">
-                            <span t-field="o.date_done" t-options='{"widget": "date"}' />
-                        </t>
-                    </span>
-                </div>
-            </div>
-
-            <div class="sia-copy-dist">
-                <strong>Copy Distribution:</strong>
-                <span style="margin-left: 10px;">Original-Accounts</span>
-                <span style="margin-left: 16px;">1st Requisitioning</span>
-                <span style="margin-left: 16px;">3rd Store Keeper</span>
-                <span style="margin-left: 16px;">4th Pad</span>
             </div>
         </div>
     </template>
-
 
     <template id="report_gate_pass_attachment">
         <t t-call="web.html_container">
@@ -1536,7 +1196,7 @@
         <t t-set="driver_name" t-value="o.driver_name or ''" />
         <t t-set="driver_address" t-value="gpa_customer.contact_address or ''" />
 
-        <div class="page gpa-page">
+        <div class="page gpa-page" style="position: relative; min-height: 850px; padding-bottom: 110px;">
             <div class="oe_structure" />
 
             <div class="gpa-title">Gate Pass Attachment</div>
@@ -1548,7 +1208,7 @@
                         <div class="gpa-und"><span t-field="o.name" /></div>
                     </div>
                     <div class="gpa-field">
-                        <span class="gpa-lbl">Customer Name:<br />የተረካቢው ስም</span>
+                        <span class="gpa-lbl">Customer Name:</span>
                         <div class="gpa-und">
                             <t t-if="gpa_customer">
                                 <span t-esc="gpa_customer.display_name or ''" />
@@ -1563,7 +1223,7 @@
                         <div class="gpa-und"><span t-esc="driver_name" /></div>
                     </div>
                     <div class="gpa-field">
-                        <span class="gpa-lbl">Truck No:<br />የመኪናው ሰሌዳ ቁጥር</span>
+                        <span class="gpa-lbl">Truck No:</span>
                         <div class="gpa-und"><span t-field="o.vehicle_plate" /></div>
                     </div>
                 </div>
@@ -1594,14 +1254,11 @@
                 </div>
             </div>
 
-            <div class="gpa-section">Item Details / የአሁኑ/የእቃው አይነት</div>
-
             <table class="gpa-table">
                 <thead style="display: table-header-group;">
                     <tr>
                         <th style="width:4%;">S.N</th>
-                        <th style="width:10%;">Item Code</th>
-                        <th style="width:24%;">Item Description</th>
+                        <th style="width:34%; text-align: left;">Item Description</th>
                         <th style="width:8%;">UOM</th>
                         <th style="width:10%;">Demand</th>
                         <th style="width:10%;">Quantity</th>
@@ -1617,8 +1274,7 @@
                             <t t-set="line_total" t-value="o.get_grn_line_total(move)" />
                             <tr style="page-break-inside: avoid;">
                                 <td class="gpa-center"><span t-esc="row_count" /></td>
-                                <td class="gpa-center"><span t-esc="move.product_id.default_code or ''" /></td>
-                                <td class="gpa-desc"><span t-esc="move.product_id.display_name or move.name or ''" /></td>
+                                <td class="gpa-desc"><div t-esc="move.product_id.name or move.name or ''" /><div t-foreach="move.get_report_lot_lines()" t-as="lot_line" t-esc="lot_line" style="font-size: 0.9em;" /></td>
                                 <td class="gpa-center"><span t-esc="move.product_uom.name or ''" /></td>
                                 <td class="gpa-num"><span t-esc="'{0:,.2f}'.format(move.product_uom_qty or 0.0)" /></td>
                                 <td class="gpa-num"><span t-esc="'{0:,.2f}'.format(move.quantity or 0.0)" /></td>
@@ -1632,7 +1288,6 @@
                     <t t-foreach="range(pad_rows)" t-as="pad">
                         <tr>
                             <td class="gpa-center"><span t-esc="row_count + pad + 1" /></td>
-                            <td>&#160;</td>
                             <td>&#160;</td>
                             <td>&#160;</td>
                             <td>&#160;</td>
@@ -1659,15 +1314,8 @@
                 </div>
             </div>
 
-            <div class="gpa-section">Reason / እሁኑ/የእቃው ወጪ የሆነበት ምክንያት</div>
-            <div class="gpa-line">
-                <t t-if="o.reason_for_entry"><span t-field="o.reason_for_entry" /></t>
-                <t t-elif="o.note"><span t-field="o.note" /></t>
-            </div>
-            <div class="gpa-line">&#160;</div>
-
             <div class="gpa-quality">
-                የተጠራበት ጥራት
+                Quality
                 <span class="gpa-und" style="display:inline-block; width:80px; margin:0 8px;">
                     <t t-if="o.get_grn_cleaning_quality()">
                         <span t-esc="'{0:,.2f}'.format(o.get_grn_cleaning_quality())" />
@@ -1675,146 +1323,20 @@
                 </span>%
             </div>
 
-            <div class="gpa-section">Approval Flow</div>
-            <div class="gpa-appr">
-                <div class="gpa-appr-row">
-                    <div class="gpa-appr-title">Prepared By:</div>
-                    <div class="gpa-appr-slot">
-                        <div class="gpa-field">
-                            <span class="gpa-lbl">Name:</span>
-                            <div class="gpa-und"><span t-esc="o.create_uid.name or ''" /></div>
-                        </div>
-                    </div>
-                    <div class="gpa-appr-slot">
-                        <div class="gpa-field">
-                            <span class="gpa-lbl">Sig:</span>
-                            <div class="gpa-und">
-                                <t t-if="o.create_uid.sign_signature">
-                                    <img t-att-src="image_data_uri(o.create_uid.sign_signature)"
-                                        style="max-height: 40px; max-width: 120px;" />
-                                </t>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="gpa-appr-slot">
-                        <div class="gpa-field">
-                            <span class="gpa-lbl">Date:</span>
-                            <div class="gpa-und">
-                                <t t-if="o.date_done">
-                                    <span t-field="o.date_done" t-options='{"widget": "date"}' />
-                                </t>
-                            </div>
-                        </div>
-                    </div>
+            <!-- Approval + copy distribution pinned to the bottom of the page -->
+            <div style="position: absolute; left: 4px; right: 4px; bottom: 0;">
+                <t t-call="stock_picking_custom.op_approval_line">
+                    <t t-set="prepared_name" t-value="o.create_uid.name"/>
+                    <t t-set="received_name" t-value="gpa_customer.display_name if gpa_customer else (o.store_request_id.requested_by.name if o.store_request_id else '')"/>
+                    <t t-set="approved_name" t-value="o.approved_by.name or ''"/>
+                </t>
+                <div class="gpa-copy" style="display: block; width: 100%; text-align: center;">
+                    <strong>Copy Distribution:</strong>
+                    Original-Guards Manager &#160;|&#160;
+                    1st Copy Store Keeper &#160;|&#160;
+                    2nd Copy Warehouse &#160;|&#160;
+                    3rd Copy-Pad
                 </div>
-                <div class="gpa-appr-row">
-                    <div class="gpa-appr-title">Approved By:</div>
-                    <div class="gpa-appr-slot">
-                        <div class="gpa-field">
-                            <span class="gpa-lbl">Name:</span>
-                            <div class="gpa-und">
-                                <t t-if="o.approved_by"><span t-field="o.approved_by.name" /></t>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="gpa-appr-slot">
-                        <div class="gpa-field">
-                            <span class="gpa-lbl">Sig:</span>
-                            <div class="gpa-und">
-                                <t t-if="o.approved_by and o.approved_by.sign_signature">
-                                    <img t-att-src="image_data_uri(o.approved_by.sign_signature)"
-                                        style="max-height: 40px; max-width: 120px;" />
-                                </t>
-                                <t t-elif="o.approved_by and o.approved_by.employee_id and o.approved_by.employee_id.emp_signature">
-                                    <img t-att-src="'data:image/png;base64,%s' % (o.approved_by.employee_id.emp_signature.decode())"
-                                        style="max-height: 40px; max-width: 120px;" />
-                                </t>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="gpa-appr-slot">
-                        <div class="gpa-field">
-                            <span class="gpa-lbl">Date:</span>
-                            <div class="gpa-und">
-                                <t t-if="o.date_done">
-                                    <span t-field="o.date_done" t-options='{"widget": "date"}' />
-                                </t>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="gpa-appr-row">
-                    <div class="gpa-appr-title">Received By:</div>
-                    <div class="gpa-appr-slot">
-                        <div class="gpa-field">
-                            <span class="gpa-lbl">Name:</span>
-                            <div class="gpa-und">
-                                <t t-if="gpa_customer">
-                                    <span t-esc="gpa_customer.display_name or ''" />
-                                </t>
-                                <t t-elif="o.store_request_id and o.store_request_id.requested_by">
-                                    <span t-field="o.store_request_id.requested_by.name" />
-                                </t>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="gpa-appr-slot">
-                        <div class="gpa-field">
-                            <span class="gpa-lbl">Sig:</span>
-                            <div class="gpa-und">&#160;</div>
-                        </div>
-                    </div>
-                    <div class="gpa-appr-slot">
-                        <div class="gpa-field">
-                            <span class="gpa-lbl">Date:</span>
-                            <div class="gpa-und">&#160;</div>
-                        </div>
-                    </div>
-                </div>
-                <div class="gpa-appr-row">
-                    <div class="gpa-appr-title">Store Keeper:</div>
-                    <div class="gpa-appr-slot">
-                        <div class="gpa-field">
-                            <span class="gpa-lbl">Name:</span>
-                            <div class="gpa-und">
-                                <t t-if="storeman_user"><span t-field="storeman_user.name" /></t>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="gpa-appr-slot">
-                        <div class="gpa-field">
-                            <span class="gpa-lbl">Sig:</span>
-                            <div class="gpa-und">
-                                <t t-if="storeman_user and storeman_user.sign_signature">
-                                    <img t-att-src="image_data_uri(storeman_user.sign_signature)"
-                                        style="max-height: 40px; max-width: 120px;" />
-                                </t>
-                                <t t-elif="storeman_user and storeman_user.employee_id and storeman_user.employee_id.emp_signature">
-                                    <img t-att-src="'data:image/png;base64,%s' % (storeman_user.employee_id.emp_signature.decode())"
-                                        style="max-height: 40px; max-width: 120px;" />
-                                </t>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="gpa-appr-slot">
-                        <div class="gpa-field">
-                            <span class="gpa-lbl">Date:</span>
-                            <div class="gpa-und">
-                                <t t-if="o.date_done">
-                                    <span t-field="o.date_done" t-options='{"widget": "date"}' />
-                                </t>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="gpa-copy">
-                <strong>Copy Distribution:</strong>
-                Original-Guards Manager &#160;|&#160;
-                1st Copy Store Keeper &#160;|&#160;
-                2nd Copy Warehouse &#160;|&#160;
-                3rd Copy-Pad
             </div>
         </div>
     </template>
@@ -1875,6 +1397,5 @@
             <t t-call="stock_picking_custom.sia_body" />
         </t>
     </template>
-
 
 </odoo>

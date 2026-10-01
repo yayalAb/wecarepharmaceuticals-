@@ -22,7 +22,7 @@
 
     <template id="gpa_document">
         <t t-call="web.external_layout">
-            <div class="page" style="font-family: 'DejaVu Sans', sans-serif; font-size: 11px; color: #000;">
+            <div class="page" style="font-family: 'DejaVu Sans', sans-serif; font-size: 11px; color: #000; position: relative; min-height: 850px; padding-bottom: 110px;">
                 <style type="text/css">
                     .gpa-title { text-align: center; font-size: 16px; font-weight: bold; color: #c00000; margin: 0 0 14px 0; text-transform: uppercase; letter-spacing: 0.5px; }
                     .gpa-field { margin-bottom: 14px; font-size: 10px; overflow: hidden; width: 100%; }
@@ -111,8 +111,6 @@
                         </div>
                     </div>
                 </div>
-
-                <div class="gpa-section">Item Details</div>
                 <table class="gpa-table">
                     <thead>
                         <tr>
@@ -151,101 +149,17 @@
                     </tbody>
                 </table>
 
-                <div class="gpa-section">Justification / Purpose</div>
-                <div class="gpa-line"><span t-field="o.reason_for_entry"/></div>
-                <div class="gpa-line" style="margin-bottom: 0;">&#160;</div>
-
-                <div class="gpa-section">Approval Flow</div>
-                <div class="gpa-appr">
-                    <div class="gpa-appr-row">
-                        <div class="gpa-appr-title">Prepared By:</div>
-                        <div class="gpa-appr-slot">
-                            <div class="gpa-field">
-                                <span class="gpa-lbl">Name:</span>
-                                <div class="gpa-und">&#160;</div>
-                            </div>
-                        </div>
-                        <div class="gpa-appr-slot">
-                            <div class="gpa-field">
-                                <span class="gpa-lbl">Sig:</span>
-                                <div class="gpa-und">&#160;</div>
-                            </div>
-                        </div>
-                        <div class="gpa-appr-slot">
-                            <div class="gpa-field">
-                                <span class="gpa-lbl">Date:</span>
-                                <div class="gpa-und">&#160;</div>
-                            </div>
-                        </div>
+                <!-- Approval + copy distribution pinned to the bottom of the page -->
+                <div style="position: absolute; left: 0; right: 0; bottom: 0;">
+                    <t t-call="stock_picking_custom.op_approval_line">
+                        <t t-set="prepared_name" t-value="o.create_uid.name"/>
+                        <t t-set="received_name" t-value="o.partner_id.display_name or ''"/>
+                        <t t-set="approved_name" t-value="o.approved_by.name or ''"/>
+                    </t>
+                    <div class="gpa-copy" style="display: block; width: 100%; text-align: center;">
+                        <strong>Copy Distribution:</strong>
+                        Original-Guards Manager &#160;|&#160; 1st Copy Store Keeper &#160;|&#160; 2nd Copy- Pad
                     </div>
-                    <div class="gpa-appr-row">
-                        <div class="gpa-appr-title">Received By:</div>
-                        <div class="gpa-appr-slot">
-                            <div class="gpa-field">
-                                <span class="gpa-lbl">Name:</span>
-                                <div class="gpa-und">&#160;</div>
-                            </div>
-                        </div>
-                        <div class="gpa-appr-slot">
-                            <div class="gpa-field">
-                                <span class="gpa-lbl">Sig:</span>
-                                <div class="gpa-und">&#160;</div>
-                            </div>
-                        </div>
-                        <div class="gpa-appr-slot">
-                            <div class="gpa-field">
-                                <span class="gpa-lbl">Date:</span>
-                                <div class="gpa-und">&#160;</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="gpa-appr-row">
-                        <div class="gpa-appr-title">Store Keeper Name:</div>
-                        <div class="gpa-appr-slot">
-                            <div class="gpa-field">
-                                <span class="gpa-lbl">Name:</span>
-                                <div class="gpa-und">&#160;</div>
-                            </div>
-                        </div>
-                        <div class="gpa-appr-slot">
-                            <div class="gpa-field">
-                                <span class="gpa-lbl">Sig:</span>
-                                <div class="gpa-und">&#160;</div>
-                            </div>
-                        </div>
-                        <div class="gpa-appr-slot">
-                            <div class="gpa-field">
-                                <span class="gpa-lbl">Date:</span>
-                                <div class="gpa-und">&#160;</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="gpa-appr-row">
-                        <div class="gpa-appr-title">Warehouse Manager Name:</div>
-                        <div class="gpa-appr-slot">
-                            <div class="gpa-field">
-                                <span class="gpa-lbl">Name:</span>
-                                <div class="gpa-und">&#160;</div>
-                            </div>
-                        </div>
-                        <div class="gpa-appr-slot">
-                            <div class="gpa-field">
-                                <span class="gpa-lbl">Sig:</span>
-                                <div class="gpa-und">&#160;</div>
-                            </div>
-                        </div>
-                        <div class="gpa-appr-slot">
-                            <div class="gpa-field">
-                                <span class="gpa-lbl">Date:</span>
-                                <div class="gpa-und">&#160;</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="gpa-copy">
-                    <strong>Copy Distribution:</strong>
-                    Original-Guards Manager &#160;|&#160; 1st Copy Store Keeper &#160;|&#160; 2nd Copy- Pad
                 </div>
             </div>
         </t>

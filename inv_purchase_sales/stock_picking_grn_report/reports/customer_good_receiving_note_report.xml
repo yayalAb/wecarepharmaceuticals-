@@ -22,7 +22,7 @@
     <template id="cgrn_document">
         <t t-call="web.external_layout">
             <t t-set="o" t-value="o"/>
-            <div class="page" style="font-family: 'DejaVu Sans', 'Noto Sans Ethiopic', sans-serif; font-size: 11px; color: #000;">
+            <div class="page" style="font-family: 'DejaVu Sans', 'Noto Sans Ethiopic', sans-serif; font-size: 11px; color: #000; position: relative; min-height: 850px; padding-bottom: 110px;">
                 <style type="text/css">
                     .cgrn-title { text-align: center; font-size: 15px; font-weight: bold; color: #c00000; margin: 0 0 12px 0; line-height: 1.35; }
                     .cgrn-meta { width: 100%; margin-bottom: 10px; font-size: 11px; }
@@ -53,7 +53,7 @@
                     .cgrn-copy-dist { margin-top: 16px; font-size: 10px; border-top: 1px solid #ccc; padding-top: 8px; }
                 </style>
 
-                <div class="cgrn-title">የደንበኞች መረከቢያ ሰነድ / CUSTOMER GOOD RECEIVING NOTE</div>
+                <div class="cgrn-title">CUSTOMER GOOD RECEIVING NOTE</div>
 
                 <div class="cgrn-meta">
                     <div class="cgrn-meta-row">
@@ -77,8 +77,6 @@
                         <span class="cgrn-meta-val"><span t-field="o.location_dest_id"/></span>
                     </div>
                 </div>
-
-                <div class="cgrn-section">የእህሉ አይነት / Item Details</div>
                 <table class="cgrn-table">
                     <thead>
                         <tr>
@@ -86,10 +84,10 @@
                             <th style="width:12%;">Item Code</th>
                             <th style="width:22%;">Item Description</th>
                             <th style="width:10%;">Unit of Measure</th>
-                            <th style="width:8%;">ብዛት<br/>Quantity</th>
-                            <th style="width:11%;">ጠቅላላ ክብደት</th>
-                            <th style="width:11%;">ነጠላ ክብደት</th>
-                            <th style="width:11%;">የተጣራ ክብደት</th>
+                            <th style="width:8%;">Quantity</th>
+                            <th style="width:11%;">Total Weight</th>
+                            <th style="width:11%;">Net Weight</th>
+                            <th style="width:11%;">P. Net Weight</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -111,108 +109,19 @@
                 </table>
 
                 <!-- <div class="cgrn-quality">
-                    ጥራት / Quality: ........................................................ %
+                    Quality: ........................................................ %
                 </div> -->
-                <div class="cgrn-reason-label">ገቢ የሆነበት ምክንያት / Reason</div>
-                <div class="cgrn-reason-line"><span t-field="o.reason_for_entry"/></div>
-                <div class="cgrn-reason-line">&#160;</div>
-
-                <div class="cgrn-approval-title">Approval Flow</div>
-                <div class="gpa-appr">
-                    <div class="gpa-appr-row">
-                        <div class="gpa-appr-title">Prepared By:</div>
-                        <div class="gpa-appr-slot">
-                            <div class="gpa-field">
-                                <span class="gpa-lbl">Name:</span>
-                                <div class="gpa-und"><span t-field="o.create_uid.name"/></div>
-                            </div>
-                        </div>
-                        <div class="gpa-appr-slot">
-                            <div class="gpa-field">
-                                <span class="gpa-lbl">Sig:</span>
-                                <div class="gpa-und">&#160;</div>
-                            </div>
-                        </div>
-                        <div class="gpa-appr-slot">
-                            <div class="gpa-field">
-                                <span class="gpa-lbl">Date:</span>
-                                <div class="gpa-und">&#160;</div>
-                            </div>
-                        </div>
+                <!-- Approval + copy distribution pinned to the bottom of the page -->
+                <div style="position: absolute; left: 0; right: 0; bottom: 0;">
+                    <t t-call="stock_picking_custom.op_approval_line">
+                        <t t-set="prepared_name" t-value="o.create_uid.name"/>
+                        <t t-set="received_name" t-value="o.location_dest_id.warehouse_id.storeman_id.name or ''"/>
+                        <t t-set="approved_name" t-value="o.approved_by.name or ''"/>
+                    </t>
+                    <div class="cgrn-copy-dist" style="display: block; width: 100%; text-align: center;">
+                        <strong>Copy Distribution:</strong>
+                        Original-Deliverer &#160;|&#160; 1st Copy Finance &#160;|&#160; 2nd Copy-Production Section &#160;|&#160; 3rd Copy-Pad
                     </div>
-                    <div class="gpa-appr-row">
-                        <div class="gpa-appr-title">Received By:</div>
-                        <div class="gpa-appr-slot">
-                            <div class="gpa-field">
-                                <span class="gpa-lbl">Name:</span>
-                                <div class="gpa-und"><span t-field="o.partner_id.name"/></div>
-                            </div>
-                        </div>
-                        <div class="gpa-appr-slot">
-                            <div class="gpa-field">
-                                <span class="gpa-lbl">Sig:</span>
-                                <div class="gpa-und">&#160;</div>
-                            </div>
-                        </div>
-                        <div class="gpa-appr-slot">
-                            <div class="gpa-field">
-                                <span class="gpa-lbl">Date:</span>
-                                <div class="gpa-und">&#160;</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="gpa-appr-row">
-                        <div class="gpa-appr-title">Store Keeper Name:</div>
-                        <div class="gpa-appr-slot">
-                            <div class="gpa-field">
-                                <span class="gpa-lbl">Name:</span>
-                                <div class="gpa-und">
-                                    <t t-if="o.location_dest_id and o.location_dest_id.warehouse_id and o.location_dest_id.warehouse_id.storeman_id">
-                                        <span t-field="o.location_dest_id.warehouse_id.storeman_id.name"/>
-                                    </t>
-                                    <t t-else="">&#160;</t>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="gpa-appr-slot">
-                            <div class="gpa-field">
-                                <span class="gpa-lbl">Sig:</span>
-                                <div class="gpa-und">&#160;</div>
-                            </div>
-                        </div>
-                        <div class="gpa-appr-slot">
-                            <div class="gpa-field">
-                                <span class="gpa-lbl">Date:</span>
-                                <div class="gpa-und">&#160;</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="gpa-appr-row">
-                        <div class="gpa-appr-title">Warehouse Manager Name:</div>
-                        <div class="gpa-appr-slot">
-                            <div class="gpa-field">
-                                <span class="gpa-lbl">Name:</span>
-                                <div class="gpa-und"><t t-if="o.approved_by"><span t-field="o.approved_by.name"/></t><t t-else="">&#160;</t></div>
-                            </div>
-                        </div>
-                        <div class="gpa-appr-slot">
-                            <div class="gpa-field">
-                                <span class="gpa-lbl">Sig:</span>
-                                <div class="gpa-und">&#160;</div>
-                            </div>
-                        </div>
-                        <div class="gpa-appr-slot">
-                            <div class="gpa-field">
-                                <span class="gpa-lbl">Date:</span>
-                                <div class="gpa-und">&#160;</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="cgrn-copy-dist">
-                    <strong>Copy Distribution:</strong>
-                    Original-አስረካቢው &#160;|&#160; 1st Copy Finance &#160;|&#160; 2nd Copy-ከምርት ክፍል &#160;|&#160; 3rd Copy-Pad
                 </div>
             </div>
         </t>

@@ -60,7 +60,7 @@
             .sra-sig-box { width: 100%; min-height: 50px; border-bottom: 1px solid #000; text-align: center; padding-bottom: 2px; box-sizing: border-box; }
         </style>
 
-        <div class="page sra-page">
+        <div class="page sra-page" style="position: relative; min-height: 850px; padding-bottom: 110px;">
             <div class="oe_structure" />
             <div class="sra-title">Store Return Attachment</div>
 
@@ -152,14 +152,11 @@
                 </div>
             </div>
 
-            <div class="sra-section-title">የእህሉ/የእቃው አይነት /Item Details</div>
-
             <table class="sra-items-table">
                 <thead style="display: table-header-group;">
                     <tr>
                         <th style="width: 4%;">S.N</th>
-                        <th style="width: 10%;">Item Code</th>
-                        <th style="width: 22%;">Item Description</th>
+                        <th style="width: 32%; text-align: left;">Item Description</th>
                         <th style="width: 10%;">Unit of Measure</th>
                         <th style="width: 11%;">Quantity Requested</th>
                         <th style="width: 11%;">Issued Quantity</th>
@@ -174,8 +171,7 @@
                             <t t-set="row_count" t-value="row_count + 1" />
                             <tr style="page-break-inside: avoid;">
                                 <td class="text-center"><span t-esc="row_count" /></td>
-                                <td><span t-field="move.product_id.default_code" /></td>
-                                <td><span t-field="move.product_id.name" /></td>
+                                <td><div t-esc="move.product_id.name or move.name or ''" /><div t-foreach="move.get_report_lot_lines()" t-as="lot_line" t-esc="lot_line" style="font-size: 0.9em;" /></td>
                                 <td class="text-center"><span t-field="move.product_uom.name" /></td>
                                 <td class="text-end">
                                     <span t-esc="'{0:,.2f}'.format(move.product_uom_qty)" />
@@ -203,87 +199,18 @@
                             <td>&#160;</td>
                             <td>&#160;</td>
                             <td>&#160;</td>
-                            <td>&#160;</td>
                         </tr>
                     </t>
                 </tbody>
             </table>
 
-            <div class="sra-section-title">
-                የተመለስበት/መነሻ ምክንያት Justification / Purpose/Reason
-            </div>
-
-            <div class="sra-field-full">
-                <span class="sra-field-line" style="min-height: 28px;">
-                    <span t-esc="o.get_sra_justification()" />
-                </span>
-            </div>
-            <div class="sra-field-full">
-                <span class="sra-field-line" style="min-height: 28px;" />
-            </div>
-
-            <div class="sra-section-title">Approval Flow</div>
-
-            <div class="sra-approval-row">
-                <div class="sra-approval-role">Returned By:</div>
-                <div class="sra-approval-name-wrap">
-                    <span class="sra-field-line">
-                        <t t-if="returned_by">
-                            <span t-field="returned_by.name" />
-                        </t>
-                    </span>
-                </div>
-                <div class="sra-approval-sig-label">Sig:</div>
-                <div class="sra-approval-sig-wrap">
-                    <div class="sra-sig-box">
-                        <t t-if="returned_by and returned_by.sign_signature">
-                            <img t-att-src="image_data_uri(returned_by.sign_signature)"
-                                style="max-height: 46px; max-width: 140px;" />
-                        </t>
-                        <t t-elif="returned_by and returned_by.employee_id and returned_by.employee_id.emp_signature">
-                            <img t-att-src="'data:image/png;base64,%s' % (returned_by.employee_id.emp_signature.decode())"
-                                style="max-height: 46px; max-width: 140px;" />
-                        </t>
-                    </div>
-                </div>
-                <div class="sra-approval-date-label">Date:</div>
-                <div class="sra-approval-date-wrap">
-                    <span class="sra-field-line">
-                        <t t-if="o.date_done">
-                            <span t-field="o.date_done" t-options='{"widget": "date"}' />
-                        </t>
-                    </span>
-                </div>
-            </div>
-
-            <div class="sra-approval-row">
-                <div class="sra-approval-role">Approved By:</div>
-                <div class="sra-approval-name-wrap">
-                    <span class="sra-field-line">
-                        <span t-field="o.approved_by.name" />
-                    </span>
-                </div>
-                <div class="sra-approval-sig-label">Sig:</div>
-                <div class="sra-approval-sig-wrap">
-                    <div class="sra-sig-box">
-                        <t t-if="o.approved_by and o.approved_by.sign_signature">
-                            <img t-att-src="image_data_uri(o.approved_by.sign_signature)"
-                                style="max-height: 46px; max-width: 140px;" />
-                        </t>
-                        <t t-elif="o.approved_by and o.approved_by.employee_id and o.approved_by.employee_id.emp_signature">
-                            <img t-att-src="'data:image/png;base64,%s' % (o.approved_by.employee_id.emp_signature.decode())"
-                                style="max-height: 46px; max-width: 140px;" />
-                        </t>
-                    </div>
-                </div>
-                <div class="sra-approval-date-label">Date:</div>
-                <div class="sra-approval-date-wrap">
-                    <span class="sra-field-line">
-                        <t t-if="o.date_done">
-                            <span t-field="o.date_done" t-options='{"widget": "date"}' />
-                        </t>
-                    </span>
-                </div>
+            <!-- Approval + copy distribution pinned to the bottom of the page -->
+            <div style="position: absolute; left: 4px; right: 4px; bottom: 0;">
+                <t t-call="stock_picking_custom.op_approval_line">
+                    <t t-set="prepared_name" t-value="returned_by.name if returned_by else o.create_uid.name"/>
+                    <t t-set="received_name" t-value="o.location_id.warehouse_id.storeman_id.name or o.location_dest_id.warehouse_id.storeman_id.name or ''"/>
+                    <t t-set="approved_name" t-value="o.approved_by.name or ''"/>
+                </t>
             </div>
         </div>
     </template>

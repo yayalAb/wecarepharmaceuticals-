@@ -22,7 +22,7 @@
 
     <template id="gra_document">
         <t t-call="web.external_layout">
-            <div class="page" style="font-family: 'DejaVu Sans', 'Times New Roman', serif; font-size: 11px; color: #000;">
+            <div class="page" style="font-family: 'DejaVu Sans', 'Times New Roman', serif; font-size: 11px; color: #000; position: relative; min-height: 850px; padding-bottom: 110px;">
                 <style type="text/css">
                     .gra-title { text-align: center; font-size: 16px; font-weight: bold; color: #c00000; margin: 0 0 14px 0; text-transform: uppercase; letter-spacing: 0.5px; }
                     .gra-field { margin-bottom: 14px; font-size: 10px; overflow: hidden; width: 100%; }
@@ -77,8 +77,6 @@
                         </div>
                     </div>
                 </div>
-
-                <div class="gra-section">Item Details</div>
                 <table class="gra-table">
                     <thead>
                         <tr>
@@ -87,9 +85,9 @@
                             <th style="width:14%;">Item Description</th>
                             <th style="width:7%;">Unit of<br/>Measure</th>
                             <th style="width:7%;">Demand</th>
-                            <th style="width:8%;">ጠቅላላ<br/>ክብደት</th>
-                            <th style="width:8%;">ነጠላ<br/>ክብደት</th>
-                            <th style="width:11%;">የተረከበው ክብደት<br/>Received Qty</th>
+                            <th style="width:8%;">Total<br/>Weight</th>
+                            <th style="width:8%;">Net<br/>Weight</th>
+                            <th style="width:11%;">Received Qty</th>
                             <th style="width:8%;">Unit<br/>Price</th>
                             <th style="width:8%;">Total Unit<br/>Price</th>
                         </tr>
@@ -136,59 +134,17 @@
                     </div>
                 </div>
 
-                <div class="gra-section">Justification / Purpose</div>
-                <div class="gra-line"><span t-field="o.reason_for_entry"/></div>
-                <div class="gra-line" style="margin-bottom: 0;">&#160;</div>
-
-                <div class="gra-section">Approval Flow</div>
-                <div class="gra-appr">
-                    <div class="gra-appr-row">
-                        <div class="gra-appr-title">Prepared By:</div>
-                        <div class="gra-appr-slot">
-                            <div class="gra-field">
-                                <span class="gra-lbl">Name:</span>
-                                <div class="gra-und"><span t-field="o.create_uid.name"/></div>
-                            </div>
-                        </div>
-                        <div class="gra-appr-slot">
-                            <div class="gra-field">
-                                <span class="gra-lbl">Sig:</span>
-                                <div class="gra-und">&#160;</div>
-                            </div>
-                        </div>
-                        <div class="gra-appr-slot">
-                            <div class="gra-field">
-                                <span class="gra-lbl">Date:</span>
-                                <div class="gra-und">&#160;</div>
-                            </div>
-                        </div>
+                <!-- Approval + copy distribution pinned to the bottom of the page -->
+                <div style="position: absolute; left: 0; right: 0; bottom: 0;">
+                    <t t-call="stock_picking_custom.op_approval_line">
+                        <t t-set="prepared_name" t-value="o.create_uid.name"/>
+                        <t t-set="received_name" t-value="o.location_dest_id.warehouse_id.storeman_id.name or ''"/>
+                        <t t-set="approved_name" t-value="o.approved_by.name or ''"/>
+                    </t>
+                    <div class="gra-copy" style="display: block; width: 100%; text-align: center;">
+                        <strong>Copy Distribution:</strong>
+                        Original-Store &#160;|&#160; 1st Copy Finance &#160;|&#160; 2nd Copy-Pad
                     </div>
-                    <div class="gra-appr-row">
-                        <div class="gra-appr-title">Approved By:</div>
-                        <div class="gra-appr-slot">
-                            <div class="gra-field">
-                                <span class="gra-lbl">Name:</span>
-                                <div class="gra-und"><t t-if="o.approved_by"><span t-field="o.approved_by.name"/></t><t t-else="">&#160;</t></div>
-                            </div>
-                        </div>
-                        <div class="gra-appr-slot">
-                            <div class="gra-field">
-                                <span class="gra-lbl">Sig:</span>
-                                <div class="gra-und">&#160;</div>
-                            </div>
-                        </div>
-                        <div class="gra-appr-slot">
-                            <div class="gra-field">
-                                <span class="gra-lbl">Date:</span>
-                                <div class="gra-und">&#160;</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="gra-copy">
-                    <strong>Copy Distribution:</strong>
-                    Original-Store &#160;|&#160; 1st Copy Finance &#160;|&#160; 2nd Copy-Pad
                 </div>
             </div>
         </t>
