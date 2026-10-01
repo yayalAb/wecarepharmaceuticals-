@@ -32,11 +32,14 @@ class AccountMoveLine(models.Model):
         string='Invoice Date',
     )
 
-    @api.depends('sale_line_ids.stock_location_id')
+    @api.depends('sale_line_ids.stock_location_id', 'move_id.stock_location_id')
     def _compute_stock_location_id(self):
-        # Carry the location chosen on the quotation / sales order line to the invoice line.
+        # Carry the location chosen on the quotation / sales order line to the invoice line;
+        # lines without one (e.g. manual invoices) default to the invoice header location.
         for line in self:
             location = line.sale_line_ids.stock_location_id[:1]
+            if not location and line.display_type == 'product' and not line.stock_location_id:
+                location = line.move_id.stock_location_id
             line.stock_location_id = location or line.stock_location_id
 
     def _records_for_print(self):

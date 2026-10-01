@@ -11,11 +11,23 @@
                         class="btn-secondary"
                         invisible="state == 'cancel'"/>
             </xpath>
+            <!-- Warehouse / Location on the invoice header (after Payment Method), carried
+                 from the quotation / sales order; the location is the default for the lines. -->
+            <xpath expr="//field[@name='payment_method']" position="after">
+                <field name="wecare_warehouse_id" options="{'no_create': True}"
+                       invisible="move_type not in ('out_invoice', 'out_refund')"
+                       readonly="state != 'draft'"/>
+                <field name="stock_location_id" options="{'no_create': True}"
+                       invisible="move_type not in ('out_invoice', 'out_refund')"
+                       readonly="state != 'draft'"/>
+            </xpath>
             <xpath expr="//field[@name='invoice_line_ids']/list/field[@name='quantity']" position="before">
                 <field name="stock_warehouse_id" optional="show"
                        invisible="display_type" readonly="1"/>
                 <field name="stock_location_id" optional="show"
-                       invisible="display_type" readonly="1"/>
+                       invisible="display_type" readonly="parent.state != 'draft'"
+                       options="{'no_create': True}"
+                       domain="[('usage', '=', 'internal'), ('warehouse_id', '=?', parent.wecare_warehouse_id), '|', ('company_id', '=', False), ('company_id', '=', parent.company_id)]"/>
             </xpath>
         </field>
     </record>
