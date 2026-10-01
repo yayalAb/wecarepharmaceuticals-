@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'WeCare Sales Management',
-    'version': '18.0.1.3.0',
+    'version': '18.0.1.4.0',
     'category': 'Sales',
     'summary': 'Sales plan, cheque lifecycle, weekly reports, share to media, invoice-time stock',
     'description': """
@@ -13,7 +13,7 @@ WeCare Pharmaceuticals — Sales Planning, Collections and Weekly Reporting
 - Current / Previous / Bounce classification for weekly reports
 - Weekly collection and weekly bank-deposited credit sales reports
 - Share to Media (WhatsApp / Telegram) on sales, purchase and inventory documents
-- Stock location, batch and expiry carried through quotation → SO → invoice → delivery
+- Warehouse, stock location, batch and expiry carried through quotation → SO → invoice → delivery
 - Stock deduction on customer invoice validation
 - Expiry date notifications
     """,

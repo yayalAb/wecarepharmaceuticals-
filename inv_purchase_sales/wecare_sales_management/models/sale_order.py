@@ -9,7 +9,8 @@ class SaleOrder(models.Model):
     stock_location_id = fields.Many2one(
         'stock.location',
         string='Stock Location',
-        domain="[('usage', '=', 'internal'), '|', ('company_id', '=', False), ('company_id', '=', company_id)]",
+        domain="[('usage', '=', 'internal'), ('warehouse_id', '=?', warehouse_id), "
+               "'|', ('company_id', '=', False), ('company_id', '=', company_id)]",
         check_company=True,
         help='Source location carried to order lines, invoice and delivery. '
              'Stock is deducted from this location when the invoice is validated.',
@@ -24,11 +25,18 @@ class SaleOrder(models.Model):
                 ('res_id', '=', order.id),
             ])
 
-    @api.onchange('stock_location_id')
-    def _onchange_stock_location_id(self):
-        if self.stock_location_id:
-            for line in self.order_line.filtered(lambda l: not l.display_type):
-                line.stock_location_id = self.stock_location_id
+    @api.onchange('warehouse_id')
+    def _onchange_warehouse_id_stock_location(self):
+        # Default line location = main stock of the selected warehouse; move lines that
+        # point to a location outside the warehouse.
+        warehouse = self.warehouse_id
+        if not warehouse:
+            return
+        if self.stock_location_id.warehouse_id != warehouse:
+            self.stock_location_id = warehouse.lot_stock_id
+        for line in self.order_line.filtered(lambda l: not l.display_type):
+            if line.stock_location_id.warehouse_id != warehouse:
+                line.stock_location_id = warehouse.lot_stock_id
 
     def action_view_share_history(self):
         self.ensure_one()

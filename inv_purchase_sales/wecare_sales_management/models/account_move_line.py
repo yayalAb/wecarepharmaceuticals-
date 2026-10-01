@@ -10,6 +10,16 @@ class AccountMoveLine(models.Model):
         string='Stock Location',
         check_company=True,
         copy=False,
+        compute='_compute_stock_location_id',
+        store=True,
+        readonly=False,
+        precompute=True,
+    )
+    stock_warehouse_id = fields.Many2one(
+        'stock.warehouse',
+        string='Warehouse',
+        related='stock_location_id.warehouse_id',
+        store=True,
     )
     wecare_salesperson_id = fields.Many2one(
         related='move_id.invoice_user_id',
@@ -21,6 +31,13 @@ class AccountMoveLine(models.Model):
         store=True,
         string='Invoice Date',
     )
+
+    @api.depends('sale_line_ids.stock_location_id')
+    def _compute_stock_location_id(self):
+        # Carry the location chosen on the quotation / sales order line to the invoice line.
+        for line in self:
+            location = line.sale_line_ids.stock_location_id[:1]
+            line.stock_location_id = location or line.stock_location_id
 
     def _records_for_print(self):
         if self:

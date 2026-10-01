@@ -18,8 +18,17 @@
                     <field name="share_history_count" widget="statinfo" string="Shares"/>
                 </button>
             </div>
+            <!-- Warehouse on the order header (after Payment Method); the order Stock Location
+                 stays hidden and only serves as the default for new lines. -->
+            <xpath expr="//field[@name='payment_method']" position="after">
+                <field name="warehouse_id" options="{'no_create': True}" force_save="1"
+                       readonly="state == 'sale'"/>
+                <field name="stock_location_id" invisible="1" force_save="1"/>
+            </xpath>
             <xpath expr="//field[@name='order_line']/list/field[@name='product_uom_qty']" position="before">
-                <field name="stock_location_id" optional="show" invisible="display_type"/>
+                <field name="stock_location_id" optional="show" invisible="display_type"
+                       options="{'no_create': True}"
+                       domain="[('usage', '=', 'internal'), ('warehouse_id', '=?', parent.warehouse_id), '|', ('company_id', '=', False), ('company_id', '=', parent.company_id)]"/>
             </xpath>
         </field>
     </record>
@@ -29,8 +38,9 @@
         <field name="model">sale.order</field>
         <field name="inherit_id" ref="sale_stock.view_order_form_inherit_sale_stock"/>
         <field name="arch" type="xml">
-            <xpath expr="//field[@name='warehouse_id'][@invisible='1']" position="after">
-                <field name="stock_location_id"/>
+            <!-- Hide the Other Info warehouse: it is shown on the order header instead -->
+            <xpath expr="//group[@name='sale_shipping']//field[@name='warehouse_id'][@force_save='1']" position="attributes">
+                <attribute name="invisible">1</attribute>
             </xpath>
         </field>
     </record>

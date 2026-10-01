@@ -12,6 +12,8 @@
                         invisible="state == 'cancel'"/>
             </xpath>
             <xpath expr="//field[@name='invoice_line_ids']/list/field[@name='quantity']" position="before">
+                <field name="stock_warehouse_id" optional="show"
+                       invisible="display_type" readonly="1"/>
                 <field name="stock_location_id" optional="show"
                        invisible="display_type" readonly="1"/>
             </xpath>
