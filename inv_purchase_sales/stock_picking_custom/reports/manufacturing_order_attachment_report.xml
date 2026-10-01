@@ -162,144 +162,20 @@
             }
         </style>
 
-        <div class="page moa-page">
+        <div class="page moa-page" style="position: relative; min-height: 850px; padding-bottom: 110px;">
             <div class="oe_structure" />
 
-            <div class="moa-title">ምርት / Manufacturing Order Attachment</div>
-
-            <div class="moa-row4">
-                <div class="moa-cell">
-                    <div class="moa-field">
-                        <span class="moa-lbl">Source Ref No:</span>
-                        <div class="moa-und"><span t-esc="o.origin or ''" /></div>
-                    </div>
-                </div>
-                <div class="moa-cell">
-                    <div class="moa-field">
-                        <span class="moa-lbl">Date:</span>
-                        <div class="moa-und">
-                            <t t-if="o.date_start">
-                                <span t-field="o.date_start" t-options='{"widget": "date"}' />
-                            </t>
-                        </div>
-                    </div>
-                </div>
-                <div class="moa-cell">
-                    <div class="moa-field">
-                        <span class="moa-lbl">MO Ref No:</span>
-                        <div class="moa-und"><span t-field="o.name" /></div>
-                    </div>
-                </div>
-                <div class="moa-cell">
-                    <div class="moa-field">
-                        <span class="moa-lbl">production Date:</span>
-                        <div class="moa-und">
-                            <t t-if="o.date_finished">
-                                <span t-field="o.date_finished" t-options='{"widget": "date"}' />
-                            </t>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="moa-cols">
-                <div class="moa-col">
-                    <div class="moa-field">
-                        <span class="moa-lbl">የሚመረቱበት የድርጅት ስም/<br />Name:</span>
-                        <div class="moa-und"><span t-field="o.company_id.name" /></div>
-                    </div>
-                    <div class="moa-field">
-                        <span class="moa-lbl">Machine Name:</span>
-                        <div class="moa-und"><span t-esc="o.get_moa_machine_name()" /></div>
-                    </div>
-                    <div class="moa-field">
-                        <span class="moa-lbl">Finished Goods Name:</span>
-                        <div class="moa-und"><span t-esc="o.product_id.display_name or ''" /></div>
-                    </div>
-                    <div class="moa-field">
-                        <span class="moa-lbl">Actual Produced Quantity:</span>
-                        <div class="moa-und">
-                            <span t-esc="'{0:,.2f}'.format(o.qty_produced or 0.0)" />
-                            <t t-if="o.product_uom_id">
-                                <span t-esc="' %s' % (o.product_uom_id.name or '')" />
-                            </t>
-                        </div>
-                    </div>
-                </div>
-                <div class="moa-col-right">
-                    <div class="moa-field">
-                        <span class="moa-lbl">Tin No:</span>
-                        <div class="moa-und">
-                            <span t-esc="o.company_id.vat or o.company_id.partner_id.vat or ''" />
-                        </div>
-                    </div>
-                    <div class="moa-field">
-                        <span class="moa-lbl">Operator Name:</span>
-                        <div class="moa-und">
-                            <t t-if="o.user_id"><span t-field="o.user_id.name" /></t>
-                        </div>
-                    </div>
-                    <div class="moa-field">
-                        <span class="moa-lbl">Planned Production Quantity:</span>
-                        <div class="moa-und">
-                            <span t-esc="'{0:,.2f}'.format(o.product_qty or 0.0)" />
-                            <t t-if="o.product_uom_id">
-                                <span t-esc="' %s' % (o.product_uom_id.name or '')" />
-                            </t>
-                        </div>
-                    </div>
-                    <div class="moa-field">
-                        <span class="moa-lbl">Warehouse:</span>
-                        <div class="moa-und">
-                            <span t-esc="o.location_dest_id.complete_name or ''" />
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="moa-row4">
-                <div class="moa-cell">
-                    <div class="moa-field">
-                        <span class="moa-lbl">Phone No:</span>
-                        <div class="moa-und"><span t-esc="o.get_moa_company_phone()" /></div>
-                    </div>
-                </div>
-                <div class="moa-cell">
-                    <div class="moa-field">
-                        <span class="moa-lbl">start time:</span>
-                        <div class="moa-und">
-                            <t t-if="o.date_start">
-                                <span t-field="o.date_start" t-options='{"widget": "datetime"}' />
-                            </t>
-                        </div>
-                    </div>
-                </div>
-                <div class="moa-cell">
-                    <div class="moa-field">
-                        <span class="moa-lbl">End time:</span>
-                        <div class="moa-und">
-                            <t t-if="o.date_finished">
-                                <span t-field="o.date_finished" t-options='{"widget": "datetime"}' />
-                            </t>
-                        </div>
-                    </div>
-                </div>
-                <div class="moa-cell">
-                    <div class="moa-field">
-                        <span class="moa-lbl">Address:</span>
-                        <div class="moa-und moa-und-dashed">
-                            <span t-esc="o.get_moa_company_address()" />
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <t t-call="stock_picking_custom.op_info_boxes">
+                <t t-set="info_left" t-value="[('Finished Goods', o.product_id.name), ('Planned Qty', '{0:,.2f} {1}'.format(o.product_qty or 0.0, o.product_uom_id.name or '')), ('Produced Qty', '{0:,.2f} {1}'.format(o.qty_produced or 0.0, o.product_uom_id.name or '')), ('Ref.', o.origin), ('Remark', o.mo_attachment_reason)]" />
+                <t t-set="info_right" t-value="[('Voucher No', o.name), ('Date', (context_timestamp(o.date_start).strftime('%d/%m/%Y %H:%M:%S') if o.date_start else '')), ('Machine', o.get_moa_machine_name()), ('Operator', o.user_id.name), ('Store', '=&gt;' + (o.location_dest_id.complete_name or ''))]" />
+            </t>
 
             <div class="moa-section">Raw Material Consumption</div>
             <table class="moa-table">
                 <thead style="display: table-header-group;">
                     <tr>
                         <th style="width:5%;">No</th>
-                        <th style="width:28%;">Raw Material</th>
+                        <th style="width:28%; text-align: left;">Raw Material</th>
                         <th style="width:14%;">Planned Qty</th>
                         <th style="width:14%;">Consumed Qty</th>
                         <th style="width:12%;">UOM</th>
@@ -313,7 +189,7 @@
                         <tr style="page-break-inside: avoid;">
                             <td class="moa-center"><span t-esc="rm_count" /></td>
                             <td class="moa-desc">
-                                <span t-esc="move.product_id.display_name or move.name or ''" />
+                                <div t-esc="move.product_id.name or move.name or ''" /><div t-foreach="move.get_report_lot_lines()" t-as="lot_line" t-esc="lot_line" style="font-size: 0.9em;" />
                             </td>
                             <td class="moa-num">
                                 <span t-esc="'{0:,.2f}'.format(move.product_uom_qty or 0.0)" />
@@ -327,18 +203,6 @@
                             <td class="moa-desc">&#160;</td>
                         </tr>
                     </t>
-                    <t t-set="rm_min" t-value="rm_count if rm_count &gt;= 3 else 3" />
-                    <t t-set="rm_pad" t-value="rm_min - rm_count" />
-                    <t t-foreach="range(rm_pad)" t-as="pad">
-                        <tr>
-                            <td class="moa-center"><span t-esc="rm_count + pad + 1" /></td>
-                            <td>&#160;</td>
-                            <td>&#160;</td>
-                            <td>&#160;</td>
-                            <td>&#160;</td>
-                            <td>&#160;</td>
-                        </tr>
-                    </t>
                 </tbody>
             </table>
 
@@ -347,7 +211,7 @@
                 <thead style="display: table-header-group;">
                     <tr>
                         <th style="width:5%;">No</th>
-                        <th style="width:35%;">By-Product Name</th>
+                        <th style="width:35%; text-align: left;">By-Product Name</th>
                         <th style="width:18%;">Quantity</th>
                         <th style="width:15%;">UOM</th>
                         <th style="width:17%;">Remark</th>
@@ -360,7 +224,7 @@
                         <tr style="page-break-inside: avoid;">
                             <td class="moa-center"><span t-esc="bp_count" /></td>
                             <td class="moa-desc">
-                                <span t-esc="move.product_id.display_name or move.name or ''" />
+                                <div t-esc="move.product_id.name or move.name or ''" /><div t-foreach="move.get_report_lot_lines()" t-as="lot_line" t-esc="lot_line" style="font-size: 0.9em;" />
                             </td>
                             <td class="moa-num">
                                 <span t-esc="'{0:,.2f}'.format(o.get_moa_byproduct_qty(move))" />
@@ -371,105 +235,21 @@
                             <td class="moa-desc">&#160;</td>
                         </tr>
                     </t>
-                    <t t-set="bp_min" t-value="bp_count if bp_count &gt;= 2 else 2" />
-                    <t t-set="bp_pad" t-value="bp_min - bp_count" />
-                    <t t-foreach="range(bp_pad)" t-as="pad">
-                        <tr>
-                            <td class="moa-center"><span t-esc="bp_count + pad + 1" /></td>
-                            <td>&#160;</td>
-                            <td>&#160;</td>
-                            <td>&#160;</td>
-                            <td>&#160;</td>
-                        </tr>
-                    </t>
                 </tbody>
             </table>
 
-            <div class="moa-section">የተመረተበት/የተበላሸበት ምክንያት</div>
-            <div class="moa-line">
-                <span t-field="o.mo_attachment_reason" />
-            </div>
-            <div class="moa-line">&#160;</div>
 
-            <div class="moa-section">Approval Flow</div>
-            <div class="moa-appr">
-                <div class="moa-appr-row">
-                    <div class="moa-appr-title">Prepared By:</div>
-                    <div class="moa-appr-slot">
-                        <div class="moa-field">
-                            <span class="moa-lbl">Name:</span>
-                            <div class="moa-und">
-                                <t t-if="prepared_by"><span t-field="prepared_by.name" /></t>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="moa-appr-slot">
-                        <div class="moa-field">
-                            <span class="moa-lbl">Sig:</span>
-                            <div class="moa-und">
-                                <t t-if="prepared_by and prepared_by.sign_signature">
-                                    <img t-att-src="image_data_uri(prepared_by.sign_signature)"
-                                        style="max-height: 40px; max-width: 120px;" />
-                                </t>
-                                <t t-elif="prepared_by and prepared_by.employee_id and prepared_by.employee_id.emp_signature">
-                                    <img t-att-src="'data:image/png;base64,%s' % (prepared_by.employee_id.emp_signature.decode())"
-                                        style="max-height: 40px; max-width: 120px;" />
-                                </t>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="moa-appr-slot">
-                        <div class="moa-field">
-                            <span class="moa-lbl">Date:</span>
-                            <div class="moa-und">
-                                <t t-if="o.create_date">
-                                    <span t-field="o.create_date" t-options='{"widget": "date"}' />
-                                </t>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="moa-appr-row">
-                    <div class="moa-appr-title">Approved By:</div>
-                    <div class="moa-appr-slot">
-                        <div class="moa-field">
-                            <span class="moa-lbl">Name:</span>
-                            <div class="moa-und">
-                                <t t-if="approved_by"><span t-field="approved_by.name" /></t>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="moa-appr-slot">
-                        <div class="moa-field">
-                            <span class="moa-lbl">Sig:</span>
-                            <div class="moa-und">
-                                <t t-if="approved_by and approved_by.sign_signature">
-                                    <img t-att-src="image_data_uri(approved_by.sign_signature)"
-                                        style="max-height: 40px; max-width: 120px;" />
-                                </t>
-                                <t t-elif="approved_by and approved_by.employee_id and approved_by.employee_id.emp_signature">
-                                    <img t-att-src="'data:image/png;base64,%s' % (approved_by.employee_id.emp_signature.decode())"
-                                        style="max-height: 40px; max-width: 120px;" />
-                                </t>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="moa-appr-slot">
-                        <div class="moa-field">
-                            <span class="moa-lbl">Date:</span>
-                            <div class="moa-und">
-                                <t t-if="o.date_finished">
-                                    <span t-field="o.date_finished" t-options='{"widget": "date"}' />
-                                </t>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="moa-copy">
+            <!-- Approval + copy distribution pinned to the bottom of the page -->
+            <div style="position: absolute; left: 4px; right: 4px; bottom: 0;">
+                <t t-call="stock_picking_custom.op_approval_line">
+                    <t t-set="prepared_name" t-value="prepared_by.name if prepared_by else ''"/>
+                    <t t-set="received_name" t-value="o.location_dest_id.warehouse_id.storeman_id.name or ''"/>
+                    <t t-set="approved_name" t-value="approved_by.name if approved_by else ''"/>
+                </t>
+                <div class="moa-copy" style="display: block; width: 100%; text-align: center;">
                 <strong>Copy Distribution:</strong>
                 Original-Store &#160;|&#160; 1st Copy Finance
+            </div>
             </div>
         </div>
     </template>

@@ -62,95 +62,10 @@
 
         <div class="page sra-page" style="position: relative; min-height: 850px; padding-bottom: 110px;">
             <div class="oe_structure" />
-            <div class="sra-title">Store Return Attachment</div>
-
-            <div class="sra-form-row">
-                <div class="sra-form-half">
-                    <div class="sra-form-group">
-                        <span class="sra-label">Source Doc Ref. No.:</span>
-                        <span class="sra-field-wrap">
-                            <span class="sra-field-line">
-                                <span t-esc="o.get_sra_source_doc_ref()" />
-                            </span>
-                        </span>
-                    </div>
-                </div>
-                <div class="sra-form-half">
-                    <div class="sra-form-group">
-                        <span class="sra-label">Return Ref. No.:</span>
-                        <span class="sra-field-wrap">
-                            <span class="sra-field-line">
-                                <span t-field="o.name" />
-                            </span>
-                        </span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="sra-form-row">
-                <div class="sra-form-half">
-                    <div class="sra-form-group">
-                        <span class="sra-label">Return Date:</span>
-                        <span class="sra-field-wrap">
-                            <span class="sra-field-line">
-                                <t t-if="o.date_done">
-                                    <span t-field="o.date_done" t-options='{"widget": "date"}' />
-                                </t>
-                                <t t-elif="o.scheduled_date">
-                                    <span t-field="o.scheduled_date" t-options='{"widget": "date"}' />
-                                </t>
-                            </span>
-                        </span>
-                    </div>
-                </div>
-                <div class="sra-form-half">
-                    <div class="sra-form-group">
-                        <span class="sra-label">Returned By:</span>
-                        <span class="sra-field-wrap">
-                            <span class="sra-field-line">
-                                <span t-esc="o.get_sra_returned_by_name()" />
-                            </span>
-                        </span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="sra-form-row">
-                <div class="sra-form-half">
-                    <div class="sra-form-group">
-                        <span class="sra-label">Department/Section:</span>
-                        <span class="sra-field-wrap">
-                            <span class="sra-field-line">
-                                <span t-esc="o.get_sra_department_name()" />
-                            </span>
-                        </span>
-                    </div>
-                </div>
-                <div class="sra-form-half" />
-            </div>
-
-            <div class="sra-form-row">
-                <div class="sra-form-half">
-                    <div class="sra-form-group">
-                        <span class="sra-label sra-label-wide">From Source Location:</span>
-                        <span class="sra-field-wrap">
-                            <span class="sra-field-line">
-                                <span t-field="o.location_id.complete_name" />
-                            </span>
-                        </span>
-                    </div>
-                </div>
-                <div class="sra-form-half">
-                    <div class="sra-form-group">
-                        <span class="sra-label sra-label-wide">TO: Destination Location:</span>
-                        <span class="sra-field-wrap">
-                            <span class="sra-field-line">
-                                <span t-field="o.location_dest_id.complete_name" />
-                            </span>
-                        </span>
-                    </div>
-                </div>
-            </div>
+            <t t-call="stock_picking_custom.op_info_boxes">
+                <t t-set="info_left" t-value="[('Returned By', o.get_sra_returned_by_name()), ('Department', o.get_sra_department_name()), ('Ref.', o.get_sra_source_doc_ref()), ('Remark', o.note)]" />
+                <t t-set="info_right" t-value="[('Voucher No', o.name), ('Date', (context_timestamp((o.date_done or o.scheduled_date)).strftime('%d/%m/%Y %H:%M:%S') if (o.date_done or o.scheduled_date) else '')), ('From', '=&gt;' + (o.location_id.complete_name or '')), ('To', '=&gt;' + (o.location_dest_id.complete_name or ''))]" />
+            </t>
 
             <table class="sra-items-table">
                 <thead style="display: table-header-group;">
@@ -187,19 +102,6 @@
                                 </td>
                             </tr>
                         </t>
-                    </t>
-                    <t t-set="min_rows" t-value="3" />
-                    <t t-set="pad_rows" t-value="min_rows - row_count if row_count &lt; min_rows else 0" />
-                    <t t-foreach="range(pad_rows)" t-as="pad">
-                        <tr>
-                            <td class="text-center"><span t-esc="row_count + pad + 1" /></td>
-                            <td>&#160;</td>
-                            <td>&#160;</td>
-                            <td>&#160;</td>
-                            <td>&#160;</td>
-                            <td>&#160;</td>
-                            <td>&#160;</td>
-                        </tr>
                     </t>
                 </tbody>
             </table>

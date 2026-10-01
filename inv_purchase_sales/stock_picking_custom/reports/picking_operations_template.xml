@@ -24,6 +24,34 @@
         </div>
     </template>
 
+    <!-- Two bordered information boxes shared by all operation documents.
+         Callers set info_left / info_right as lists of (label, value); the first
+         value of each box is printed bold. -->
+    <template id="op_info_boxes">
+        <t t-set="box" t-value="'display: table-cell; vertical-align: top; border: 1px solid #555; border-radius: 4px; padding: 6px 10px;'" />
+        <t t-set="lbl" t-value="'display: table-cell; width: 78px; white-space: nowrap; color: #333; padding: 2px 0;'" />
+        <t t-set="val" t-value="'display: table-cell; padding: 2px 0 2px 6px;'" />
+        <div style="display: table; width: 100%; margin: 6px 0 12px 0; font-size: 11px;">
+            <div t-att-style="box + ' width: 62%;'">
+                <div style="display: table; width: 100%;">
+                    <div t-foreach="info_left" t-as="row" style="display: table-row;">
+                        <span t-att-style="lbl" t-esc="row[0]" />
+                        <span t-att-style="val + (' font-weight: bold;' if row_first else '')" t-out="row[1] or ''" />
+                    </div>
+                </div>
+            </div>
+            <div style="display: table-cell; width: 2%;" />
+            <div t-att-style="box + ' width: 36%;'">
+                <div style="display: table; width: 100%;">
+                    <div t-foreach="info_right" t-as="row" style="display: table-row;">
+                        <span t-att-style="lbl" t-esc="row[0]" />
+                        <span t-att-style="val + (' font-weight: bold;' if row_first else '')" t-out="row[1] or ''" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+
     <template id="cgrn_body">
         <style>
             .cgrn-page {
@@ -239,58 +267,10 @@
 
             <div class="oe_structure" />
 
-            <!-- Vendor information (left) and document header (right) boxes -->
-            <t t-set="box" t-value="'display: table-cell; vertical-align: top; border: 1px solid #555; border-radius: 4px; padding: 6px 10px;'" />
-            <t t-set="lbl" t-value="'display: table-cell; width: 70px; white-space: nowrap; color: #333; padding: 2px 0;'" />
-            <t t-set="val" t-value="'display: table-cell; padding: 2px 0 2px 6px;'" />
-            <div style="display: table; width: 100%; border-collapse: separate; border-spacing: 0; margin: 6px 0 12px 0; font-size: 11px;">
-                <div t-att-style="box + ' width: 62%;'">
-                    <div style="display: table; width: 100%;">
-                        <div style="display: table-row;">
-                            <span t-att-style="lbl">To</span>
-                            <span t-att-style="val + ' font-weight: bold;'" t-esc="o.partner_id.display_name or ''" />
-                        </div>
-                        <div style="display: table-row;">
-                            <span t-att-style="lbl">TIN No</span>
-                            <span t-att-style="val" t-esc="o.partner_id.vat or ''" />
-                        </div>
-                        <div style="display: table-row;">
-                            <span t-att-style="lbl">Address</span>
-                            <span t-att-style="val" t-esc="o.partner_id.contact_address_complete or ''" />
-                        </div>
-                        <div style="display: table-row;">
-                            <span t-att-style="lbl">Ref.</span>
-                            <span t-att-style="val" t-esc="o.get_grn_so_po_ref() or o.origin or ''" />
-                        </div>
-                        <div style="display: table-row;">
-                            <span t-att-style="lbl">Remark</span>
-                            <span t-att-style="val"><span t-if="o.note" t-field="o.note" /></span>
-                        </div>
-                    </div>
-                </div>
-                <div style="display: table-cell; width: 2%;" />
-                <div t-att-style="box + ' width: 36%;'">
-                    <div style="display: table; width: 100%;">
-                        <div style="display: table-row;">
-                            <span t-att-style="lbl">Voucher No</span>
-                            <span t-att-style="val + ' font-weight: bold;'" t-esc="o.name" />
-                        </div>
-                        <div style="display: table-row;">
-                            <span t-att-style="lbl">Date</span>
-                            <span t-att-style="val" t-field="o.date_done" t-if="o.date_done" />
-                            <span t-att-style="val" t-field="o.scheduled_date" t-else="" />
-                        </div>
-                        <div style="display: table-row;">
-                            <span t-att-style="lbl">Cert</span>
-                            <span t-att-style="val" t-esc="('certificate_number' in o.partner_id._fields and o.partner_id.certificate_number) or ''" />
-                        </div>
-                        <div style="display: table-row;">
-                            <span t-att-style="lbl">Store</span>
-                            <span t-att-style="val" t-esc="'=&gt;' + (o.location_dest_id.complete_name or '')" />
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <t t-call="stock_picking_custom.op_info_boxes">
+                <t t-set="info_left" t-value="[('To', o.partner_id.display_name), ('TIN No', o.partner_id.vat), ('Address', o.partner_id.contact_address_complete), ('Ref.', o.get_grn_so_po_ref() or o.origin), ('Remark', o.note)]" />
+                <t t-set="info_right" t-value="[('Voucher No', o.name), ('Date', (context_timestamp((o.date_done or o.scheduled_date)).strftime('%d/%m/%Y %H:%M:%S') if (o.date_done or o.scheduled_date) else '')), ('Cert', (('certificate_number' in o.partner_id._fields and o.partner_id.certificate_number) or '')), ('Store', '=&gt;' + (o.location_dest_id.complete_name or ''))]" />
+            </t>
 
             <table id="cgrn_item_table" class="cgrn-items-table">
                 <thead style="display: table-header-group;">
@@ -587,125 +567,10 @@
 
             <div class="oe_structure" />
 
-            <h3 class="cdn-title">Customer Delivery Note</h3>
-
-            <div class="cdn-form-row">
-                <div class="cdn-form-third">
-                    <div class="cdn-form-group">
-                        <span class="cdn-label cdn-label-lg">Invoice / Doc Ref No:</span>
-                        <span class="cdn-field-wrap">
-                            <span class="cdn-field-line cdn-field-line-dashed">
-                                <span t-esc="o.get_cdn_invoice_ref()" />
-                            </span>
-                        </span>
-                    </div>
-                </div>
-                <div class="cdn-form-third">
-                    <div class="cdn-form-group">
-                        <span class="cdn-label cdn-label-sm">DO Ref No:</span>
-                        <span class="cdn-field-wrap">
-                            <span class="cdn-field-line cdn-field-line-dashed">
-                                <span t-field="o.name" />
-                            </span>
-                        </span>
-                    </div>
-                </div>
-                <div class="cdn-form-third">
-                    <div class="cdn-form-group">
-                        <span class="cdn-label cdn-label-sm">Date:</span>
-                        <span class="cdn-field-wrap">
-                            <span class="cdn-field-line">
-                                <t t-if="o.date_done">
-                                    <span t-field="o.date_done" t-options='{"widget": "date"}' />
-                                </t>
-                                <t t-elif="o.scheduled_date">
-                                    <span t-field="o.scheduled_date" t-options='{"widget": "date"}' />
-                                </t>
-                            </span>
-                        </span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="cdn-form-row">
-                <div class="cdn-form-third">
-                    <div class="cdn-form-group">
-                        <span class="cdn-label cdn-label-lg">Customer Name:</span>
-                        <span class="cdn-field-wrap">
-                            <span class="cdn-field-line">
-                                <span t-esc="o.partner_id.display_name or ''" />
-                            </span>
-                        </span>
-                    </div>
-                </div>
-                <div class="cdn-form-third">
-                    <div class="cdn-form-group">
-                        <span class="cdn-label cdn-label-sm">Tin No:</span>
-                        <span class="cdn-field-wrap">
-                            <span class="cdn-field-line">
-                                <span t-esc="o.partner_id.vat or ''" />
-                            </span>
-                        </span>
-                    </div>
-                </div>
-                <div class="cdn-form-third">
-                    <div class="cdn-form-group">
-                        <span class="cdn-label cdn-label-sm">Phone No:</span>
-                        <span class="cdn-field-wrap">
-                            <span class="cdn-field-line">
-                                <span t-esc="customer_phone" />
-                            </span>
-                        </span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="cdn-form-row">
-                <div class="cdn-form-third">
-                    <div class="cdn-form-group">
-                        <span class="cdn-label cdn-label-md">Driver Name:</span>
-                        <span class="cdn-field-wrap">
-                            <span class="cdn-field-line">
-                                <span t-esc="driver_name" />
-                            </span>
-                        </span>
-                    </div>
-                </div>
-                <div class="cdn-form-third">
-                    <div class="cdn-form-group">
-                        <span class="cdn-label cdn-label-sm">Address:</span>
-                        <span class="cdn-field-wrap">
-                            <span class="cdn-field-line">
-                                <span t-esc="driver_address" />
-                            </span>
-                        </span>
-                    </div>
-                </div>
-                <div class="cdn-form-third">
-                    <div class="cdn-form-group">
-                        <span class="cdn-label cdn-label-sm">Phone No:</span>
-                        <span class="cdn-field-wrap">
-                            <span class="cdn-field-line">
-                                <span t-esc="driver_phone" />
-                            </span>
-                        </span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="cdn-form-row">
-                <div class="cdn-form-half">
-                    <div class="cdn-form-group">
-                        <span class="cdn-label cdn-label-lg">Truck No:</span>
-                        <span class="cdn-field-wrap">
-                            <span class="cdn-field-line">
-                                <span t-field="o.vehicle_plate" />
-                            </span>
-                        </span>
-                    </div>
-                </div>
-                <div class="cdn-form-half" />
-            </div>
+            <t t-call="stock_picking_custom.op_info_boxes">
+                <t t-set="info_left" t-value="[('To', o.partner_id.display_name), ('TIN No', o.partner_id.vat), ('Address', o.partner_id.contact_address_complete), ('Ref.', o.get_cdn_invoice_ref() or o.origin), ('Remark', o.note)]" />
+                <t t-set="info_right" t-value="[('Voucher No', o.name), ('Date', (context_timestamp((o.date_done or o.scheduled_date)).strftime('%d/%m/%Y %H:%M:%S') if (o.date_done or o.scheduled_date) else '')), ('Cert', (('certificate_number' in o.partner_id._fields and o.partner_id.certificate_number) or '')), ('Store', '=&gt;' + (o.location_id.complete_name or ''))]" />
+            </t>
 
             <table id="cdn_item_table" class="cdn-items-table">
                 <thead style="display: table-header-group;">
@@ -744,18 +609,6 @@
                             </tr>
                         </t>
                     </t>
-                    <t t-set="min_rows" t-value="row_count if row_count &gt;= 3 else 3" />
-                    <t t-set="pad_rows" t-value="min_rows - row_count" />
-                    <t t-foreach="range(pad_rows)" t-as="pad">
-                        <tr>
-                            <td class="cdn-td-center"><span t-esc="row_count + pad + 1" /></td>
-                            <td>&#160;</td>
-                            <td>&#160;</td>
-                            <td>&#160;</td>
-                            <td>&#160;</td>
-                            <td>&#160;</td>
-                        </tr>
-                    </t>
                 </tbody>
             </table>
 
@@ -778,15 +631,6 @@
                 </div>
             </div>
 
-            <div class="cdn-quality-row">
-                Quality
-                <span class="cdn-field-line cdn-field-line-dashed"
-                    style="display:inline-block; width:80px; margin:0 8px; vertical-align:bottom;">
-                    <t t-if="o.get_grn_cleaning_quality()">
-                        <span t-esc="'{0:,.2f}'.format(o.get_grn_cleaning_quality())" />
-                    </t>
-                </span>%
-            </div>
 
             <!-- Approval + copy distribution pinned to the bottom of the page -->
             <div style="position: absolute; left: 20px; right: 20px; bottom: 0;">
@@ -837,101 +681,10 @@
 
         <div class="page sia-page" style="position: relative; min-height: 850px; padding-bottom: 110px;">
             <div class="oe_structure" />
-            <div class="sia-title">Store Issue Attachment</div>
-
-            <div class="sia-form-row">
-                <div class="sia-form-half">
-                    <div class="sia-form-group">
-                        <span class="sia-label">Requisition Ref No:</span>
-                        <span class="sia-field-wrap">
-                            <span class="sia-field-line">
-                                <t t-if="o.store_request_id">
-                                    <span t-field="o.store_request_id.name" />
-                                </t>
-                            </span>
-                        </span>
-                    </div>
-                </div>
-                <div class="sia-form-half">
-                    <div class="sia-form-group">
-                        <span class="sia-label">Issue Ref No:</span>
-                        <span class="sia-field-wrap">
-                            <span class="sia-field-line">
-                                <span t-field="o.name" />
-                            </span>
-                        </span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="sia-form-row">
-                <div class="sia-form-half">
-                    <div class="sia-form-group">
-                        <span class="sia-label">Issued Date:</span>
-                        <span class="sia-field-wrap">
-                            <span class="sia-field-line">
-                                <t t-if="o.date_done">
-                                    <span t-field="o.date_done" t-options='{"widget": "date"}' />
-                                </t>
-                                <t t-elif="o.scheduled_date">
-                                    <span t-field="o.scheduled_date" t-options='{"widget": "date"}' />
-                                </t>
-                            </span>
-                        </span>
-                    </div>
-                </div>
-                <div class="sia-form-half" />
-            </div>
-
-            <div class="sia-form-row">
-                <div class="sia-form-half">
-                    <div class="sia-form-group">
-                        <span class="sia-label">Requested By:</span>
-                        <span class="sia-field-wrap">
-                            <span class="sia-field-line">
-                                <t t-if="o.store_request_id and o.store_request_id.requested_by">
-                                    <span t-field="o.store_request_id.requested_by.name" />
-                                </t>
-                            </span>
-                        </span>
-                    </div>
-                </div>
-                <div class="sia-form-half">
-                    <div class="sia-form-group">
-                        <span class="sia-label">Department/Section:</span>
-                        <span class="sia-field-wrap">
-                            <span class="sia-field-line">
-                                <t t-if="o.store_request_id and o.store_request_id.department_id">
-                                    <span t-field="o.store_request_id.department_id.name" />
-                                </t>
-                            </span>
-                        </span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="sia-form-row">
-                <div class="sia-form-half">
-                    <div class="sia-form-group">
-                        <span class="sia-label sia-label-wide">From Source Location:</span>
-                        <span class="sia-field-wrap">
-                            <span class="sia-field-line">
-                                <span t-field="o.location_id.complete_name" />
-                            </span>
-                        </span>
-                    </div>
-                </div>
-                <div class="sia-form-half">
-                    <div class="sia-form-group">
-                        <span class="sia-label sia-label-wide">TO: Destination Location:</span>
-                        <span class="sia-field-wrap">
-                            <span class="sia-field-line">
-                                <span t-field="o.location_dest_id.complete_name" />
-                            </span>
-                        </span>
-                    </div>
-                </div>
-            </div>
+            <t t-call="stock_picking_custom.op_info_boxes">
+                <t t-set="info_left" t-value="[('Requested By', o.store_request_id.requested_by.name), ('Department', o.store_request_id.department_id.name), ('Ref.', o.store_request_id.name or o.origin), ('Remark', o.note)]" />
+                <t t-set="info_right" t-value="[('Voucher No', o.name), ('Date', (context_timestamp((o.date_done or o.scheduled_date)).strftime('%d/%m/%Y %H:%M:%S') if (o.date_done or o.scheduled_date) else '')), ('From', '=&gt;' + (o.location_id.complete_name or '')), ('To', '=&gt;' + (o.location_dest_id.complete_name or ''))]" />
+            </t>
 
             <table class="sia-items-table">
                 <thead style="display: table-header-group;">
@@ -965,19 +718,6 @@
                             <td class="text-end">
                                 <span t-esc="'{0:,.2f}'.format(move.line_subtotal or 0.0)" />
                             </td>
-                        </tr>
-                    </t>
-                    <t t-set="min_rows" t-value="3" />
-                    <t t-set="pad_rows" t-value="min_rows - row_count if row_count &lt; min_rows else 0" />
-                    <t t-foreach="range(pad_rows)" t-as="pad">
-                        <tr>
-                            <td class="text-center"><span t-esc="row_count + pad + 1" /></td>
-                            <td>&#160;</td>
-                            <td>&#160;</td>
-                            <td>&#160;</td>
-                            <td>&#160;</td>
-                            <td>&#160;</td>
-                            <td>&#160;</td>
                         </tr>
                     </t>
                 </tbody>
@@ -1199,60 +939,10 @@
         <div class="page gpa-page" style="position: relative; min-height: 850px; padding-bottom: 110px;">
             <div class="oe_structure" />
 
-            <div class="gpa-title">Gate Pass Attachment</div>
-
-            <div class="gpa-cols">
-                <div class="gpa-col">
-                    <div class="gpa-field">
-                        <span class="gpa-lbl">DO Ref No:</span>
-                        <div class="gpa-und"><span t-field="o.name" /></div>
-                    </div>
-                    <div class="gpa-field">
-                        <span class="gpa-lbl">Customer Name:</span>
-                        <div class="gpa-und">
-                            <t t-if="gpa_customer">
-                                <span t-esc="gpa_customer.display_name or ''" />
-                            </t>
-                            <t t-elif="o.store_request_id and o.store_request_id.requested_by">
-                                <span t-field="o.store_request_id.requested_by.name" />
-                            </t>
-                        </div>
-                    </div>
-                    <div class="gpa-field">
-                        <span class="gpa-lbl">Driver Name:</span>
-                        <div class="gpa-und"><span t-esc="driver_name" /></div>
-                    </div>
-                    <div class="gpa-field">
-                        <span class="gpa-lbl">Truck No:</span>
-                        <div class="gpa-und"><span t-field="o.vehicle_plate" /></div>
-                    </div>
-                </div>
-                <div class="gpa-col-right">
-                    <div class="gpa-field">
-                        <span class="gpa-lbl">Date:</span>
-                        <div class="gpa-und">
-                            <t t-if="o.date_done">
-                                <span t-field="o.date_done" t-options='{"widget": "date"}' />
-                            </t>
-                            <t t-elif="o.scheduled_date">
-                                <span t-field="o.scheduled_date" t-options='{"widget": "date"}' />
-                            </t>
-                        </div>
-                    </div>
-                    <div class="gpa-field">
-                        <span class="gpa-lbl">Tin No:</span>
-                        <div class="gpa-und"><span t-esc="gpa_customer.vat or ''" /></div>
-                    </div>
-                    <div class="gpa-field">
-                        <span class="gpa-lbl">Phone No:</span>
-                        <div class="gpa-und"><span t-esc="customer_phone" /></div>
-                    </div>
-                    <div class="gpa-field">
-                        <span class="gpa-lbl">Address:</span>
-                        <div class="gpa-und"><span t-esc="driver_address" /></div>
-                    </div>
-                </div>
-            </div>
+            <t t-call="stock_picking_custom.op_info_boxes">
+                <t t-set="info_left" t-value="[('To', gpa_customer.display_name), ('TIN No', gpa_customer.vat), ('Address', gpa_customer.contact_address_complete), ('Ref.', o.origin), ('Remark', o.note)]" />
+                <t t-set="info_right" t-value="[('Voucher No', o.name), ('Date', (context_timestamp((o.date_done or o.scheduled_date)).strftime('%d/%m/%Y %H:%M:%S') if (o.date_done or o.scheduled_date) else '')), ('Driver', o.driver_name), ('Truck No', o.vehicle_plate), ('Store', '=&gt;' + (o.location_id.complete_name or ''))]" />
+            </t>
 
             <table class="gpa-table">
                 <thead style="display: table-header-group;">
@@ -1283,19 +973,6 @@
                             </tr>
                         </t>
                     </t>
-                    <t t-set="min_rows" t-value="row_count if row_count &gt;= 3 else 3" />
-                    <t t-set="pad_rows" t-value="min_rows - row_count" />
-                    <t t-foreach="range(pad_rows)" t-as="pad">
-                        <tr>
-                            <td class="gpa-center"><span t-esc="row_count + pad + 1" /></td>
-                            <td>&#160;</td>
-                            <td>&#160;</td>
-                            <td>&#160;</td>
-                            <td>&#160;</td>
-                            <td>&#160;</td>
-                            <td>&#160;</td>
-                        </tr>
-                    </t>
                 </tbody>
             </table>
 
@@ -1314,14 +991,6 @@
                 </div>
             </div>
 
-            <div class="gpa-quality">
-                Quality
-                <span class="gpa-und" style="display:inline-block; width:80px; margin:0 8px;">
-                    <t t-if="o.get_grn_cleaning_quality()">
-                        <span t-esc="'{0:,.2f}'.format(o.get_grn_cleaning_quality())" />
-                    </t>
-                </span>%
-            </div>
 
             <!-- Approval + copy distribution pinned to the bottom of the page -->
             <div style="position: absolute; left: 4px; right: 4px; bottom: 0;">
