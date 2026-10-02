@@ -79,7 +79,6 @@ class WecareSalesVoucherMixin(models.AbstractModel):
         self.ensure_one()
         currency = self.currency_id or self.company_id.currency_id
         lines = self._wecare_voucher_lines()
-        words = currency.amount_to_text(self.amount_total) if self.amount_total else ''
         values = {
             'currency': currency,
             'lines': lines,
@@ -87,13 +86,11 @@ class WecareSalesVoucherMixin(models.AbstractModel):
             'discount': sum(line['discount'] for line in lines),
             'tax_rows': self._wecare_tax_rows(lines),
             'grand_total': self.amount_total,
-            'amount_words': f'{words} Only' if words else '',
             'copy_distribution': COPY_DISTRIBUTION,
             'company_tin': self.company_id.vat or '',
             'company_vat': '',
             'cart': '',
             'distribution': '',
-            'watermark': 'Attachment',
         }
         values.update(self._wecare_voucher_header())
         return values

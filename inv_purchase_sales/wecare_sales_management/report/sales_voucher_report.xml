@@ -32,6 +32,18 @@
         </xpath>
     </template>
 
+    <!-- Proforma Invoice uses the same voucher layout -->
+    <template id="report_sales_proforma_attachment_wecare_voucher"
+              inherit_id="stock_picking_custom.report_sales_proforma_attachment_document">
+        <xpath expr="//t[@t-call='web.external_layout']" position="replace">
+            <t t-set="v" t-value="doc._wecare_voucher_values()"/>
+            <t t-set="o" t-value="doc"/>
+            <t t-call="web.external_layout">
+                <t t-call="wecare_sales_management.sales_voucher_body"/>
+            </t>
+        </xpath>
+    </template>
+
     <!-- Shared body (CNET-style "Sales Voucher"); renders the dict returned by
          _wecare_voucher_values() as ``v``. Every table carries o_ignore_layout_styling so
          the company's boxed/striped report layout does not draw its own grid over it. -->
@@ -56,39 +68,27 @@
                            padding: 1px 4px 2px 4px !important; }
             .sv-num { text-align: right !important; white-space: nowrap; }
             .sv-lot { padding-left: 14px; }
-            .sv-words { background: #8c8c8c; color: #000; font-style: italic; padding: 4px 6px; min-height: 34px; }
             .sv-totals td { border: 1px solid #000 !important; padding: 1px 4px !important; font-weight: bold; }
             .sv-blank { display: inline-block; width: 90px; border-bottom: 1px solid #000; }
-            .sv-watermark { position: absolute; top: 330px; left: 30px; width: 900px; text-align: center;
-                            font-family: Arial, Helvetica, sans-serif; font-size: 150px; font-weight: bold;
-                            color: #808080; opacity: 0.55; z-index: 0;
-                            -webkit-transform: rotate(-55deg); transform: rotate(-55deg);
-                            -webkit-transform-origin: 50% 50%; transform-origin: 50% 50%; }
-            .sv-content { position: relative; z-index: 1; }
+            .sv-op-line { display: inline-block; width: 110px; border-bottom: 1px solid #000; padding: 0 2px;
+                          overflow: hidden; vertical-align: bottom; font-size: 11px; }
         </style>
 
         <div class="page sv-page" style="position: relative; min-height: 850px; padding-bottom: 200px;">
             <div class="oe_structure"/>
 
-            <!-- Diagonal "Attachment" watermark -->
-            <div t-if="v.get('watermark')" class="sv-watermark"><t t-out="v['watermark']"/></div>
-
             <div class="sv-content">
                 <!-- Header area is built from divs (display: table), not <table>, so the
                      company's boxed report layout cannot draw row lines / frames on it. -->
 
-                <!-- Company TIN / VAT (left) and voucher title (right), no borders -->
+                <!-- Company TIN / VAT, no borders -->
                 <div class="sv-t" style="margin-bottom: 8px;">
                     <div class="sv-r">
-                        <div class="sv-c" style="width: 60%; vertical-align: bottom; padding: 0;">
+                        <div class="sv-c" style="vertical-align: bottom; padding: 0;">
                             <span style="font-weight: bold;">TIN :</span>
                             <span style="margin-left: 4px;"><t t-out="v['company_tin']"/></span>
                             <span style="margin-left: 24px; font-weight: bold;">VAT :</span>
                             <span style="margin-left: 4px;"><t t-out="v['company_vat']"/></span>
-                        </div>
-                        <div class="sv-c" style="width: 40%; text-align: right; vertical-align: bottom; padding: 0;
-                                                 font-size: 20px; font-weight: bold;">
-                            <t t-out="v['title']"/>
                         </div>
                     </div>
                 </div>
@@ -125,27 +125,8 @@
                     </div>
                 </div>
 
-                <!-- Remark, no border -->
-                <div class="sv-t" style="margin-top: 6px;">
-                    <div class="sv-r">
-                        <div class="sv-c sv-lbl" style="padding-left: 10px;">Remark</div>
-                        <div class="sv-c"><t t-out="v['remark'] or ''"/></div>
-                    </div>
-                </div>
-
-                <!-- Source row -->
-                <div class="sv-frame" style="margin: 6px 0 8px 0; padding: 3px 6px;">
-                    <div class="sv-t">
-                        <div class="sv-r">
-                            <div class="sv-c sv-muted" style="width: 9%;">Source</div>
-                            <div class="sv-c" style="width: 33%; font-weight: bold;"><t t-out="v['source']"/></div>
-                            <div class="sv-c sv-muted" style="width: 6%;">TIN :</div>
-                            <div class="sv-c" style="width: 18%;"><t t-out="v['source_tin']"/></div>
-                            <div class="sv-c sv-muted" style="width: 9%;">Address :</div>
-                            <div class="sv-c" style="width: 25%;"><t t-out="v['source_address']"/></div>
-                        </div>
-                    </div>
-                </div>
+                <!-- Gap between the customer/voucher boxes and the item lines -->
+                <div style="height: 18px;"/>
 
                 <!-- Item lines -->
                 <table class="o_ignore_layout_styling sv-items">
@@ -176,12 +157,10 @@
                     </tbody>
                 </table>
 
-                <!-- Amount in words (left) and totals (right) -->
+                <!-- Totals (right) -->
                 <div class="sv-t" style="margin-top: 14px; page-break-inside: avoid;">
                     <div class="sv-r">
-                        <div class="sv-c" style="width: 54%; padding: 18px 0 0 0;">
-                            <div class="sv-words"><t t-out="v['amount_words']"/></div>
-                        </div>
+                        <div class="sv-c" style="width: 54%; padding: 0;"/>
                         <div class="sv-c" style="width: 46%; padding: 0;">
                             <table class="o_ignore_layout_styling sv-totals">
                                 <tr>
@@ -215,14 +194,34 @@
             <!-- Voucher operators, copy distribution and notice pinned to the bottom -->
             <div style="position: absolute; left: 0; right: 0; bottom: 0; z-index: 1;">
                 <div style="font-size: 14px; font-weight: bold; padding-left: 10px;">Voucher Operators</div>
-                <div style="padding-left: 10px; line-height: 1.9;">
-                    <div>
-                        PREPARED by <t t-out="v['prepared_by']"/>
-                        <t t-if="v['prepared_on']"> on <t t-out="v['prepared_on']"/></t><span class="sv-blank"/>
+                <!-- All four operators on one row: label + signing line, name on the line -->
+                <div class="sv-t" style="margin-top: 14px;">
+                    <div class="sv-r">
+                        <div class="sv-c" style="width: 25%; padding: 0 8px 0 10px; white-space: nowrap; vertical-align: bottom;">
+                            PREPARED by
+                            <span class="sv-op-line"><t t-out="v['prepared_by']"/></span>
+                        </div>
+                        <div class="sv-c" style="width: 25%; padding: 0 8px; white-space: nowrap; vertical-align: bottom;">
+                            APPROVED by
+                            <span class="sv-op-line"><t t-out="v['approved_by']"/></span>
+                        </div>
+                        <div class="sv-c" style="width: 25%; padding: 0 8px; white-space: nowrap; vertical-align: bottom;">
+                            ISSUED by
+                            <span class="sv-op-line"><t t-out="v['issued_by']"/></span>
+                        </div>
+                        <div class="sv-c" style="width: 25%; padding: 0 0 0 8px; white-space: nowrap; vertical-align: bottom;">
+                            Received by
+                            <span class="sv-op-line"><t t-out="v['received_by']"/></span>
+                        </div>
                     </div>
-                    <div>APPROVED by <t t-out="v['approved_by']"/><span class="sv-blank"/></div>
-                    <div>ISSUED by <t t-out="v['issued_by']"/><span class="sv-blank"/></div>
-                    <div>Received by <t t-out="v['received_by']"/><span class="sv-blank"/></div>
+                    <div class="sv-r">
+                        <div class="sv-c" style="padding: 2px 8px 0 10px; font-size: 10px; color: #444;">
+                            <t t-if="v['prepared_on']">on <t t-out="v['prepared_on']"/></t>
+                        </div>
+                        <div class="sv-c"/>
+                        <div class="sv-c"/>
+                        <div class="sv-c"/>
+                    </div>
                 </div>
                 <div style="margin-top: 22px; padding-left: 10px; font-size: 11px;">
                     <strong>Copy Distribution : -</strong>
