@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Customer invoices / credit notes: picked through account.move._get_name_invoice_report() -->
+    <template id="report_invoice_wecare_voucher" inherit_id="account.report_invoice">
+        <xpath expr="//t[@t-call='account.report_invoice_document']" position="after">
+            <t t-elif="o._get_name_invoice_report() == 'wecare_sales_management.report_sales_voucher_invoice'"
+               t-call="wecare_sales_management.report_sales_voucher_invoice"
+               t-lang="lang"/>
+        </xpath>
+    </template>
+
+    <template id="report_sales_voucher_invoice">
+        <t t-set="o" t-value="o.with_context(lang=lang)"/>
+        <t t-set="v" t-value="o._wecare_voucher_values()"/>
+        <t t-set="doc_title" t-value="v['title']"/>
+        <t t-set="doc_number" t-value="v['voucher_no']"/>
+        <t t-set="issue_number" t-value="'1'"/>
+        <t t-call="web.external_layout">
+            <t t-call="wecare_sales_management.sales_voucher_body"/>
+        </t>
+    </template>
+
+    <!-- Sales Quotation / Sales Order attachment uses the same voucher layout -->
+    <template id="report_sales_order_attachment_wecare_voucher"
+              inherit_id="stock_picking_custom.report_sales_order_attachment_document">
+        <xpath expr="//t[@t-call='web.external_layout']" position="replace">
+            <t t-set="v" t-value="doc._wecare_voucher_values()"/>
+            <t t-set="o" t-value="doc"/>
+            <t t-call="web.external_layout">
+                <t t-call="wecare_sales_management.sales_voucher_body"/>
+            </t>
+        </xpath>
+    </template>
+
+    <!-- Shared body (CNET-style "Sales Voucher"); renders the dict returned by
+         _wecare_voucher_values() as ``v``. Every table carries o_ignore_layout_styling so
+         the company's boxed/striped report layout does not draw its own grid over it. -->
+    <template id="sales_voucher_body">
+        <style>
+            .sv-page { font-family: Arial, Helvetica, sans-serif; font-size: 12px; color: #000; line-height: 1.25; }
+            .sv-page table.o_ignore_layout_styling { border-collapse: collapse; width: 100%; }
+            .sv-page table.o_ignore_layout_styling td,
+            .sv-page table.o_ignore_layout_styling th { border: none; padding: 1px 4px; vertical-align: top;
+                                                        text-transform: none; background: transparent; }
+            .sv-box { border: 1px solid #000 !important; }
+            .sv-t { display: table; width: 100%; border-collapse: collapse; }
+            .sv-r { display: table-row; }
+            .sv-c { display: table-cell; padding: 2px 4px; vertical-align: top; }
+            .sv-muted { color: #444; }
+            .sv-frame { border: 1px solid #000; }
+            .sv-lbl { width: 85px; white-space: nowrap; color: #444; }
+            .sv-items { border: 1px solid #000 !important; }
+            .sv-items th { border-left: 1px solid #000 !important; border-bottom: 1px solid #000 !important;
+                           font-weight: bold; text-align: left; padding: 2px 4px !important; }
+            .sv-items td { border-left: 1px solid #000 !important; border-bottom: 1px solid #000 !important;
+                           padding: 1px 4px 2px 4px !important; }
+            .sv-num { text-align: right !important; white-space: nowrap; }
+            .sv-lot { padding-left: 14px; }
+            .sv-words { background: #8c8c8c; color: #000; font-style: italic; padding: 4px 6px; min-height: 34px; }
+            .sv-totals td { border: 1px solid #000 !important; padding: 1px 4px !important; font-weight: bold; }
+            .sv-blank { display: inline-block; width: 90px; border-bottom: 1px solid #000; }
+            .sv-watermark { position: absolute; top: 330px; left: 30px; width: 900px; text-align: center;
+                            font-family: Arial, Helvetica, sans-serif; font-size: 150px; font-weight: bold;
+                            color: #808080; opacity: 0.55; z-index: 0;
+                            -webkit-transform: rotate(-55deg); transform: rotate(-55deg);
+                            -webkit-transform-origin: 50% 50%; transform-origin: 50% 50%; }
+            .sv-content { position: relative; z-index: 1; }
+        </style>
+
+        <div class="page sv-page" style="position: relative; min-height: 850px; padding-bottom: 200px;">
+            <div class="oe_structure"/>
+
+            <!-- Diagonal "Attachment" watermark -->
+            <div t-if="v.get('watermark')" class="sv-watermark"><t t-out="v['watermark']"/></div>
+
+            <div class="sv-content">
+                <!-- Header area is built from divs (display: table), not <table>, so the
+                     company's boxed report layout cannot draw row lines / frames on it. -->
+
+                <!-- Company TIN / VAT (left) and voucher title (right), no borders -->
+                <div class="sv-t" style="margin-bottom: 8px;">
+                    <div class="sv-r">
+                        <div class="sv-c" style="width: 60%; vertical-align: bottom; padding: 0;">
+                            <span style="font-weight: bold;">TIN :</span>
+                            <span style="margin-left: 4px;"><t t-out="v['company_tin']"/></span>
+                            <span style="margin-left: 24px; font-weight: bold;">VAT :</span>
+                            <span style="margin-left: 4px;"><t t-out="v['company_vat']"/></span>
+                        </div>
+                        <div class="sv-c" style="width: 40%; text-align: right; vertical-align: bottom; padding: 0;
+                                                 font-size: 20px; font-weight: bold;">
+                            <t t-out="v['title']"/>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Customer box (left) and voucher box (right); borders sit on the cells
+                     so both boxes always have the same height. -->
+                <div class="sv-t" style="border-collapse: separate; border-spacing: 0;">
+                    <div class="sv-r">
+                        <div class="sv-c sv-frame" style="width: 62%; padding: 6px 10px;">
+                            <div class="sv-t">
+                                <div class="sv-r"><div class="sv-c sv-lbl">To</div><div class="sv-c" style="font-weight: bold;"><t t-out="v['to']"/></div></div>
+                                <div class="sv-r"><div class="sv-c sv-lbl">TIN No.</div><div class="sv-c"><t t-out="v['tin']"/></div></div>
+                                <div class="sv-r"><div class="sv-c sv-lbl">Address</div><div class="sv-c"><t t-out="v['address']"/></div></div>
+                                <div class="sv-r">
+                                    <div class="sv-c sv-lbl">FS No.</div>
+                                    <div class="sv-c">
+                                        <span style="display: inline-block; min-width: 120px;"><t t-out="v['fs_no']"/></span>
+                                        <span class="sv-muted">MRC No.</span>
+                                        <span style="margin-left: 6px;"><t t-out="v['mrc_no']"/></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="sv-c" style="width: 2%; padding: 0;"/>
+                        <div class="sv-c sv-frame" style="width: 36%; padding: 6px 10px;">
+                            <div class="sv-t">
+                                <div class="sv-r"><div class="sv-c sv-lbl">Voucher No</div><div class="sv-c" style="font-weight: bold;"><t t-out="v['voucher_no']"/></div></div>
+                                <div class="sv-r"><div class="sv-c sv-lbl">Date</div><div class="sv-c"><t t-out="v['date']"/></div></div>
+                                <div class="sv-r"><div class="sv-c sv-lbl">Cart</div><div class="sv-c"><t t-out="v['cart']"/></div></div>
+                                <div class="sv-r"><div class="sv-c sv-lbl">Store</div><div class="sv-c"><t t-out="v['store']"/></div></div>
+                                <div class="sv-r"><div class="sv-c sv-lbl">Distribution</div><div class="sv-c"><t t-out="v['distribution']"/></div></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Remark, no border -->
+                <div class="sv-t" style="margin-top: 6px;">
+                    <div class="sv-r">
+                        <div class="sv-c sv-lbl" style="padding-left: 10px;">Remark</div>
+                        <div class="sv-c"><t t-out="v['remark'] or ''"/></div>
+                    </div>
+                </div>
+
+                <!-- Source row -->
+                <div class="sv-frame" style="margin: 6px 0 8px 0; padding: 3px 6px;">
+                    <div class="sv-t">
+                        <div class="sv-r">
+                            <div class="sv-c sv-muted" style="width: 9%;">Source</div>
+                            <div class="sv-c" style="width: 33%; font-weight: bold;"><t t-out="v['source']"/></div>
+                            <div class="sv-c sv-muted" style="width: 6%;">TIN :</div>
+                            <div class="sv-c" style="width: 18%;"><t t-out="v['source_tin']"/></div>
+                            <div class="sv-c sv-muted" style="width: 9%;">Address :</div>
+                            <div class="sv-c" style="width: 25%;"><t t-out="v['source_address']"/></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Item lines -->
+                <table class="o_ignore_layout_styling sv-items">
+                    <thead style="display: table-header-group;">
+                        <tr>
+                            <th style="width: 4%;">SN</th>
+                            <th style="width: 11%;">Item Id</th>
+                            <th style="width: 43%;">Description</th>
+                            <th style="width: 9%;">Qty</th>
+                            <th style="width: 7%;">Unit</th>
+                            <th style="width: 12%;">Unit Amount</th>
+                            <th style="width: 14%;" class="sv-num">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr t-foreach="v['lines']" t-as="line" style="page-break-inside: avoid;">
+                            <td><t t-out="line_index + 1"/></td>
+                            <td><t t-out="line['code']"/></td>
+                            <td>
+                                <div><t t-out="line['name']"/></div>
+                                <div t-foreach="line['lots']" t-as="lot_line" class="sv-lot"><t t-out="lot_line"/></div>
+                            </td>
+                            <td><t t-out="'{0:,.2f}'.format(line['qty'] or 0.0)"/></td>
+                            <td><t t-out="line['uom']"/></td>
+                            <td class="sv-num"><t t-out="'{0:,.2f}'.format(line['price'] or 0.0)"/></td>
+                            <td class="sv-num"><t t-out="'{0:,.2f}'.format(line['subtotal'] or 0.0)"/></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <!-- Amount in words (left) and totals (right) -->
+                <div class="sv-t" style="margin-top: 14px; page-break-inside: avoid;">
+                    <div class="sv-r">
+                        <div class="sv-c" style="width: 54%; padding: 18px 0 0 0;">
+                            <div class="sv-words"><t t-out="v['amount_words']"/></div>
+                        </div>
+                        <div class="sv-c" style="width: 46%; padding: 0;">
+                            <table class="o_ignore_layout_styling sv-totals">
+                                <tr>
+                                    <td style="width: 40%;">Sub Total</td>
+                                    <td style="width: 28%;"/>
+                                    <td style="width: 32%;" class="sv-num"><t t-out="'{0:,.2f}'.format(v['subtotal'] or 0.0)"/></td>
+                                </tr>
+                                <tr t-if="v['discount']">
+                                    <td>Discount</td>
+                                    <td/>
+                                    <td class="sv-num"><t t-out="'{0:,.2f}'.format(v['discount'] or 0.0)"/></td>
+                                </tr>
+                                <tr t-foreach="v['tax_rows']" t-as="tax_row">
+                                    <td><t t-out="tax_row[0]"/></td>
+                                    <td class="sv-num"><t t-out="'{0:,.2f}'.format(tax_row[1] or 0.0)"/></td>
+                                    <td class="sv-num"><t t-out="'{0:,.2f}'.format(tax_row[2] or 0.0)"/></td>
+                                </tr>
+                                <tr>
+                                    <td>Grand Total</td>
+                                    <td/>
+                                    <td class="sv-num" style="text-decoration: underline;">
+                                        <t t-out="'{0:,.2f}'.format(v['grand_total'] or 0.0)"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Voucher operators, copy distribution and notice pinned to the bottom -->
+            <div style="position: absolute; left: 0; right: 0; bottom: 0; z-index: 1;">
+                <div style="font-size: 14px; font-weight: bold; padding-left: 10px;">Voucher Operators</div>
+                <div style="padding-left: 10px; line-height: 1.9;">
+                    <div>
+                        PREPARED by <t t-out="v['prepared_by']"/>
+                        <t t-if="v['prepared_on']"> on <t t-out="v['prepared_on']"/></t><span class="sv-blank"/>
+                    </div>
+                    <div>APPROVED by <t t-out="v['approved_by']"/><span class="sv-blank"/></div>
+                    <div>ISSUED by <t t-out="v['issued_by']"/><span class="sv-blank"/></div>
+                    <div>Received by <t t-out="v['received_by']"/><span class="sv-blank"/></div>
+                </div>
+                <div style="margin-top: 22px; padding-left: 10px; font-size: 11px;">
+                    <strong>Copy Distribution : -</strong>
+                    <span style="margin-left: 14px;"><t t-out="v['copy_distribution']"/></span>
+                </div>
+                <div style="margin-top: 18px; border-bottom: 1px solid #000; text-align: center;
+                            font-weight: bold; font-size: 13px;">
+                    INVALID WITHOUT FISCAL OR REFUND RECEIPT ATTACHED
+                </div>
+            </div>
+        </div>
+    </template>
+</odoo>

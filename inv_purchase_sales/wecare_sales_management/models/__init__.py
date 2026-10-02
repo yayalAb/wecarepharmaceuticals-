@@ -6,6 +6,7 @@ from . import sales_territory
 from . import sales_plan
 from . import sales_target_line
 from . import share_mixin
+from . import sales_voucher
 from . import share_history
 from . import cheque_register
 from . import account_payment

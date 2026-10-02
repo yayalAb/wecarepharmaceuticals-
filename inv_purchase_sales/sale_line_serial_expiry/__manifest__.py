@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Sale Line Serial & Expiration',
-    'version': '18.0.1.0.0',
+    'version': '18.0.1.3.0',
     'category': 'Sales',
     'summary': 'Serial Number, Quantity, and Expiration Date on sales quotation/order lines',
     'description': """
 Serial Number, Quantity, and Expiration Date Management
 =======================================================
 On Sales Quotation and Sales Order lines:
-- Serial Number (Lot/Serial from stock)
+- Serial Numbers (one or more Lots/Serials from stock)
 - Quantity (existing order quantity)
 - Expiration Date (from the selected lot)
 

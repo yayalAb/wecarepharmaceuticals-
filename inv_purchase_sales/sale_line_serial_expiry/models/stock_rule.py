@@ -7,5 +7,5 @@ class StockRule(models.Model):
 
     def _get_custom_move_fields(self):
         fields = super()._get_custom_move_fields()
-        fields.append('restrict_lot_id')
+        fields.append('restrict_lot_ids')
         return fields

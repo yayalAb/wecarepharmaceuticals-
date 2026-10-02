@@ -6,7 +6,32 @@
         <field name="inherit_id" ref="stock.view_picking_move_tree"/>
         <field name="arch" type="xml">
             <xpath expr="//field[@name='product_id']" position="after">
-                <field name="restrict_lot_id" string="Serial Number" optional="show"/>
+                <field name="restrict_lot_ids" string="Serial Numbers" widget="many2many_tags" optional="show"/>
+                <field name="restrict_lot_expiration_date" optional="show"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Serial / expiry from the sales order on the delivery's Operations tab -->
+    <record id="view_picking_form_restrict_lot" model="ir.ui.view">
+        <field name="name">stock.picking.form.restrict.lot</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="stock.view_picking_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='move_ids_without_package']/list/field[@name='product_id']" position="after">
+                <field name="lot_display" optional="show"
+                       column_invisible="parent.picking_type_code != 'outgoing'"/>
+                <field name="lot_expiration_display" optional="show"
+                       column_invisible="parent.picking_type_code != 'outgoing'"/>
+                <xpath expr="//field[@name='move_ids_without_package']/list/field[@name='location_id']" position="move"/>
+            </xpath>
+            <!-- Show the source location (carried from the sales order line) on delivery lines -->
+            <xpath expr="//field[@name='move_ids_without_package']/list/field[@name='location_id']" position="attributes">
+                <attribute name="column_invisible">parent.picking_type_code != 'outgoing'</attribute>
+                <attribute name="string">Source Location</attribute>
+                <attribute name="optional">show</attribute>
+                <attribute name="readonly">state == 'done'</attribute>
+                <attribute name="options">{'no_create': True}</attribute>
             </xpath>
         </field>
     </record>

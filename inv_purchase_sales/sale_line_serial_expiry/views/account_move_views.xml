@@ -6,15 +6,16 @@
         <field name="inherit_id" ref="account.view_move_form"/>
         <field name="arch" type="xml">
             <xpath expr="//field[@name='invoice_line_ids']/list/field[@name='quantity']" position="before">
-                <field name="lot_id"
-                       string="Serial Number"
+                <field name="lot_ids"
+                       string="Serial Numbers"
+                       widget="many2many_tags"
                        optional="show"
                        invisible="display_type"
                        readonly="1"/>
                 <field name="expiration_date"
                        string="Expiration Date"
                        optional="show"
-                       invisible="display_type or not lot_id"
+                       invisible="display_type or not lot_ids"
                        readonly="1"/>
             </xpath>
         </field>

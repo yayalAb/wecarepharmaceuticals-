@@ -5,7 +5,7 @@ from odoo.exceptions import UserError
 
 class AccountMove(models.Model):
     _name = 'account.move'
-    _inherit = ['account.move', 'wecare.share.mixin']
+    _inherit = ['account.move', 'wecare.share.mixin', 'wecare.sales.voucher.mixin']
 
     wecare_warehouse_id = fields.Many2one(
         'stock.warehouse',
@@ -60,6 +60,69 @@ class AccountMove(models.Model):
             return
         for line in self.invoice_line_ids.filtered(lambda l: l.display_type == 'product'):
             line.stock_location_id = self.stock_location_id
+
+    def _get_name_invoice_report(self):
+        # Customer invoices / credit notes print as the WeCare Sales Voucher.
+        self.ensure_one()
+        if self.move_type in ('out_invoice', 'out_refund'):
+            return 'wecare_sales_management.report_sales_voucher_invoice'
+        return super()._get_name_invoice_report()
+
+    def _wecare_voucher_header(self):
+        self.ensure_one()
+        if self.move_type == 'out_refund':
+            title = 'Sales Return Voucher'
+        elif self.payment_method == 'credit':
+            title = 'Credit Sales Voucher'
+        elif self.payment_method == 'cash':
+            title = 'Cash Sales Voucher'
+        else:
+            title = 'Sales Voucher'
+        approved = getattr(self, 'approved_by_id', False)
+        salesperson = self.invoice_user_id
+        salesperson_phone = salesperson.partner_id.phone or salesperson.partner_id.mobile
+        warehouses = self.wecare_warehouse_id or self.invoice_line_ids.stock_warehouse_id
+        return {
+            'title': title,
+            'to': self.partner_id.display_name or '',
+            'tin': self.partner_id.vat or '',
+            'address': self._wecare_partner_address(self.partner_id),
+            'fs_no': self.fs_no or '',
+            'mrc_no': self.mrc_no or '',
+            'remark': self.narration,
+            'voucher_no': self.name if self.name and self.name != '/' else '',
+            'date': self._wecare_fmt_date(self.invoice_date)
+            or self._wecare_fmt_date(self.create_date, with_time=True),
+            'store': ', '.join(warehouses.mapped('name')),
+            'payment': dict(self._fields['payment_method'].selection).get(self.payment_method, ''),
+            'source': salesperson.name or '',
+            'source_tin': '',
+            'source_address': f'Tel. {salesperson_phone}' if salesperson_phone else '',
+            'prepared_by': self.create_uid.name or '',
+            'prepared_on': self._wecare_fmt_date(self.create_date, with_time=True),
+            'approved_by': approved.name if approved else '',
+            'issued_by': '',
+            'received_by': '',
+        }
+
+    def _wecare_voucher_lines(self):
+        self.ensure_one()
+        lines = []
+        for line in self.invoice_line_ids.filtered(lambda l: l.display_type == 'product'):
+            product = line.product_id
+            lots = line.lot_ids or line.sale_line_ids.lot_ids
+            lines.append({
+                'code': product.default_code or '',
+                'name': product.name or line.name or '',
+                'lots': self._wecare_lot_lines(product, lots, line.sale_line_ids.move_ids),
+                'qty': line.quantity,
+                'uom': line.product_uom_id.name or '',
+                'price': line.price_unit,
+                'subtotal': line.price_subtotal,
+                'taxed': bool(line.tax_ids),
+                'discount': line.price_unit * line.quantity * (line.discount or 0.0) / 100,
+            })
+        return lines
 
     def action_post(self):
         res = super().action_post()

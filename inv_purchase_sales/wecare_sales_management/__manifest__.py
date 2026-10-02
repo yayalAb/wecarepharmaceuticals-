@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'WeCare Sales Management',
-    'version': '18.0.1.5.0',
+    'version': '18.0.1.8.0',
     'category': 'Sales',
     'summary': 'Sales plan, cheque lifecycle, weekly reports, share to media, invoice-time stock',
     'description': """
@@ -69,6 +69,7 @@ WeCare Pharmaceuticals — Sales Planning, Collections and Weekly Reporting
         'report/target_vs_actual_report.xml',
         'report/extra_reports.xml',
         'report/warehouse_report_templates.xml',
+        'report/sales_voucher_report.xml',
         'views/menus.xml',
     ],
     'pre_init_hook': 'pre_init_hook',
