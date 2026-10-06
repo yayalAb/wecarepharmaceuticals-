@@ -72,10 +72,26 @@
             .sv-blank { display: inline-block; width: 90px; border-bottom: 1px solid #000; }
             .sv-op-line { display: inline-block; width: 110px; border-bottom: 1px solid #000; padding: 0 2px;
                           overflow: hidden; vertical-align: bottom; font-size: 11px; }
+            .sv-words { background: #8c8c8c; color: #000; font-style: italic; font-size: 11px;
+                        padding: 6px 8px; min-height: 48px; line-height: 1.35; box-sizing: border-box; }
+            .sv-watermark-wrap { position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+                                 overflow: hidden; pointer-events: none; z-index: 0; }
+            .sv-watermark { position: absolute; top: 38%; left: 50%; width: 800px; margin-left: -400px;
+                            text-align: center; font-family: Arial, Helvetica, sans-serif;
+                            font-size: 120px; font-weight: bold; color: #808080; opacity: 0.35;
+                            -webkit-transform: rotate(-38deg); transform: rotate(-38deg);
+                            -webkit-transform-origin: 50% 50%; transform-origin: 50% 50%;
+                            letter-spacing: 2px; line-height: 1; }
+            .sv-content { position: relative; z-index: 1; }
         </style>
 
         <div class="page sv-page" style="position: relative; min-height: 850px; padding-bottom: 200px;">
             <div class="oe_structure"/>
+
+            <!-- Diagonal "Attachment" watermark -->
+            <div t-if="v.get('watermark')" class="sv-watermark-wrap">
+                <div class="sv-watermark"><t t-out="v['watermark']"/></div>
+            </div>
 
             <div class="sv-content">
                 <!-- Header area is built from divs (display: table), not <table>, so the
@@ -157,11 +173,15 @@
                     </tbody>
                 </table>
 
-                <!-- Totals (right) -->
+                <!-- Amount in words (left) and totals (right) -->
                 <div class="sv-t" style="margin-top: 14px; page-break-inside: avoid;">
                     <div class="sv-r">
-                        <div class="sv-c" style="width: 54%; padding: 0;"/>
-                        <div class="sv-c" style="width: 46%; padding: 0;">
+                        <div class="sv-c" style="width: 52%; padding: 0 14px 0 0; vertical-align: top;">
+                            <div t-if="v.get('amount_words')" class="sv-words">
+                                <t t-out="v['amount_words']"/>
+                            </div>
+                        </div>
+                        <div class="sv-c" style="width: 48%; padding: 0;">
                             <table class="o_ignore_layout_styling sv-totals">
                                 <tr>
                                     <td style="width: 40%;">Sub Total</td>

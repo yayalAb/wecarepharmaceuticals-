@@ -87,3 +87,20 @@ class AccountMove(models.Model):
         self._compute_invoice_currency_rate()
         self.line_ids._compute_currency_rate()
         return True
+
+    def get_proforma_amount_in_words(self):
+        self.ensure_one()
+        total = self.amount_total
+        currency = self.currency_id or self.company_id.currency_id
+        if not currency or not total:
+            return ''
+        text = currency.amount_to_text(total)
+        if text:
+            text = text.replace('False', '').strip()
+            if not text.lower().endswith('only'):
+                text = f"{text} Only"
+        return text
+
+    def get_invoice_amount_in_words(self):
+        return self.get_proforma_amount_in_words()
+

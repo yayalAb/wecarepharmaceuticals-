@@ -75,6 +75,22 @@ class WecareSalesVoucherMixin(models.AbstractModel):
     def _wecare_voucher_lines(self):
         raise NotImplementedError
 
+    def _wecare_amount_to_words(self, amount, currency=None):
+        if not amount and amount != 0:
+            return ''
+        currency = currency or self.currency_id or self.company_id.currency_id
+        if not currency:
+            return ''
+        try:
+            text = currency.amount_to_text(amount)
+        except Exception:
+            text = ''
+        if text:
+            text = text.replace('False', '').strip()
+            if not text.lower().endswith('only'):
+                text = f"{text} Only"
+        return text
+
     def _wecare_voucher_values(self):
         self.ensure_one()
         currency = self.currency_id or self.company_id.currency_id
@@ -86,6 +102,8 @@ class WecareSalesVoucherMixin(models.AbstractModel):
             'discount': sum(line['discount'] for line in lines),
             'tax_rows': self._wecare_tax_rows(lines),
             'grand_total': self.amount_total,
+            'amount_words': self._wecare_amount_to_words(self.amount_total, currency),
+            'watermark': 'Attachment',
             'copy_distribution': COPY_DISTRIBUTION,
             'company_tin': self.company_id.vat or '',
             'company_vat': '',

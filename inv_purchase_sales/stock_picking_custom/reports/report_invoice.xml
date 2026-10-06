@@ -60,4 +60,19 @@
             <span t-out="'Total Unit Amount' if subtotal['name'] == 'Untaxed Amount' else subtotal['name']">Untaxed Amount</span>
         </xpath>
     </template>
+
+    <!-- Display Amount in Words on the standard invoice report if rendered -->
+    <template id="report_invoice_document_amount_in_words" inherit_id="account.report_invoice_document">
+        <xpath expr="//div[@id='total']" position="after">
+            <div t-if="o.get_invoice_amount_in_words()" class="clearfix mb-2" style="page-break-inside: avoid;">
+                <div class="row justify-content-end">
+                    <div class="col-6 text-end">
+                        <span style="font-style: italic; background: #8c8c8c; color: #000; padding: 4px 8px; display: inline-block;">
+                            <t t-out="o.get_invoice_amount_in_words()"/>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </xpath>
+    </template>
 </odoo>
