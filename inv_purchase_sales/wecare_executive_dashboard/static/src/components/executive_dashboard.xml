@@ -1,0 +1,682 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="wecare_executive_dashboard.MainDashboard">
+        <div class="wecare-dashboard-wrapper p-3 p-md-4">
+                        <!-- Top Filter Ribbon (Matching screenshot)                     -->
+            <div class="wecare-filter-bar mb-4">
+                <!-- Left: Dropdown Filters (Single Line) -->
+                <div class="wecare-filter-left">
+                    <div class="d-flex align-items-center me-2 text-dark">
+                        <i class="fa fa-filter text-primary me-2"/>
+                        <span class="wecare-filter-label text-uppercase">Filters</span>
+                    </div>
+
+                    <!-- Customer Type Dropdown -->
+                    <select class="wecare-filter-select" t-on-change="(ev) => this.onFilterChange('customer_type', ev)">
+                        <option value="all">All Customer Types</option>
+                        <t t-foreach="state.filter_options.customer_types" t-as="ct" t-key="ct.id">
+                            <option t-att-value="ct.id" t-att-selected="state.customer_type === ct.id" t-esc="ct.name"/>
+                        </t>
+                    </select>
+
+                    <!-- Sales Territory Dropdown -->
+                    <select class="wecare-filter-select" t-on-change="(ev) => this.onFilterChange('territory_id', ev)">
+                        <option value="all">All Sales Territories</option>
+                        <t t-foreach="state.filter_options.territories" t-as="tr" t-key="tr.id">
+                            <option t-att-value="tr.id" t-att-selected="state.territory_id === tr.id" t-esc="tr.name"/>
+                        </t>
+                    </select>
+
+                    <!-- Collection Method Dropdown -->
+                    <select class="wecare-filter-select" t-on-change="(ev) => this.onFilterChange('collection_type', ev)">
+                        <option value="all">All Payment Modes</option>
+                        <option value="cheque">Cheques</option>
+                        <option value="cash">Cash</option>
+                        <option value="bank">Bank Transfer</option>
+                        <option value="tele_birr">Telebirr / Mobile</option>
+                    </select>
+                </div>
+
+                <!-- Right: Date Presets & Inputs & Action Buttons (Single Line) -->
+                <div class="wecare-filter-right">
+                    <!-- Presets Group (Today | WTD | MTD | YTD) -->
+                    <div class="wecare-date-pills-container">
+                        <button t-att-class="'wecare-date-pill ' + (state.date_range === 'today' ? 'active' : '')"
+                                t-on-click="() => this.setDatePreset('today')">
+                            Today
+                        </button>
+                        <button t-att-class="'wecare-date-pill ' + (state.date_range === 'wtd' ? 'active' : '')"
+                                t-on-click="() => this.setDatePreset('wtd')">
+                            WTD
+                        </button>
+                        <button t-att-class="'wecare-date-pill ' + (state.date_range === 'mtd' ? 'active' : '')"
+                                t-on-click="() => this.setDatePreset('mtd')">
+                            MTD
+                        </button>
+                        <button t-att-class="'wecare-date-pill ' + (state.date_range === 'ytd' ? 'active' : '')"
+                                t-on-click="() => this.setDatePreset('ytd')">
+                            YTD
+                        </button>
+                    </div>
+
+                    <!-- Date Inputs Range -->
+                    <div class="d-flex align-items-center gap-1">
+                        <input type="date" class="wecare-date-input" t-model="state.date_from"/>
+                        <span class="text-muted small">-</span>
+                        <input type="date" class="wecare-date-input" t-model="state.date_to"/>
+                        <button t-if="state.date_range === 'custom'" class="btn btn-sm btn-primary py-1 px-2" t-on-click="onApplyCustomDate" style="font-size: 11px;">
+                            Apply
+                        </button>
+                    </div>
+
+                    <!-- Action Buttons (Refresh & Export) -->
+                    <button class="wecare-btn-icon" t-on-click="refresh" title="Refresh Dashboard">
+                        <i class="fa fa-refresh" t-att-class="state.loading ? 'fa-spin' : ''"/>
+                    </button>
+                    <button class="wecare-btn-icon" t-on-click="printDashboard" title="Export / Print">
+                        <i class="fa fa-download"/>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Loading Indicator -->
+            <div t-if="state.loading" class="text-center py-5">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading WeCare Executive Data...</span>
+                </div>
+                <div class="text-muted mt-2 small">Loading live financial &amp; sales data...</div>
+            </div>
+
+            <t t-if="!state.loading">
+                                <!-- ROW 1: Executive Financial KPIs (Matching Top Row Cards)    -->
+                                <div class="row g-3 mb-3">
+                    <!-- 1. Total Properties / Sales This Month -->
+                    <div class="col-12 col-sm-6 col-xl-3">
+                        <DashboardCard
+                            title="'Sales This Month'"
+                            value="formatCurrency(state.financial_kpis.sales_this_month)"
+                            subtext="'Current month to date'"
+                            icon="'fa-building-o'"
+                            iconColor="'blue'"
+                            badgeText="'MTD'"
+                            badgeColor="'gray'"
+                            clickable="false"
+                        />
+                    </div>
+
+                    <!-- 2. Available / Sales Selected Period -->
+                    <div class="col-12 col-sm-6 col-xl-3">
+                        <DashboardCard
+                            title="'Sales (Selected Period)'"
+                            value="formatCurrency(state.financial_kpis.sales_selected_period)"
+                            subtext="formatNumber(state.financial_kpis.invoice_count) + ' Invoices Posted'"
+                            icon="'fa-check-circle-o'"
+                            iconColor="'green'"
+                            badgeText="state.financial_kpis.target_achievement_pct + '% Target'"
+                            badgeColor="'blue'"
+                            clickable="true"
+                            onClick="() => this.openSalesInvoices()"
+                        />
+                    </div>
+
+                    <!-- 3. Reserved / Sales Target Achievement -->
+                    <div class="col-12 col-sm-6 col-xl-3">
+                        <DashboardCard
+                            title="'Sales Target Achievement'"
+                            value="state.financial_kpis.target_achievement_pct + '%'"
+                            subtext="'Target: ' + formatCurrency(state.financial_kpis.sales_target)"
+                            icon="'fa-bookmark-o'"
+                            iconColor="'amber'"
+                            badgeText="state.financial_kpis.target_achievement_pct &gt;= 90 ? 'On Track' : 'Review'"
+                            badgeColor="state.financial_kpis.target_achievement_pct &gt;= 90 ? 'green' : 'amber'"
+                            clickable="true"
+                            onClick="() => this.openSalesPlans()"
+                        />
+                    </div>
+
+                    <!-- 4. Rented / Total Receivables -->
+                    <div class="col-12 col-sm-6 col-xl-3">
+                        <DashboardCard
+                            title="'Total Receivables'"
+                            value="formatCurrency(state.financial_kpis.total_receivables)"
+                            subtext="formatNumber(state.financial_kpis.total_receivables_count) + ' Open Invoices'"
+                            icon="'fa-key'"
+                            iconColor="'sky'"
+                            badgeText="'Live'"
+                            badgeColor="'cyan'"
+                            clickable="true"
+                            onClick="() => this.openTotalReceivables()"
+                        />
+                    </div>
+                </div>
+
+                                <!-- ROW 2: Cheque Management & Overdue KPIs (Second Row Cards)  -->
+                                <div class="row g-3 mb-4">
+                    <!-- 5. Sold / Cheques Received -->
+                    <div class="col-12 col-sm-6 col-xl-3">
+                        <DashboardCard
+                            title="'Cheques Received'"
+                            value="formatCurrency(state.cheque_kpis.received_amount)"
+                            subtext="formatNumber(state.cheque_kpis.received_count) + ' Cheques in View'"
+                            icon="'fa-money'"
+                            iconColor="'purple'"
+                            badgeText="'Received'"
+                            badgeColor="'green'"
+                            clickable="true"
+                            onClick="() => this.openChequeRegisterByState('received', 'Cheques Received')"
+                        />
+                    </div>
+
+                    <!-- 6. Sales Value / Cheques in Clearing -->
+                    <div class="col-12 col-sm-6 col-xl-3">
+                        <DashboardCard
+                            title="'Cheques in Clearing'"
+                            value="formatCurrency(state.cheque_kpis.in_clearing_amount)"
+                            subtext="formatNumber(state.cheque_kpis.in_clearing_count) + ' In Bank Clearance'"
+                            icon="'fa-line-chart'"
+                            iconColor="'orange'"
+                            badgeText="'In Bank'"
+                            badgeColor="'blue'"
+                            clickable="true"
+                            onClick="() => this.openChequeRegisterByState('deposited', 'Cheques in Clearing')"
+                        />
+                    </div>
+
+                    <!-- 7. Rent Revenue / Cleared Cheques -->
+                    <div class="col-12 col-sm-6 col-xl-3">
+                        <DashboardCard
+                            title="'Cleared Cheques'"
+                            value="formatCurrency(state.cheque_kpis.cleared_amount)"
+                            subtext="formatNumber(state.cheque_kpis.cleared_count) + ' Confirmed by Bank'"
+                            icon="'fa-university'"
+                            iconColor="'teal'"
+                            badgeText="'Cleared'"
+                            badgeColor="'green'"
+                            clickable="true"
+                            onClick="() => this.openChequeRegisterByState('cleared', 'Cleared Cheques')"
+                        />
+                    </div>
+
+                    <!-- 8. Awaiting Payment / Overdue & Bounced -->
+                    <div class="col-12 col-sm-6 col-xl-3">
+                        <DashboardCard
+                            title="'Overdue Receivables (45d)'"
+                            value="formatCurrency(state.financial_kpis.overdue_receivables)"
+                            subtext="'Rule: > 45 Days (' + state.financial_kpis.overdue_pct + '%)'"
+                            icon="'fa-exclamation-triangle'"
+                            iconColor="'red'"
+                            badgeText="state.financial_kpis.overdue_count + ' Action Req.'"
+                            badgeColor="'red'"
+                            clickable="true"
+                            onClick="() => this.openOverdueReceivables()"
+                        />
+                    </div>
+                </div>
+
+                                <!-- ROW 3: Execution Pipeline & Portfolio/Occupancy Donut       -->
+                                <div class="row g-3 mb-4">
+                    <!-- Left: Sales vs Target Execution Pipeline -->
+                    <div class="col-12 col-lg-7">
+                        <div class="wecare-panel-card h-100 d-flex flex-column justify-content-between">
+                            <div class="wecare-panel-header d-flex align-items-center justify-content-between">
+                                <div class="d-flex align-items-center">
+                                    <i class="fa fa-calendar-check-o text-primary me-2 fa-lg"/>
+                                    <h6 class="wecare-panel-title mb-0">Sales vs Target Execution Pipeline</h6>
+                                </div>
+                                <button class="wecare-circle-btn" t-on-click="() => this.openSalesPlans()" title="View Sales Plans">
+                                    <i class="fa fa-arrow-right"/>
+                                </button>
+                            </div>
+
+                            <div class="p-3 flex-grow-1">
+                                <!-- Metrics Row -->
+                                <div class="row g-2 mb-3">
+                                    <div class="col-4 p-2 rounded bg-light text-center">
+                                        <div class="text-muted small">Actual Sales</div>
+                                        <div class="fw-bold text-dark" t-esc="formatCurrency(state.sales_collection_analysis.actual_sales)"/>
+                                    </div>
+                                    <div class="col-4 p-2 rounded bg-light text-center">
+                                        <div class="text-muted small">Target Sales</div>
+                                        <div class="fw-bold text-dark" t-esc="formatCurrency(state.sales_collection_analysis.target_sales)"/>
+                                    </div>
+                                    <div class="col-4 p-2 rounded bg-light text-center">
+                                        <div class="text-muted small">Achievement</div>
+                                        <div t-att-class="'fw-bold ' + (state.sales_collection_analysis.achievement_pct &gt;= 90 ? 'text-success' : 'text-primary')"
+                                             t-esc="state.sales_collection_analysis.achievement_pct + '%'"/>
+                                    </div>
+                                </div>
+
+                                <!-- Timeline Chart -->
+                                <t t-if="state.charts.sales_target_timeline">
+                                    <ChartRenderer
+                                        type="'bar'"
+                                        data="state.charts.sales_target_timeline"
+                                        height="210"
+                                        title="''"
+                                        y_title="'Amount (' + (state.currency.symbol || 'Br') + ')'"
+                                    />
+                                </t>
+                                <t t-else="">
+                                    <div class="text-center py-5 text-muted small">
+                                        <i class="fa fa-info-circle me-1"/> No active target pipeline data in the selected period.
+                                    </div>
+                                </t>
+                            </div>
+
+                            <div class="wecare-panel-footer d-flex align-items-center justify-content-between">
+                                <span>Period: <t t-esc="state.period_label"/></span>
+                                <span class="fw-semibold text-primary">Target vs Actual Performance</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right: Collection by Method Donut (Matching Portfolio & Occupancy) -->
+                    <div class="col-12 col-lg-5">
+                        <div class="wecare-panel-card h-100 d-flex flex-column justify-content-between">
+                            <div class="wecare-panel-header d-flex align-items-center justify-content-between">
+                                <div>
+                                    <div class="d-flex align-items-center">
+                                        <i class="fa fa-pie-chart text-primary me-2 fa-lg"/>
+                                        <h6 class="wecare-panel-title mb-0">Collection by Method</h6>
+                                    </div>
+                                    <div class="wecare-panel-subtitle">Collection status breakdown across payment channels.</div>
+                                </div>
+                                <span class="wecare-pill-badge wecare-pill-blue">
+                                    <t t-esc="state.sales_collection_analysis.achievement_pct + '% Collected'"/>
+                                </span>
+                            </div>
+
+                            <div class="p-3 flex-grow-1">
+                                <div class="row align-items-center">
+                                    <!-- Donut Chart with Cutout -->
+                                    <div class="col-6 position-relative">
+                                        <div class="wecare-donut-center-wrap">
+                                            <ChartRenderer
+                                                type="'doughnut'"
+                                                data="state.charts.collection_doughnut"
+                                                height="190"
+                                                title="''"
+                                            />
+                                            <!-- Center Text Overlay -->
+                                            <div class="position-absolute text-center" style="pointer-events: none;">
+                                                <div class="fw-bold" style="font-size: 16px; color: #0f172a;" t-esc="formatNumber(state.sales_collection_analysis.total_items)"/>
+                                                <div class="text-uppercase text-muted" style="font-size: 9px; letter-spacing: 0.5px;">COLLECTIONS</div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Legend List with Values (Matching Screenshot) -->
+                                    <div class="col-6">
+                                        <div class="wecare-legend-list">
+                                            <div class="wecare-legend-item">
+                                                <div class="d-flex align-items-center">
+                                                    <span class="wecare-legend-dot" style="background: #003f88;"/>
+                                                    <span class="wecare-legend-label">Cheque</span>
+                                                </div>
+                                                <span class="wecare-legend-val" t-esc="formatCurrency(state.sales_collection_analysis.collections_by_method.cheque)"/>
+                                            </div>
+
+                                            <div class="wecare-legend-item">
+                                                <div class="d-flex align-items-center">
+                                                    <span class="wecare-legend-dot" style="background: #f97316;"/>
+                                                    <span class="wecare-legend-label">Cash</span>
+                                                </div>
+                                                <span class="wecare-legend-val" t-esc="formatCurrency(state.sales_collection_analysis.collections_by_method.cash)"/>
+                                            </div>
+
+                                            <div class="wecare-legend-item">
+                                                <div class="d-flex align-items-center">
+                                                    <span class="wecare-legend-dot" style="background: #22c55e;"/>
+                                                    <span class="wecare-legend-label">Bank Transfer</span>
+                                                </div>
+                                                <span class="wecare-legend-val" t-esc="formatCurrency(state.sales_collection_analysis.collections_by_method.bank_transfer)"/>
+                                            </div>
+
+                                            <div class="wecare-legend-item">
+                                                <div class="d-flex align-items-center">
+                                                    <span class="wecare-legend-dot" style="background: #eab308;"/>
+                                                    <span class="wecare-legend-label">Telebirr / Other</span>
+                                                </div>
+                                                <span class="wecare-legend-val" t-esc="formatCurrency(state.sales_collection_analysis.collections_by_method.other)"/>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="wecare-panel-footer d-flex align-items-center justify-content-between">
+                                <span>4 Channels • <t t-esc="formatNumber(state.sales_collection_analysis.total_items)"/> Collections</span>
+                                <span class="fw-bold text-dark" t-esc="formatCurrency(state.sales_collection_analysis.collections_by_method.total)"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                                <!-- ROW 4: Management Action Center                             -->
+                                <div class="wecare-panel-card p-3 mb-4">
+                    <div class="d-flex align-items-center justify-content-between mb-3 px-1">
+                        <div>
+                            <h6 class="wecare-panel-title mb-0">Management Action Center</h6>
+                            <div class="wecare-panel-subtitle">Immediate operational items requiring management confirmation and follow-up.</div>
+                        </div>
+                        <span class="wecare-pill-badge wecare-pill-red">High Priority</span>
+                    </div>
+
+                    <div class="row g-3">
+                        <t t-foreach="state.action_center" t-as="item" t-key="item.id">
+                            <div class="col-12 col-md-6 col-xl">
+                                <div class="wecare-action-box p-3 h-100 d-flex flex-column justify-content-between">
+                                    <div>
+                                        <div class="d-flex align-items-center justify-content-between mb-2">
+                                            <div t-att-class="'wecare-icon-box wecare-icon-' + (item.icon_color || 'red')">
+                                                <i t-att-class="'fa ' + item.icon"/>
+                                            </div>
+                                            <span t-att-class="'wecare-pill-badge wecare-pill-' + (item.badge_color || 'gray')" t-esc="item.badge"/>
+                                        </div>
+                                        <div class="fw-bold text-dark mt-2" style="font-size: 13.5px;" t-esc="item.title"/>
+                                        <div class="text-muted small mt-1 mb-2" t-esc="item.subtitle"/>
+                                    </div>
+
+                                    <div class="pt-2 border-top d-flex align-items-center justify-content-between">
+                                        <div>
+                                            <div class="fw-bold text-dark" style="font-size: 14px;" t-esc="formatCurrency(item.amount)"/>
+                                            <div class="text-muted" style="font-size: 11px;"><t t-esc="formatNumber(item.count)"/> records</div>
+                                        </div>
+                                        <button class="wecare-circle-btn" t-on-click="() => this.openActionCenter(item)" title="Take Action">
+                                            <i class="fa fa-arrow-right"/>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </t>
+                    </div>
+                </div>
+
+                                <!-- ROW 5: Sales and Customer Performance Tabs                  -->
+                                <div class="wecare-panel-card mb-4 overflow-hidden">
+                    <div class="wecare-tabs-nav">
+                        <button t-att-class="'wecare-tab-btn ' + (state.activePerformanceTab === 'customers' ? 'active' : '')"
+                                t-on-click="() => this.onSelectTab('customers')">
+                            <i class="fa fa-users me-1"/> Top Customers
+                        </button>
+                        <button t-att-class="'wecare-tab-btn ' + (state.activePerformanceTab === 'salespeople' ? 'active' : '')"
+                                t-on-click="() => this.onSelectTab('salespeople')">
+                            <i class="fa fa-user-circle me-1"/> Salesperson Performance
+                        </button>
+                        <button t-att-class="'wecare-tab-btn ' + (state.activePerformanceTab === 'products' ? 'active' : '')"
+                                t-on-click="() => this.onSelectTab('products')">
+                            <i class="fa fa-cube me-1"/> Product Sales
+                        </button>
+                        <button t-att-class="'wecare-tab-btn ' + (state.activePerformanceTab === 'collections' ? 'active' : '')"
+                                t-on-click="() => this.onSelectTab('collections')">
+                            <i class="fa fa-credit-card me-1"/> Collections Achievement
+                        </button>
+                        <button t-att-class="'wecare-tab-btn ' + (state.activePerformanceTab === 'banks' ? 'active' : '')"
+                                t-on-click="() => this.onSelectTab('banks')">
+                            <i class="fa fa-university me-1"/> Bank &amp; Cash Position
+                        </button>
+                    </div>
+
+                    <div class="p-3 p-md-4">
+                        <!-- TAB 1: Top Customers -->
+                        <t t-if="state.activePerformanceTab === 'customers'">
+                            <div class="row g-4">
+                                <div class="col-12 col-xl-7">
+                                    <div class="table-responsive">
+                                        <table class="table wecare-table align-middle mb-0">
+                                            <thead>
+                                                <tr>
+                                                    <th>Customer</th>
+                                                    <th>Type</th>
+                                                    <th class="text-end">Sales in Period</th>
+                                                    <th class="text-end">Outstanding</th>
+                                                    <th class="text-end text-danger">Overdue (&gt;45d)</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <t t-foreach="state.top_customers" t-as="c" t-key="c.partner_id">
+                                                    <tr class="cursor-pointer" t-on-click="() => this.openPartnerRecord(c.partner_id, c.name)">
+                                                        <td class="fw-semibold text-primary">
+                                                            <i class="fa fa-external-link small me-1 opacity-50"/>
+                                                            <t t-esc="c.name"/>
+                                                        </td>
+                                                        <td><span class="wecare-pill-badge wecare-pill-gray" t-esc="c.customer_type"/></td>
+                                                        <td class="text-end fw-bold" t-esc="formatCurrency(c.sales_amount)"/>
+                                                        <td class="text-end" t-esc="formatCurrency(c.outstanding_balance)"/>
+                                                        <td class="text-end text-danger fw-semibold" t-esc="formatCurrency(c.overdue_balance)"/>
+                                                    </tr>
+                                                </t>
+                                                <t t-if="!state.top_customers.length">
+                                                    <tr>
+                                                        <td colspan="5" class="text-center py-4 text-muted">No customer data available in this range.</td>
+                                                    </tr>
+                                                </t>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                                <div class="col-12 col-xl-5">
+                                    <div class="p-3 bg-light rounded-3 h-100">
+                                        <h6 class="fw-bold mb-3 text-dark small text-uppercase">Top Customers by Sales &amp; Outstanding</h6>
+                                        <t t-if="state.charts.top_customers_bar">
+                                            <ChartRenderer
+                                                type="'bar'"
+                                                data="state.charts.top_customers_bar"
+                                                height="260"
+                                                title="''"
+                                                y_title="'Amount (' + (state.currency.symbol || 'Br') + ')'"
+                                            />
+                                        </t>
+                                    </div>
+                                </div>
+                            </div>
+                        </t>
+
+                        <!-- TAB 2: Salesperson Performance -->
+                        <t t-if="state.activePerformanceTab === 'salespeople'">
+                            <div class="row g-4">
+                                <div class="col-12 col-xl-7">
+                                    <div class="table-responsive">
+                                        <table class="table wecare-table align-middle mb-0">
+                                            <thead>
+                                                <tr>
+                                                    <th>Salesperson</th>
+                                                    <th class="text-end">Approved Target</th>
+                                                    <th class="text-end">Actual Sales</th>
+                                                    <th class="text-center">Achievement %</th>
+                                                    <th class="text-end">Variance</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <t t-foreach="state.salesperson_performance" t-as="sp" t-key="sp.salesperson_id">
+                                                    <tr>
+                                                        <td class="fw-semibold text-dark" t-esc="sp.name"/>
+                                                        <td class="text-end" t-esc="formatCurrency(sp.target)"/>
+                                                        <td class="text-end fw-bold text-primary" t-esc="formatCurrency(sp.actual)"/>
+                                                        <td class="text-center">
+                                                            <span t-att-class="'wecare-pill-badge ' + (sp.achievement_pct &gt;= 100 ? 'wecare-pill-green' : (sp.achievement_pct &gt;= 70 ? 'wecare-pill-amber' : 'wecare-pill-red'))"
+                                                                  t-esc="sp.achievement_pct + '%'"/>
+                                                        </td>
+                                                        <td t-att-class="'text-end fw-semibold ' + (sp.variance &gt;= 0 ? 'text-success' : 'text-danger')"
+                                                            t-esc="formatCurrency(sp.variance)"/>
+                                                    </tr>
+                                                </t>
+                                                <t t-if="!state.salesperson_performance.length">
+                                                    <tr>
+                                                        <td colspan="5" class="text-center py-4 text-muted">No salesperson target or sales data found.</td>
+                                                    </tr>
+                                                </t>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                                <div class="col-12 col-xl-5">
+                                    <div class="p-3 bg-light rounded-3 h-100">
+                                        <h6 class="fw-bold mb-3 text-dark small text-uppercase">Target vs Actual by Salesperson</h6>
+                                        <t t-if="state.charts.salesperson_bar">
+                                            <ChartRenderer
+                                                type="'bar'"
+                                                data="state.charts.salesperson_bar"
+                                                height="260"
+                                                title="''"
+                                                y_title="'Amount (' + (state.currency.symbol || 'Br') + ')'"
+                                            />
+                                        </t>
+                                    </div>
+                                </div>
+                            </div>
+                        </t>
+
+                        <!-- TAB 3: Product Performance -->
+                        <t t-if="state.activePerformanceTab === 'products'">
+                            <div class="table-responsive">
+                                <table class="table wecare-table align-middle mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th>Product</th>
+                                            <th>Category</th>
+                                            <th class="text-end">Qty Sold</th>
+                                            <th>Unit</th>
+                                            <th class="text-end">Total Revenue</th>
+                                            <th class="text-end">Avg Price</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <t t-foreach="state.product_performance" t-as="p" t-key="p.product_id">
+                                            <tr class="cursor-pointer" t-on-click="() => this.openProductRecord(p.product_id, p.name)">
+                                                <td>
+                                                    <div class="fw-semibold text-primary">
+                                                        <i class="fa fa-cube small me-1 opacity-50"/>
+                                                        <t t-esc="p.name"/>
+                                                    </div>
+                                                    <small class="text-muted" t-if="p.default_code" t-esc="'[' + p.default_code + ']'"/>
+                                                </td>
+                                                <td><span class="wecare-pill-badge wecare-pill-gray" t-esc="p.category"/></td>
+                                                <td class="text-end fw-bold" t-esc="formatNumber(p.qty_sold)"/>
+                                                <td class="text-muted small" t-esc="p.uom"/>
+                                                <td class="text-end fw-bold text-success" t-esc="formatCurrency(p.revenue)"/>
+                                                <td class="text-end text-muted" t-esc="formatCurrency(p.avg_price)"/>
+                                            </tr>
+                                        </t>
+                                        <t t-if="!state.product_performance.length">
+                                            <tr>
+                                                <td colspan="6" class="text-center py-4 text-muted">No product sales recorded in this period.</td>
+                                            </tr>
+                                        </t>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </t>
+
+                        <!-- TAB 4: Salesperson Collections -->
+                        <t t-if="state.activePerformanceTab === 'collections'">
+                            <div class="table-responsive">
+                                <table class="table wecare-table align-middle mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th>Salesperson</th>
+                                            <th class="text-center">Count</th>
+                                            <th class="text-end">Cheque Value</th>
+                                            <th class="text-end">Cash Value</th>
+                                            <th class="text-end">Other Value</th>
+                                            <th class="text-end text-primary">Total Collected</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <t t-foreach="state.salesperson_collections" t-as="sc" t-key="sc.salesperson_id">
+                                            <tr>
+                                                <td class="fw-semibold text-dark" t-esc="sc.name"/>
+                                                <td class="text-center">
+                                                    <span class="wecare-pill-badge wecare-pill-gray" t-esc="sc.count"/>
+                                                </td>
+                                                <td class="text-end" t-esc="formatCurrency(sc.cheque_amount)"/>
+                                                <td class="text-end" t-esc="formatCurrency(sc.cash_amount)"/>
+                                                <td class="text-end" t-esc="formatCurrency(sc.other_amount)"/>
+                                                <td class="text-end fw-bold text-primary" t-esc="formatCurrency(sc.total_collected)"/>
+                                            </tr>
+                                        </t>
+                                        <t t-if="!state.salesperson_collections.length">
+                                            <tr>
+                                                <td colspan="6" class="text-center py-4 text-muted">No collections recorded for salespeople in this range.</td>
+                                            </tr>
+                                        </t>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </t>
+
+                        <!-- TAB 5: Bank Deposit Summary and Cash Position -->
+                        <t t-if="state.activePerformanceTab === 'banks'">
+                            <div class="row g-4">
+                                <div class="col-12 col-xl-8">
+                                    <h6 class="fw-bold mb-3 text-dark small text-uppercase">
+                                        <i class="fa fa-university me-1 text-primary"/> Bank Deposit Summary
+                                    </h6>
+                                    <div class="table-responsive">
+                                        <table class="table wecare-table align-middle mb-0">
+                                            <thead>
+                                                <tr>
+                                                    <th>Bank Journal</th>
+                                                    <th>Account Number</th>
+                                                    <th class="text-end">Total Deposited</th>
+                                                    <th class="text-end text-success">Cleared</th>
+                                                    <th class="text-end text-warning">In Clearing</th>
+                                                    <th class="text-end text-danger">Bounced</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <t t-foreach="state.bank_summary" t-as="b" t-key="b.journal_id">
+                                                    <tr>
+                                                        <td class="fw-semibold text-dark">
+                                                            <i class="fa fa-bank me-1 text-muted small"/>
+                                                            <t t-esc="b.bank_name || b.journal_name"/>
+                                                        </td>
+                                                        <td class="text-muted small" t-esc="b.acc_number || '—'"/>
+                                                        <td class="text-end fw-bold" t-esc="formatCurrency(b.total_deposited)"/>
+                                                        <td class="text-end text-success fw-semibold" t-esc="formatCurrency(b.cleared_amount)"/>
+                                                        <td class="text-end text-warning fw-semibold" t-esc="formatCurrency(b.in_clearing_amount)"/>
+                                                        <td class="text-end text-danger fw-semibold" t-esc="formatCurrency(b.bounced_amount)"/>
+                                                    </tr>
+                                                </t>
+                                                <t t-if="!state.bank_summary.length">
+                                                    <tr>
+                                                        <td colspan="6" class="text-center py-4 text-muted">No bank deposits found in selected period.</td>
+                                                    </tr>
+                                                </t>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+
+                                <div class="col-12 col-xl-4">
+                                    <h6 class="fw-bold mb-3 text-dark small text-uppercase">
+                                        <i class="fa fa-money me-1 text-success"/> Cash Collection Position
+                                    </h6>
+                                    <div class="p-3 rounded-3 mb-3" style="background: #e6fcf5; border: 1px solid #c3fae8;">
+                                        <div class="text-muted small">Total Cash Collected (Period)</div>
+                                        <h3 class="fw-bold mb-0 mt-1" style="color: #0ca678;" t-esc="formatCurrency(state.cash_summary.total_cash_collected_period)"/>
+                                    </div>
+
+                                    <div class="wecare-panel-card p-3">
+                                        <div class="small fw-semibold text-muted text-uppercase mb-2">Cash Journal Balances</div>
+                                        <div class="d-flex flex-column gap-2">
+                                            <t t-foreach="state.cash_summary.cash_journals" t-as="cj" t-key="cj.journal_id">
+                                                <div class="d-flex justify-content-between align-items-center py-1 border-bottom">
+                                                    <span class="small fw-medium text-dark" t-esc="cj.name"/>
+                                                    <span class="small fw-bold text-dark" t-esc="formatCurrency(cj.balance)"/>
+                                                </div>
+                                            </t>
+                                            <t t-if="!state.cash_summary.cash_journals.length">
+                                                <div class="text-center text-muted small py-2">No cash journals configured.</div>
+                                            </t>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </t>
+                    </div>
+                </div>
+            </t>
+        </div>
+    </t>
+</templates>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="wecare_executive_dashboard.ChartRenderer">
+        <div class="wecare-chart-container position-relative w-100" t-attf-style="height: {{ props.height || 280 }}px;">
+            <canvas t-ref="chartCanvas"/>
+        </div>
+    </t>
+</templates>

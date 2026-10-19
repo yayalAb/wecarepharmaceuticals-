@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_wecare_executive_dashboard_user,wecare.executive.dashboard.user,model_wecare_executive_dashboard,base.group_user,1,1,1,1
+access_wecare_executive_dashboard_wecare_user,wecare.executive.dashboard.wecare.user,model_wecare_executive_dashboard,wecare_sales_management.group_wecare_user,1,1,1,1
+access_wecare_executive_dashboard_wecare_manager,wecare.executive.dashboard.wecare.manager,model_wecare_executive_dashboard,wecare_sales_management.group_wecare_manager,1,1,1,1

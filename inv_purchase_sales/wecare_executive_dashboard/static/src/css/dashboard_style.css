@@ -1,0 +1,509 @@
+/* =========================================================================
+   WeCare Executive Dashboard - Modern Clean Aesthetic
+   ========================================================================= */
+
+.wecare-dashboard-wrapper {
+    background-color: #f4f6fa;
+    min-height: 100vh;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    color: #0f172a;
+}
+
+/* -------------------------------------------------------------------------
+   Top Filter Ribbon
+   ------------------------------------------------------------------------- */
+.wecare-filter-bar {
+    background: #ffffff !important;
+    border: 1px solid #eaecf0 !important;
+    border-radius: 14px !important;
+    box-shadow: 0 1px 3px rgba(16, 24, 40, 0.04) !important;
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    padding: 10px 18px !important;
+    gap: 16px !important;
+    overflow-x: auto !important;
+}
+
+.wecare-filter-left {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+    gap: 10px !important;
+    flex-shrink: 0 !important;
+}
+
+.wecare-filter-right {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+    gap: 10px !important;
+    flex-shrink: 0 !important;
+}
+
+.wecare-filter-label {
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.6px !important;
+    color: #475569 !important;
+    white-space: nowrap !important;
+}
+
+.wecare-filter-select {
+    display: inline-block !important;
+    width: auto !important;
+    min-width: 140px !important;
+    max-width: 180px !important;
+    flex: 0 0 auto !important;
+    height: 36px !important;
+    background-color: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 9px !important;
+    font-size: 12px !important;
+    font-weight: 500 !important;
+    color: #334155 !important;
+    padding: 6px 28px 6px 12px !important;
+    cursor: pointer !important;
+    transition: all 0.15s ease !important;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%2364748b' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e") !important;
+    background-repeat: no-repeat !important;
+    background-position: right 10px center !important;
+    background-size: 10px 10px !important;
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+    appearance: none !important;
+    white-space: nowrap !important;
+}
+
+.wecare-filter-select:hover,
+.wecare-filter-select:focus {
+    border-color: #cbd5e1 !important;
+    background-color: #f8fafc !important;
+    outline: none !important;
+}
+
+/* Date Preset Pills Group */
+.wecare-date-pills-container {
+    background: #f1f5f9 !important;
+    border-radius: 9px !important;
+    padding: 3px !important;
+    display: inline-flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+    flex-shrink: 0 !important;
+    height: 36px !important;
+}
+
+.wecare-date-pill {
+    border: none !important;
+    background: transparent !important;
+    font-size: 11.5px !important;
+    font-weight: 600 !important;
+    color: #64748b !important;
+    padding: 4px 12px !important;
+    border-radius: 7px !important;
+    transition: all 0.15s ease !important;
+    cursor: pointer !important;
+    white-space: nowrap !important;
+    height: 30px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+.wecare-date-pill:hover {
+    color: #0f172a !important;
+}
+
+.wecare-date-pill.active {
+    background: #ffffff !important;
+    color: #0284c7 !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08) !important;
+}
+
+/* Date Inputs */
+.wecare-date-input {
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 9px !important;
+    font-size: 12px !important;
+    color: #334155 !important;
+    padding: 4px 10px !important;
+    background: #ffffff !important;
+    height: 36px !important;
+    width: 125px !important;
+    display: inline-block !important;
+    flex: 0 0 auto !important;
+}
+
+/* Icon Buttons */
+.wecare-btn-icon {
+    width: 36px !important;
+    height: 36px !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 9px !important;
+    background: #ffffff !important;
+    color: #475569 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    transition: all 0.15s ease !important;
+    cursor: pointer !important;
+    flex-shrink: 0 !important;
+}
+
+.wecare-btn-icon:hover {
+    background: #f8fafc;
+    border-color: #cbd5e1;
+    color: #0f172a;
+}
+
+/* -------------------------------------------------------------------------
+   Metric / KPI Cards (Row 1 & Row 2)
+   ------------------------------------------------------------------------- */
+.wecare-card {
+    background: #ffffff;
+    border: 1px solid #eaecf0 !important;
+    border-radius: 16px !important;
+    box-shadow: 0 1px 3px rgba(16, 24, 40, 0.03) !important;
+    transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.wecare-card-clickable {
+    cursor: pointer;
+}
+
+.wecare-card-clickable:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(16, 24, 40, 0.08) !important;
+    border-color: #cbd5e1 !important;
+}
+
+.wecare-card-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    color: #64748b;
+}
+
+.wecare-card-num {
+    font-size: 24px;
+    font-weight: 700;
+    color: #0f172a;
+    line-height: 1.25;
+    letter-spacing: -0.3px;
+}
+
+.wecare-card-sub {
+    font-size: 12px;
+    color: #64748b;
+    margin-top: 2px;
+}
+
+/* Icon Boxes (Pastel Squares) */
+.wecare-icon-box {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+}
+
+.wecare-icon-blue {
+    background: #e8f1fd;
+    color: #1a73e8;
+}
+
+.wecare-icon-green {
+    background: #e6f7ec;
+    color: #1e8e3e;
+}
+
+.wecare-icon-amber {
+    background: #fef3d6;
+    color: #d97706;
+}
+
+.wecare-icon-sky {
+    background: #e8f7ff;
+    color: #0284c7;
+}
+
+.wecare-icon-purple {
+    background: #f3e8ff;
+    color: #9333ea;
+}
+
+.wecare-icon-orange {
+    background: #fff0eb;
+    color: #f97316;
+}
+
+.wecare-icon-teal {
+    background: #e6fcf5;
+    color: #0ca678;
+}
+
+.wecare-icon-red {
+    background: #fde8e8;
+    color: #e02424;
+}
+
+.wecare-icon-gray {
+    background: #f1f5f9;
+    color: #64748b;
+}
+
+/* Soft Pill Badges */
+.wecare-pill-badge {
+    border-radius: 9999px;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 10px;
+    display: inline-block;
+    line-height: 1.3;
+}
+
+.wecare-pill-gray {
+    background: #f1f5f9;
+    color: #475569;
+}
+
+.wecare-pill-blue {
+    background: #e0f2fe;
+    color: #0284c7;
+}
+
+.wecare-pill-green {
+    background: #dcfce7;
+    color: #15803d;
+}
+
+.wecare-pill-amber {
+    background: #fef3c7;
+    color: #b45309;
+}
+
+.wecare-pill-red {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+.wecare-pill-cyan {
+    background: #e0f7fa;
+    color: #00838f;
+}
+
+.wecare-pill-purple {
+    background: #f3e8ff;
+    color: #7e22ce;
+}
+
+/* -------------------------------------------------------------------------
+   Section Cards (Row 3, 4, 5)
+   ------------------------------------------------------------------------- */
+.wecare-panel-card {
+    background: #ffffff;
+    border: 1px solid #eaecf0;
+    border-radius: 16px;
+    box-shadow: 0 1px 3px rgba(16, 24, 40, 0.03);
+}
+
+.wecare-panel-header {
+    background: transparent;
+    border-bottom: 1px solid #f1f5f9;
+    padding: 16px 20px;
+}
+
+.wecare-panel-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: #0f172a;
+    letter-spacing: -0.2px;
+}
+
+.wecare-panel-subtitle {
+    font-size: 12px;
+    color: #64748b;
+    margin-top: 2px;
+}
+
+.wecare-circle-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #e0f2fe;
+    color: #0284c7;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    transition: all 0.15s ease;
+    cursor: pointer;
+}
+
+.wecare-circle-btn:hover {
+    background: #bae6fd;
+    transform: translateX(2px);
+}
+
+/* Donut Chart Center Text Container */
+.wecare-donut-center-wrap {
+    position: relative;
+    width: 100%;
+    height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Donut Chart Legend List */
+.wecare-legend-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.wecare-legend-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 13px;
+}
+
+.wecare-legend-dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 8px;
+    flex-shrink: 0;
+}
+
+.wecare-legend-label {
+    color: #334155;
+    font-weight: 500;
+}
+
+.wecare-legend-val {
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.wecare-panel-footer {
+    border-top: 1px solid #f1f5f9;
+    padding: 10px 20px;
+    font-size: 11.5px;
+    color: #64748b;
+}
+
+/* -------------------------------------------------------------------------
+   Action Center Cards (Row 4)
+   ------------------------------------------------------------------------- */
+.wecare-action-box {
+    background: #ffffff;
+    border: 1px solid #eaecf0;
+    border-radius: 14px;
+    box-shadow: 0 1px 3px rgba(16, 24, 40, 0.03);
+    transition: all 0.18s ease;
+}
+
+.wecare-action-box:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(16, 24, 40, 0.08);
+}
+
+/* -------------------------------------------------------------------------
+   Navigation Tabs (Row 5)
+   ------------------------------------------------------------------------- */
+.wecare-tabs-nav {
+    border-bottom: 1px solid #eaecf0;
+    padding: 0 16px;
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+}
+
+.wecare-tab-btn {
+    border: none;
+    background: transparent;
+    padding: 14px 16px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #64748b;
+    border-bottom: 2px solid transparent;
+    transition: all 0.15s ease;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.wecare-tab-btn:hover {
+    color: #0f172a;
+}
+
+.wecare-tab-btn.active {
+    color: #0284c7;
+    border-bottom-color: #0284c7;
+}
+
+/* -------------------------------------------------------------------------
+   Tables
+   ------------------------------------------------------------------------- */
+.wecare-table {
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.wecare-table th {
+    background: #f8fafc;
+    color: #475569;
+    font-size: 11.5px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    border-top: 1px solid #eaecf0;
+    border-bottom: 1px solid #eaecf0;
+    padding: 10px 14px;
+}
+
+.wecare-table td {
+    padding: 12px 14px;
+    font-size: 13px;
+    border-bottom: 1px solid #f1f5f9;
+    color: #334155;
+}
+
+.wecare-table tr:hover td {
+    background-color: #f8fafc;
+}
+
+/* -------------------------------------------------------------------------
+   Print Media
+   ------------------------------------------------------------------------- */
+@media print {
+    .wecare-filter-bar,
+    .wecare-btn-icon,
+    .wecare-date-pills-container,
+    button {
+        display: none !important;
+    }
+
+    .wecare-dashboard-wrapper {
+        background: #ffffff !important;
+        padding: 0 !important;
+    }
+
+    .wecare-card,
+    .wecare-panel-card {
+        box-shadow: none !important;
+        border: 1px solid #cbd5e1 !important;
+        break-inside: avoid;
+    }
+}

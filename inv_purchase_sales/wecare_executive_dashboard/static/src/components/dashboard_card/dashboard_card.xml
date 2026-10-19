@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="wecare_executive_dashboard.DashboardCard">
+        <div t-att-class="'wecare-card card h-100 border ' + (props.clickable ? 'wecare-card-clickable cursor-pointer' : '')"
+             t-on-click="onCardClick">
+            <div class="card-body p-3 d-flex flex-column justify-content-between">
+                <!-- Top Row: Icon Badge on Left, Status Pill on Right -->
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <div t-att-class="'wecare-icon-box wecare-icon-' + (props.iconColor || 'blue')">
+                        <i t-att-class="'fa ' + (props.icon || 'fa-bar-chart')"/>
+                    </div>
+                    <span t-if="props.badgeText" t-att-class="'wecare-pill-badge wecare-pill-' + (props.badgeColor || 'gray')" t-esc="props.badgeText"/>
+                </div>
+
+                <!-- Middle & Bottom Content -->
+                <div>
+                    <div class="wecare-card-label text-uppercase mb-1" t-esc="props.title"/>
+                    <div class="wecare-card-num fw-bold mb-1" t-esc="props.value"/>
+                    <div t-if="props.subtext" class="wecare-card-sub text-truncate" t-esc="props.subtext"/>
+                </div>
+            </div>
+        </div>
+    </t>
+</templates>
