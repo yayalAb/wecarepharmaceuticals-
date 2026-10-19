@@ -6,13 +6,21 @@
         <field name="tag">wecare_executive_dashboard.main_view</field>
     </record>
 
-    <!-- Top-Level Root Menu for Quick Executive Access -->
+    <!-- Top-Level App Root Menu (no action here — required for web_icon to show in home screen) -->
     <menuitem
         id="menu_wecare_executive_dashboard_root"
         name="Executive Dashboard"
-        action="action_wecare_executive_dashboard"
         sequence="5"
         web_icon="wecare_executive_dashboard,static/description/icon.png"
+        groups="base.group_user"/>
+
+    <!-- Child menu under the root that carries the action -->
+    <menuitem
+        id="menu_wecare_executive_dashboard_main"
+        name="Executive Dashboard"
+        parent="menu_wecare_executive_dashboard_root"
+        action="action_wecare_executive_dashboard"
+        sequence="1"
         groups="base.group_user"/>
 
     <!-- Inside Sales App -> Reporting -->
