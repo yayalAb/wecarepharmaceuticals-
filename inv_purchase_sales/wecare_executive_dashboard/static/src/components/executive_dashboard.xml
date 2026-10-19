@@ -313,7 +313,7 @@
                                                     <span class="wecare-legend-dot" style="background: #003f88;"/>
                                                     <span class="wecare-legend-label">Cheque</span>
                                                 </div>
-                                                <span class="wecare-legend-val" t-esc="formatCurrency(state.sales_collection_analysis.collections_by_method.cheque)"/>
+                                                <span class="wecare-legend-val" t-esc="formatCurrency(state.sales_collection_analysis?.collections_by_method?.cheque)"/>
                                             </div>
 
                                             <div class="wecare-legend-item">
@@ -321,7 +321,7 @@
                                                     <span class="wecare-legend-dot" style="background: #f97316;"/>
                                                     <span class="wecare-legend-label">Cash</span>
                                                 </div>
-                                                <span class="wecare-legend-val" t-esc="formatCurrency(state.sales_collection_analysis.collections_by_method.cash)"/>
+                                                <span class="wecare-legend-val" t-esc="formatCurrency(state.sales_collection_analysis?.collections_by_method?.cash)"/>
                                             </div>
 
                                             <div class="wecare-legend-item">
@@ -329,7 +329,7 @@
                                                     <span class="wecare-legend-dot" style="background: #22c55e;"/>
                                                     <span class="wecare-legend-label">Bank Transfer</span>
                                                 </div>
-                                                <span class="wecare-legend-val" t-esc="formatCurrency(state.sales_collection_analysis.collections_by_method.bank_transfer)"/>
+                                                <span class="wecare-legend-val" t-esc="formatCurrency(state.sales_collection_analysis?.collections_by_method?.bank_transfer)"/>
                                             </div>
 
                                             <div class="wecare-legend-item">
@@ -337,7 +337,7 @@
                                                     <span class="wecare-legend-dot" style="background: #eab308;"/>
                                                     <span class="wecare-legend-label">Telebirr / Other</span>
                                                 </div>
-                                                <span class="wecare-legend-val" t-esc="formatCurrency(state.sales_collection_analysis.collections_by_method.other)"/>
+                                                <span class="wecare-legend-val" t-esc="formatCurrency(state.sales_collection_analysis?.collections_by_method?.other)"/>
                                             </div>
                                         </div>
                                     </div>
@@ -345,8 +345,8 @@
                             </div>
 
                             <div class="wecare-panel-footer d-flex align-items-center justify-content-between">
-                                <span>4 Channels • <t t-esc="formatNumber(state.sales_collection_analysis.total_items)"/> Collections</span>
-                                <span class="fw-bold text-dark" t-esc="formatCurrency(state.sales_collection_analysis.collections_by_method.total)"/>
+                                <span>4 Channels • <t t-esc="formatNumber(state.sales_collection_analysis?.total_items)"/> Collections</span>
+                                <span class="fw-bold text-dark" t-esc="formatCurrency(state.sales_collection_analysis?.collections_by_method?.total)"/>
                             </div>
                         </div>
                     </div>
