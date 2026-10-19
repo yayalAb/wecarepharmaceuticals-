@@ -43,6 +43,7 @@ class AccountMove(models.Model):
     wecare_days_overdue = fields.Integer(
         string='Days Overdue',
         compute='_compute_wecare_aging',
+        store=True,
         search='_search_wecare_days_overdue',
         help='Days past due date (or past invoice date if no due date).',
     )
@@ -55,6 +56,7 @@ class AccountMove(models.Model):
         ],
         string='Aging Bucket',
         compute='_compute_wecare_aging',
+        store=True,
         search='_search_wecare_aging_bucket',
     )
 
