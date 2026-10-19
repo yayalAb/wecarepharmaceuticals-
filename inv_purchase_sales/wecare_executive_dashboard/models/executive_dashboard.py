@@ -78,6 +78,8 @@ class WecareExecutiveDashboard(models.TransientModel):
         territory_id=None,
         collection_type=None,
     ):
+        s_self = self.sudo()
+        s_env = s_self.env
         company = self.env.company
         today = fields.Date.context_today(self)
         start_date, end_date, active_range = self._resolve_date_range(date_range, date_from, date_to)
@@ -89,7 +91,7 @@ class WecareExecutiveDashboard(models.TransientModel):
         if territory_id and str(territory_id) != 'all':
             partner_domain.append(('wecare_territory_id', '=', int(territory_id)))
 
-        filtered_partners = self.env['res.partner'].search(partner_domain)
+        filtered_partners = s_env['res.partner'].search(partner_domain)
         filtered_partner_ids = filtered_partners.ids
 
         # ---------------------------------------------------------------------
@@ -107,7 +109,7 @@ class WecareExecutiveDashboard(models.TransientModel):
         if customer_type or territory_id:
             month_domain.append(('partner_id', 'in', filtered_partner_ids))
 
-        invoices_this_month = self.env['account.move'].search(month_domain)
+        invoices_this_month = s_env['account.move'].search(month_domain)
         sales_this_month = sum(invoices_this_month.mapped('amount_untaxed_signed'))
 
         # 2. Sales for the Selected Period
@@ -121,7 +123,7 @@ class WecareExecutiveDashboard(models.TransientModel):
         if customer_type or territory_id:
             period_domain.append(('partner_id', 'in', filtered_partner_ids))
 
-        invoices_period = self.env['account.move'].search(period_domain)
+        invoices_period = s_env['account.move'].search(period_domain)
         sales_selected_period = sum(invoices_period.mapped('amount_untaxed_signed'))
         invoice_count_period = len(invoices_period.filtered(lambda m: m.move_type == 'out_invoice'))
 
@@ -132,7 +134,7 @@ class WecareExecutiveDashboard(models.TransientModel):
             ('date_start', '<=', end_date),
             ('date_end', '>=', start_date),
         ]
-        plans = self.env['wecare.sales.plan'].search(plan_domain)
+        plans = s_env['wecare.sales.plan'].search(plan_domain)
         
         target_amount = 0.0
         months_in_range = set()
@@ -150,7 +152,7 @@ class WecareExecutiveDashboard(models.TransientModel):
             if territory_id and str(territory_id) != 'all':
                 tl_domain.append(('territory_id', '=', int(territory_id)))
 
-            target_lines = self.env['wecare.sales.target.line'].search(tl_domain)
+            target_lines = s_env['wecare.sales.target.line'].search(tl_domain)
             for line in target_lines:
                 price = line.unit_price or 0.0
                 line_target = 0.0
@@ -181,7 +183,7 @@ class WecareExecutiveDashboard(models.TransientModel):
         if customer_type or territory_id:
             open_domain.append(('partner_id', 'in', filtered_partner_ids))
 
-        open_customer_invoices = self.env['account.move'].search(open_domain)
+        open_customer_invoices = s_env['account.move'].search(open_domain)
         total_receivables = sum(open_customer_invoices.mapped('amount_residual_signed'))
         total_receivables_count = len(open_customer_invoices)
 
@@ -200,7 +202,7 @@ class WecareExecutiveDashboard(models.TransientModel):
         # ---------------------------------------------------------------------
         # ROW 2: Cheque Management KPIs
         # ---------------------------------------------------------------------
-        cheque_model = self.env['wecare.cheque.register']
+        cheque_model = s_env['wecare.cheque.register']
         base_cheque_domain = [
             ('company_id', '=', company.id),
             ('payment_type', '=', 'inbound'),
@@ -295,7 +297,7 @@ class WecareExecutiveDashboard(models.TransientModel):
         if customer_type or territory_id:
             pay_domain.append(('partner_id', 'in', filtered_partner_ids))
 
-        direct_payments = self.env['account.payment'].search(pay_domain)
+        direct_payments = s_env['account.payment'].search(pay_domain)
         linked_payment_ids = set(collections_in_period.mapped('payment_id').ids)
         for payment in direct_payments:
             if payment.id in linked_payment_ids:
@@ -332,7 +334,7 @@ class WecareExecutiveDashboard(models.TransientModel):
             m_start = iter_m
             m_end = (iter_m + relativedelta(months=1)) - timedelta(days=1)
             
-            m_invoices = self.env['account.move'].search([
+            m_invoices = s_env['account.move'].search([
                 ('company_id', '=', company.id),
                 ('move_type', 'in', ('out_invoice', 'out_refund')),
                 ('state', '=', 'posted'),
@@ -454,7 +456,7 @@ class WecareExecutiveDashboard(models.TransientModel):
                     partner_overdue[inv.partner_id.id] += inv.amount_residual_signed
 
         all_relevant_partner_ids = set(partner_sales.keys()) | set(partner_receivables.keys())
-        partners = self.env['res.partner'].browse(list(all_relevant_partner_ids))
+        partners = s_env['res.partner'].browse(list(all_relevant_partner_ids))
         top_customers_list = []
         for p in partners:
             s_amt = partner_sales.get(p.id, 0.0)
@@ -476,7 +478,7 @@ class WecareExecutiveDashboard(models.TransientModel):
         # Salesperson Performance
         salesperson_stats = defaultdict(lambda: {'target': 0.0, 'actual': 0.0, 'name': ''})
         if plans:
-            target_lines = self.env['wecare.sales.target.line'].search([('plan_id', 'in', plans.ids)])
+            target_lines = s_env['wecare.sales.target.line'].search([('plan_id', 'in', plans.ids)])
             for t_line in target_lines:
                 user = t_line.salesperson_id
                 if user:
@@ -513,7 +515,7 @@ class WecareExecutiveDashboard(models.TransientModel):
         salesperson_performance.sort(key=lambda x: x['actual'], reverse=True)
 
         # Product Sales Performance
-        inv_lines = self.env['account.move.line'].search([
+        inv_lines = s_env['account.move.line'].search([
             ('company_id', '=', company.id),
             ('move_id.move_type', 'in', ('out_invoice', 'out_refund')),
             ('move_id.state', '=', 'posted'),
@@ -579,7 +581,7 @@ class WecareExecutiveDashboard(models.TransientModel):
         salesperson_collections.sort(key=lambda x: x['total_collected'], reverse=True)
 
         # Bank Deposit Summary
-        bank_journals = self.env['account.journal'].search([
+        bank_journals = s_env['account.journal'].search([
             ('company_id', '=', company.id),
             ('type', '=', 'bank'),
         ])
@@ -612,7 +614,7 @@ class WecareExecutiveDashboard(models.TransientModel):
                 })
         
         # Cash journals balance
-        cash_journals = self.env['account.journal'].search([
+        cash_journals = s_env['account.journal'].search([
             ('company_id', '=', company.id),
             ('type', '=', 'cash'),
         ])
@@ -631,7 +633,7 @@ class WecareExecutiveDashboard(models.TransientModel):
             })
 
         # Dynamic filter options for top ribbon
-        territory_records = self.env['wecare.sales.territory'].search([('company_id', 'in', (company.id, False))])
+        territory_records = s_env['wecare.sales.territory'].search([('company_id', 'in', (company.id, False))])
         territory_options = [{'id': t.id, 'name': t.name} for t in territory_records]
         customer_type_options = [{'id': code, 'name': label} for code, label in CUSTOMER_TYPES]
 
