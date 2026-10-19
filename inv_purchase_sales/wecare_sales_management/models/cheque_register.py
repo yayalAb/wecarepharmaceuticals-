@@ -152,6 +152,24 @@ class WecareChequeRegister(models.Model):
         compute='_compute_outstanding',
         store=True,
     )
+    is_replaced = fields.Boolean(
+        string='Is Replaced',
+        compute='_compute_replacement_info',
+        store=True,
+        help='Indicates if this bounced cheque has been replaced by a re-deposit.',
+    )
+    is_cancelled = fields.Boolean(
+        string='Is Cancelled / Void',
+        default=False,
+        tracking=True,
+        help='Flag to mark a cheque as cancelled or void.',
+    )
+
+    @api.depends('redeposit_ids', 'original_cheque_id')
+    def _compute_replacement_info(self):
+        for cheque in self:
+            cheque.is_replaced = bool(cheque.redeposit_ids or cheque.original_cheque_id)
+
 
     @api.depends('invoice_ids.payment_method')
     def _compute_is_credit_sale(self):
@@ -236,6 +254,13 @@ class WecareChequeRegister(models.Model):
                 'state': 'bounced',
                 'bounce_date': cheque.bounce_date or fields.Date.context_today(cheque),
             })
+
+    def action_cancel_cheque(self):
+        for cheque in self:
+            cheque.write({
+                'is_cancelled': True,
+            })
+
 
     def action_redeposit(self):
         """Create a new cheque linked to the bounced original. Never delete the bounce."""

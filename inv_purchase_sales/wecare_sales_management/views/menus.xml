@@ -100,6 +100,132 @@
               sequence="5"
               groups="wecare_sales_management.group_wecare_user"/>
 
+    <!-- ========================================================= -->
+    <!-- B. Receivables & Collections Reports Menus                -->
+    <!-- ========================================================= -->
+    <menuitem id="menu_wecare_reports_receivables_root"
+              name="Receivables &amp; Collections"
+              parent="account.menu_finance_reports"
+              sequence="10"
+              groups="wecare_sales_management.group_wecare_user"/>
+
+    <menuitem id="menu_wecare_rep_cust_receivables_ledger"
+              name="1. Customer Receivables Ledger"
+              parent="menu_wecare_reports_receivables_root"
+              action="action_wecare_report_customer_receivables_ledger"
+              sequence="10"/>
+
+    <menuitem id="menu_wecare_rep_outstanding_collection"
+              name="2. Outstanding Collection Report"
+              parent="menu_wecare_reports_receivables_root"
+              action="action_wecare_report_outstanding_collection"
+              sequence="20"/>
+
+    <menuitem id="menu_wecare_rep_receivables_aging"
+              name="3. Receivables Aging Report"
+              parent="menu_wecare_reports_receivables_root"
+              action="action_wecare_report_receivables_aging"
+              sequence="30"/>
+
+    <menuitem id="menu_wecare_rep_daily_collection"
+              name="4. Daily Collection Report"
+              parent="menu_wecare_reports_receivables_root"
+              action="action_wecare_report_daily_collection"
+              sequence="40"/>
+
+    <menuitem id="menu_wecare_rep_weekly_collection"
+              name="5. Weekly Collection Report"
+              parent="menu_wecare_reports_receivables_root"
+              action="action_wecare_report_weekly_collection_view"
+              sequence="50"/>
+
+    <menuitem id="menu_wecare_rep_monthly_collection"
+              name="6. Monthly Collection Report"
+              parent="menu_wecare_reports_receivables_root"
+              action="action_wecare_report_monthly_collection"
+              sequence="60"/>
+
+    <menuitem id="menu_wecare_rep_salesperson_collection"
+              name="7. Salesperson Collection Performance"
+              parent="menu_wecare_reports_receivables_root"
+              action="action_wecare_report_salesperson_collection"
+              sequence="70"/>
+
+    <menuitem id="menu_wecare_rep_top_outstanding_customers"
+              name="8. Top Outstanding Customers"
+              parent="menu_wecare_reports_receivables_root"
+              action="action_wecare_report_top_outstanding_customers"
+              sequence="80"/>
+
+    <!-- ========================================================= -->
+    <!-- C. Cheque Management Reports Menus                        -->
+    <!-- ========================================================= -->
+    <menuitem id="menu_wecare_reports_cheque_root"
+              name="Cheque Management Reports"
+              parent="menu_wecare_collections"
+              sequence="50"
+              groups="wecare_sales_management.group_wecare_user"/>
+
+    <menuitem id="menu_wecare_rep_cheque_register"
+              name="1. Cheque Register"
+              parent="menu_wecare_reports_cheque_root"
+              action="action_wecare_report_cheque_register"
+              sequence="10"/>
+
+    <menuitem id="menu_wecare_rep_weekly_cheque_received"
+              name="2. Weekly Cheque Received Report"
+              parent="menu_wecare_reports_cheque_root"
+              action="action_wecare_report_weekly_cheques_received"
+              sequence="20"/>
+
+    <menuitem id="menu_wecare_rep_current_cheques"
+              name="3. Current Cheque Report"
+              parent="menu_wecare_reports_cheque_root"
+              action="action_wecare_report_current_cheques"
+              sequence="30"/>
+
+    <menuitem id="menu_wecare_rep_previous_period_cheques"
+              name="4. Previous-Period Cheque Report"
+              parent="menu_wecare_reports_cheque_root"
+              action="action_wecare_report_previous_period_cheques"
+              sequence="40"/>
+
+    <menuitem id="menu_wecare_rep_cheques_awaiting_deposit"
+              name="5. Cheques Awaiting Deposit"
+              parent="menu_wecare_reports_cheque_root"
+              action="action_wecare_report_cheques_awaiting_deposit"
+              sequence="50"/>
+
+    <menuitem id="menu_wecare_rep_cheques_in_clearing"
+              name="6. Cheques in Clearing"
+              parent="menu_wecare_reports_cheque_root"
+              action="action_wecare_report_cheques_in_clearing"
+              sequence="60"/>
+
+    <menuitem id="menu_wecare_rep_cleared_cheques"
+              name="7. Cleared Cheque Report"
+              parent="menu_wecare_reports_cheque_root"
+              action="action_wecare_report_cleared_cheques"
+              sequence="70"/>
+
+    <menuitem id="menu_wecare_rep_bounced_cheques"
+              name="8. Bounced Cheque Report"
+              parent="menu_wecare_reports_cheque_root"
+              action="action_wecare_report_bounced_cheques_full"
+              sequence="80"/>
+
+    <menuitem id="menu_wecare_rep_replaced_cancelled_cheques"
+              name="9. Replaced and Cancelled Cheque Report"
+              parent="menu_wecare_reports_cheque_root"
+              action="action_wecare_report_replaced_cancelled_cheques"
+              sequence="90"/>
+
+    <menuitem id="menu_wecare_rep_cheque_due_date_monitoring"
+              name="10. Cheque Due-Date Monitoring Report"
+              parent="menu_wecare_reports_cheque_root"
+              action="action_wecare_report_cheque_due_date_monitoring"
+              sequence="100"/>
+
     <!-- Inventory -->
     <menuitem id="menu_wecare_lot_expiry"
               name="Batch / Expiry Dates"

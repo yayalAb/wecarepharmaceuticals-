@@ -1,0 +1,469 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ========================================================= -->
+    <!-- B. RECEIVABLES & COLLECTIONS REPORTS VIEWS & ACTIONS      -->
+    <!-- ========================================================= -->
+
+    <!-- B1. Customer Receivables Ledger (account.move.line for receivable accounts) -->
+    <record id="view_wecare_receivables_ledger_list" model="ir.ui.view">
+        <field name="name">wecare.receivables.ledger.list</field>
+        <field name="model">account.move.line</field>
+        <field name="priority">110</field>
+        <field name="arch" type="xml">
+            <list create="0" delete="0">
+                <field name="date"/>
+                <field name="partner_id" string="Customer"/>
+                <field name="move_name" string="Document / Invoice"/>
+                <field name="ref"/>
+                <field name="name" string="Description"/>
+                <field name="debit" sum="Total Invoiced"/>
+                <field name="credit" sum="Total Collected / Credit"/>
+                <field name="amount_residual" sum="Balance (Residual)"/>
+                <field name="wecare_salesperson_id" optional="show"/>
+                <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_wecare_receivables_ledger_search" model="ir.ui.view">
+        <field name="name">wecare.receivables.ledger.search</field>
+        <field name="model">account.move.line</field>
+        <field name="priority">110</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="partner_id" string="Customer"/>
+                <field name="move_name" string="Document"/>
+                <field name="ref"/>
+                <field name="wecare_salesperson_id"/>
+                <filter name="unreconciled" string="Unreconciled / Open" domain="[('amount_residual', '!=', 0)]"/>
+                <separator/>
+                <filter name="filter_date" string="Date" date="date"/>
+                <group expand="1">
+                    <filter name="group_customer" string="Customer" context="{'group_by': 'partner_id'}"/>
+                    <filter name="group_salesperson" string="Salesperson" context="{'group_by': 'wecare_salesperson_id'}"/>
+                    <filter name="group_date" string="Month" context="{'group_by': 'date:month'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_wecare_report_customer_receivables_ledger" model="ir.actions.act_window">
+        <field name="name">Customer Receivables Ledger</field>
+        <field name="res_model">account.move.line</field>
+        <field name="view_mode">list,form</field>
+        <field name="view_id" ref="view_wecare_receivables_ledger_list"/>
+        <field name="search_view_id" ref="view_wecare_receivables_ledger_search"/>
+        <field name="domain">[
+            ('account_id.account_type', '=', 'asset_receivable'),
+            ('parent_state', '=', 'posted'),
+        ]</field>
+        <field name="context">{'search_default_group_customer': 1, 'search_default_unreconciled': 1}</field>
+    </record>
+
+    <!-- B2. Outstanding Collection Report (Unpaid / Partial Invoices) -->
+    <record id="view_wecare_outstanding_collection_list" model="ir.ui.view">
+        <field name="name">wecare.outstanding.collection.list</field>
+        <field name="model">account.move</field>
+        <field name="priority">110</field>
+        <field name="arch" type="xml">
+            <list create="0" delete="0" decoration-danger="wecare_days_overdue &gt; 45" decoration-warning="wecare_days_overdue &gt; 0">
+                <field name="name" string="Invoice No."/>
+                <field name="invoice_date"/>
+                <field name="invoice_date_due"/>
+                <field name="partner_id" string="Customer"/>
+                <field name="wecare_customer_type" optional="show"/>
+                <field name="wecare_customer_territory_id" optional="show"/>
+                <field name="invoice_user_id" string="Salesperson"/>
+                <field name="amount_total_signed" string="Total Amount" sum="Total"/>
+                <field name="amount_residual_signed" string="Outstanding Balance" sum="Total Outstanding"/>
+                <field name="wecare_days_overdue" string="Days Overdue"/>
+                <field name="payment_state" widget="badge"
+                       decoration-danger="payment_state == 'not_paid'"
+                       decoration-warning="payment_state == 'partial'"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_wecare_outstanding_collection_search" model="ir.ui.view">
+        <field name="name">wecare.outstanding.collection.search</field>
+        <field name="model">account.move</field>
+        <field name="priority">110</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="partner_id" string="Customer"/>
+                <field name="invoice_user_id" string="Salesperson"/>
+                <field name="wecare_customer_territory_id" string="Territory"/>
+                <filter name="overdue" string="Overdue (> 0 days)" domain="[('wecare_days_overdue', '&gt;', 0)]"/>
+                <filter name="overdue_45" string="Overdue (> 45 days)" domain="[('wecare_days_overdue', '&gt;', 45)]"/>
+                <separator/>
+                <filter name="filter_invoice_date" string="Invoice Date" date="invoice_date"/>
+                <filter name="filter_due_date" string="Due Date" date="invoice_date_due"/>
+                <group expand="1">
+                    <filter name="group_customer" string="Customer" context="{'group_by': 'partner_id'}"/>
+                    <filter name="group_salesperson" string="Salesperson" context="{'group_by': 'invoice_user_id'}"/>
+                    <filter name="group_territory" string="Territory" context="{'group_by': 'wecare_customer_territory_id'}"/>
+                    <filter name="group_due_date" string="Due Month" context="{'group_by': 'invoice_date_due:month'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_wecare_report_outstanding_collection" model="ir.actions.act_window">
+        <field name="name">Outstanding Collection Report</field>
+        <field name="res_model">account.move</field>
+        <field name="view_mode">list,form</field>
+        <field name="view_id" ref="view_wecare_outstanding_collection_list"/>
+        <field name="search_view_id" ref="view_wecare_outstanding_collection_search"/>
+        <field name="domain">[
+            ('move_type', '=', 'out_invoice'),
+            ('state', '=', 'posted'),
+            ('payment_state', 'in', ('not_paid', 'partial')),
+        ]</field>
+        <field name="context">{'search_default_group_salesperson': 1}</field>
+    </record>
+
+    <!-- B3. Receivables Aging Report -->
+    <record id="view_wecare_receivables_aging_list" model="ir.ui.view">
+        <field name="name">wecare.receivables.aging.list</field>
+        <field name="model">account.move</field>
+        <field name="priority">111</field>
+        <field name="arch" type="xml">
+            <list create="0" delete="0" decoration-danger="wecare_aging_bucket == '90_plus'" decoration-warning="wecare_aging_bucket in ('31_60', '61_90')">
+                <field name="name"/>
+                <field name="partner_id" string="Customer"/>
+                <field name="invoice_date"/>
+                <field name="invoice_date_due"/>
+                <field name="wecare_days_overdue" string="Days Overdue"/>
+                <field name="wecare_aging_bucket" widget="badge"
+                       decoration-success="wecare_aging_bucket == 'current'"
+                       decoration-warning="wecare_aging_bucket in ('31_60', '61_90')"
+                       decoration-danger="wecare_aging_bucket == '90_plus'"/>
+                <field name="amount_total_signed" string="Invoiced Amount" sum="Total"/>
+                <field name="amount_residual_signed" string="Unpaid Balance" sum="Total Unpaid"/>
+                <field name="invoice_user_id" string="Salesperson" optional="show"/>
+                <field name="wecare_customer_territory_id" optional="show"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_wecare_receivables_aging_search" model="ir.ui.view">
+        <field name="name">wecare.receivables.aging.search</field>
+        <field name="model">account.move</field>
+        <field name="priority">111</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="partner_id" string="Customer"/>
+                <field name="invoice_user_id" string="Salesperson"/>
+                <field name="wecare_customer_territory_id" string="Territory"/>
+                <filter name="bucket_current" string="0 - 30 Days" domain="[('wecare_aging_bucket', '=', 'current')]"/>
+                <filter name="bucket_31_60" string="31 - 60 Days" domain="[('wecare_aging_bucket', '=', '31_60')]"/>
+                <filter name="bucket_61_90" string="61 - 90 Days" domain="[('wecare_aging_bucket', '=', '61_90')]"/>
+                <filter name="bucket_90_plus" string="90+ Days" domain="[('wecare_aging_bucket', '=', '90_plus')]"/>
+                <group expand="1">
+                    <filter name="group_bucket" string="Aging Bucket" context="{'group_by': 'wecare_aging_bucket'}"/>
+                    <filter name="group_customer" string="Customer" context="{'group_by': 'partner_id'}"/>
+                    <filter name="group_salesperson" string="Salesperson" context="{'group_by': 'invoice_user_id'}"/>
+                    <filter name="group_territory" string="Territory" context="{'group_by': 'wecare_customer_territory_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_wecare_report_receivables_aging" model="ir.actions.act_window">
+        <field name="name">Receivables Aging Report</field>
+        <field name="res_model">account.move</field>
+        <field name="view_mode">list,form</field>
+        <field name="view_id" ref="view_wecare_receivables_aging_list"/>
+        <field name="search_view_id" ref="view_wecare_receivables_aging_search"/>
+        <field name="domain">[
+            ('move_type', '=', 'out_invoice'),
+            ('state', '=', 'posted'),
+            ('payment_state', 'in', ('not_paid', 'partial')),
+        ]</field>
+        <field name="context">{'search_default_group_bucket': 1}</field>
+    </record>
+
+    <!-- B4. Daily Collection Report -->
+    <record id="view_wecare_daily_collection_list" model="ir.ui.view">
+        <field name="name">wecare.daily.collection.list</field>
+        <field name="model">account.payment</field>
+        <field name="priority">110</field>
+        <field name="arch" type="xml">
+            <list create="0" delete="0">
+                <field name="date" string="Collection Date"/>
+                <field name="name" string="Payment Reference"/>
+                <field name="partner_id" string="Customer"/>
+                <field name="wecare_salesperson_id" string="Salesperson"/>
+                <field name="journal_id" string="Journal / Bank"/>
+                <field name="wecare_collection_method" string="Payment Method" widget="badge"/>
+                <field name="amount" sum="Total Collected"/>
+                <field name="state" widget="badge" decoration-success="state == 'posted'"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_wecare_daily_collection_search" model="ir.ui.view">
+        <field name="name">wecare.daily.collection.search</field>
+        <field name="model">account.payment</field>
+        <field name="priority">110</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="partner_id" string="Customer"/>
+                <field name="wecare_salesperson_id" string="Salesperson"/>
+                <field name="journal_id" string="Journal"/>
+                <field name="wecare_collection_method" string="Method"/>
+                <filter name="today" string="Today" domain="[('date', '=', context_today())]"/>
+                <filter name="filter_date" string="Collection Date" date="date"/>
+                <group expand="1">
+                    <filter name="group_day" string="Day" context="{'group_by': 'date:day'}"/>
+                    <filter name="group_method" string="Payment Method" context="{'group_by': 'wecare_collection_method'}"/>
+                    <filter name="group_salesperson" string="Salesperson" context="{'group_by': 'wecare_salesperson_id'}"/>
+                    <filter name="group_customer" string="Customer" context="{'group_by': 'partner_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_wecare_report_daily_collection" model="ir.actions.act_window">
+        <field name="name">Daily Collection Report</field>
+        <field name="res_model">account.payment</field>
+        <field name="view_mode">list,form</field>
+        <field name="view_id" ref="view_wecare_daily_collection_list"/>
+        <field name="search_view_id" ref="view_wecare_daily_collection_search"/>
+        <field name="domain">[
+            ('payment_type', '=', 'inbound'),
+            ('state', '=', 'posted'),
+        ]</field>
+        <field name="context">{'search_default_today': 1, 'search_default_group_method': 1}</field>
+    </record>
+
+    <!-- B5. Weekly Collection Report -->
+    <record id="action_wecare_report_weekly_collection_view" model="ir.actions.act_window">
+        <field name="name">Weekly Collection Report</field>
+        <field name="res_model">account.payment</field>
+        <field name="view_mode">list,form</field>
+        <field name="view_id" ref="view_wecare_daily_collection_list"/>
+        <field name="search_view_id" ref="view_wecare_daily_collection_search"/>
+        <field name="domain">[
+            ('payment_type', '=', 'inbound'),
+            ('state', '=', 'posted'),
+        ]</field>
+        <field name="context">{'search_default_group_salesperson': 1}</field>
+    </record>
+
+    <!-- B6. Monthly Collection Report -->
+    <record id="action_wecare_report_monthly_collection" model="ir.actions.act_window">
+        <field name="name">Monthly Collection Report</field>
+        <field name="res_model">account.payment</field>
+        <field name="view_mode">list,form</field>
+        <field name="view_id" ref="view_wecare_daily_collection_list"/>
+        <field name="search_view_id" ref="view_wecare_daily_collection_search"/>
+        <field name="domain">[
+            ('payment_type', '=', 'inbound'),
+            ('state', '=', 'posted'),
+        ]</field>
+        <field name="context">{'search_default_group_customer': 1}</field>
+    </record>
+
+    <!-- B7. Salesperson Collection Performance -->
+    <record id="action_wecare_report_salesperson_collection" model="ir.actions.act_window">
+        <field name="name">Salesperson Collection Performance</field>
+        <field name="res_model">account.payment</field>
+        <field name="view_mode">list,form</field>
+        <field name="view_id" ref="view_wecare_daily_collection_list"/>
+        <field name="search_view_id" ref="view_wecare_daily_collection_search"/>
+        <field name="domain">[
+            ('payment_type', '=', 'inbound'),
+            ('state', '=', 'posted'),
+        ]</field>
+        <field name="context">{'search_default_group_salesperson': 1}</field>
+    </record>
+
+    <!-- B8. Top Outstanding Customers -->
+    <record id="view_wecare_top_outstanding_customers_list" model="ir.ui.view">
+        <field name="name">wecare.top.outstanding.customers.list</field>
+        <field name="model">res.partner</field>
+        <field name="priority">110</field>
+        <field name="arch" type="xml">
+            <list create="0" delete="0">
+                <field name="display_name" string="Customer"/>
+                <field name="wecare_customer_type" optional="show"/>
+                <field name="wecare_territory_id" optional="show"/>
+                <field name="user_id" string="Account Manager / Salesperson"/>
+                <field name="credit" string="Total Outstanding Balance" sum="Grand Total"/>
+                <field name="phone" optional="show"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_wecare_top_outstanding_customers_search" model="ir.ui.view">
+        <field name="name">wecare.top.outstanding.customers.search</field>
+        <field name="model">res.partner</field>
+        <field name="priority">110</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name" string="Customer"/>
+                <field name="wecare_customer_type"/>
+                <field name="wecare_territory_id"/>
+                <field name="user_id" string="Salesperson"/>
+                <filter name="has_balance" string="Has Balance (> 0)" domain="[('credit', '&gt;', 0)]"/>
+                <group expand="1">
+                    <filter name="group_type" string="Customer Type" context="{'group_by': 'wecare_customer_type'}"/>
+                    <filter name="group_territory" string="Territory" context="{'group_by': 'wecare_territory_id'}"/>
+                    <filter name="group_salesperson" string="Salesperson" context="{'group_by': 'user_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_wecare_report_top_outstanding_customers" model="ir.actions.act_window">
+        <field name="name">Top Outstanding Customers</field>
+        <field name="res_model">res.partner</field>
+        <field name="view_mode">list,form</field>
+        <field name="view_id" ref="view_wecare_top_outstanding_customers_list"/>
+        <field name="search_view_id" ref="view_wecare_top_outstanding_customers_search"/>
+        <field name="domain">[('customer_rank', '&gt;', 0), ('credit', '&gt;', 0)]</field>
+        <field name="context">{'search_default_has_balance': 1}</field>
+    </record>
+
+
+    <!-- ========================================================= -->
+    <!-- C. CHEQUE MANAGEMENT REPORTS VIEWS & ACTIONS             -->
+    <!-- ========================================================= -->
+
+    <!-- C1. Cheque Register Report -->
+    <record id="action_wecare_report_cheque_register" model="ir.actions.act_window">
+        <field name="name">Cheque Register Report</field>
+        <field name="res_model">wecare.cheque.register</field>
+        <field name="view_mode">list,form</field>
+        <field name="view_id" ref="wecare_sales_management.view_wecare_cheque_register_list"/>
+        <field name="search_view_id" ref="wecare_sales_management.view_wecare_cheque_register_search"/>
+        <field name="context">{'search_default_inbound': 1, 'search_default_group_state': 1}</field>
+    </record>
+
+    <!-- C2. Weekly Cheque Received Report -->
+    <record id="action_wecare_report_weekly_cheques_received" model="ir.actions.act_window">
+        <field name="name">Weekly Cheque Received Report</field>
+        <field name="res_model">wecare.cheque.register</field>
+        <field name="view_mode">list,form</field>
+        <field name="view_id" ref="wecare_sales_management.view_wecare_cheque_register_list"/>
+        <field name="search_view_id" ref="wecare_sales_management.view_wecare_cheque_register_search"/>
+        <field name="domain">[('payment_type', '=', 'inbound')]</field>
+        <field name="context">{'search_default_group_salesperson': 1}</field>
+    </record>
+
+    <!-- C3. Current Cheque Report -->
+    <record id="action_wecare_report_current_cheques" model="ir.actions.act_window">
+        <field name="name">Current Cheque Report</field>
+        <field name="res_model">wecare.cheque.register</field>
+        <field name="view_mode">list,form</field>
+        <field name="view_id" ref="wecare_sales_management.view_wecare_cheque_register_list"/>
+        <field name="search_view_id" ref="wecare_sales_management.view_wecare_cheque_register_search"/>
+        <field name="domain">[
+            ('payment_type', '=', 'inbound'),
+            ('state', 'in', ('received', 'deposited', 'cleared')),
+        ]</field>
+        <field name="context">{'search_default_group_salesperson': 1}</field>
+    </record>
+
+    <!-- C4. Previous-Period Cheque Report -->
+    <record id="action_wecare_report_previous_period_cheques" model="ir.actions.act_window">
+        <field name="name">Previous-Period Cheque Report</field>
+        <field name="res_model">wecare.cheque.register</field>
+        <field name="view_mode">list,form</field>
+        <field name="view_id" ref="wecare_sales_management.view_wecare_cheque_register_list"/>
+        <field name="search_view_id" ref="wecare_sales_management.view_wecare_cheque_register_search"/>
+        <field name="domain">[
+            ('payment_type', '=', 'inbound'),
+            ('original_cheque_id', '!=', False),
+        ]</field>
+        <field name="context">{'search_default_group_salesperson': 1}</field>
+    </record>
+
+    <!-- C5. Cheques Awaiting Deposit -->
+    <record id="action_wecare_report_cheques_awaiting_deposit" model="ir.actions.act_window">
+        <field name="name">Cheques Awaiting Deposit</field>
+        <field name="res_model">wecare.cheque.register</field>
+        <field name="view_mode">list,form</field>
+        <field name="view_id" ref="wecare_sales_management.view_wecare_cheque_register_list"/>
+        <field name="search_view_id" ref="wecare_sales_management.view_wecare_cheque_register_search"/>
+        <field name="domain">[
+            ('payment_type', '=', 'inbound'),
+            ('state', '=', 'received'),
+        ]</field>
+        <field name="context">{'search_default_group_salesperson': 1}</field>
+    </record>
+
+    <!-- C6. Cheques in Clearing -->
+    <record id="action_wecare_report_cheques_in_clearing" model="ir.actions.act_window">
+        <field name="name">Cheques in Clearing</field>
+        <field name="res_model">wecare.cheque.register</field>
+        <field name="view_mode">list,form</field>
+        <field name="view_id" ref="wecare_sales_management.view_wecare_cheque_register_list"/>
+        <field name="search_view_id" ref="wecare_sales_management.view_wecare_cheque_register_search"/>
+        <field name="domain">[
+            ('payment_type', '=', 'inbound'),
+            ('state', '=', 'deposited'),
+        ]</field>
+        <field name="context">{'search_default_group_bank': 1}</field>
+    </record>
+
+    <!-- C7. Cleared Cheque Report -->
+    <record id="action_wecare_report_cleared_cheques" model="ir.actions.act_window">
+        <field name="name">Cleared Cheque Report</field>
+        <field name="res_model">wecare.cheque.register</field>
+        <field name="view_mode">list,form</field>
+        <field name="view_id" ref="wecare_sales_management.view_wecare_cheque_register_list"/>
+        <field name="search_view_id" ref="wecare_sales_management.view_wecare_cheque_register_search"/>
+        <field name="domain">[
+            ('payment_type', '=', 'inbound'),
+            ('state', '=', 'cleared'),
+        ]</field>
+        <field name="context">{'search_default_group_bank': 1}</field>
+    </record>
+
+    <!-- C8. Bounced Cheque Report -->
+    <record id="action_wecare_report_bounced_cheques_full" model="ir.actions.act_window">
+        <field name="name">Bounced Cheque Report</field>
+        <field name="res_model">wecare.cheque.register</field>
+        <field name="view_mode">list,form</field>
+        <field name="view_id" ref="wecare_sales_management.view_wecare_cheque_register_list"/>
+        <field name="search_view_id" ref="wecare_sales_management.view_wecare_cheque_register_search"/>
+        <field name="domain">[
+            ('payment_type', '=', 'inbound'),
+            ('state', '=', 'bounced'),
+        ]</field>
+        <field name="context">{'search_default_open_bounce': 1, 'search_default_group_customer': 1}</field>
+    </record>
+
+    <!-- C9. Replaced and Cancelled Cheque Report -->
+    <record id="action_wecare_report_replaced_cancelled_cheques" model="ir.actions.act_window">
+        <field name="name">Replaced and Cancelled Cheque Report</field>
+        <field name="res_model">wecare.cheque.register</field>
+        <field name="view_mode">list,form</field>
+        <field name="view_id" ref="wecare_sales_management.view_wecare_cheque_register_list"/>
+        <field name="search_view_id" ref="wecare_sales_management.view_wecare_cheque_register_search"/>
+        <field name="domain">[
+            ('payment_type', '=', 'inbound'),
+            '|', ('is_replaced', '=', True), ('is_cancelled', '=', True),
+        ]</field>
+        <field name="context">{'search_default_group_state': 1}</field>
+    </record>
+
+    <!-- C10. Cheque Due-Date Monitoring Report -->
+    <record id="action_wecare_report_cheque_due_date_monitoring" model="ir.actions.act_window">
+        <field name="name">Cheque Due-Date Monitoring Report</field>
+        <field name="res_model">wecare.cheque.register</field>
+        <field name="view_mode">list,form</field>
+        <field name="view_id" ref="wecare_sales_management.view_wecare_cheque_register_list"/>
+        <field name="search_view_id" ref="wecare_sales_management.view_wecare_cheque_register_search"/>
+        <field name="domain">[
+            ('payment_type', '=', 'inbound'),
+            ('state', 'in', ('received', 'deposited')),
+        ]</field>
+        <field name="context">{'search_default_group_deposit': 1}</field>
+    </record>
+
+</odoo>

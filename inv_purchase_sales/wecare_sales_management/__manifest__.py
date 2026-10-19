@@ -70,6 +70,7 @@ WeCare Pharmaceuticals — Sales Planning, Collections and Weekly Reporting
         'report/extra_reports.xml',
         'report/warehouse_report_templates.xml',
         'report/sales_voucher_report.xml',
+        'views/wecare_advanced_reports_views.xml',
         'views/menus.xml',
     ],
     'pre_init_hook': 'pre_init_hook',

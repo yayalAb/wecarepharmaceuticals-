@@ -29,6 +29,93 @@ class AccountMove(models.Model):
              'Stock is deducted from the line locations when the invoice is validated.',
     )
 
+    wecare_customer_territory_id = fields.Many2one(
+        'wecare.sales.territory',
+        related='partner_id.wecare_territory_id',
+        store=True,
+        string='Customer Territory',
+    )
+    wecare_customer_type = fields.Selection(
+        related='partner_id.wecare_customer_type',
+        store=True,
+        string='Customer Type',
+    )
+    wecare_days_overdue = fields.Integer(
+        string='Days Overdue',
+        compute='_compute_wecare_aging',
+        search='_search_wecare_days_overdue',
+        help='Days past due date (or past invoice date if no due date).',
+    )
+    wecare_aging_bucket = fields.Selection(
+        [
+            ('current', 'Current (0-30 days)'),
+            ('31_60', '31 - 60 days'),
+            ('61_90', '61 - 90 days'),
+            ('90_plus', '90+ days'),
+        ],
+        string='Aging Bucket',
+        compute='_compute_wecare_aging',
+        search='_search_wecare_aging_bucket',
+    )
+
+    @api.depends('invoice_date_due', 'invoice_date', 'payment_state', 'state')
+    def _compute_wecare_aging(self):
+        today = fields.Date.context_today(self)
+        for move in self:
+            due = move.invoice_date_due or move.invoice_date
+            if not due or move.payment_state in ('paid', 'in_payment', 'reversed') or move.state != 'posted':
+                move.wecare_days_overdue = 0
+                move.wecare_aging_bucket = False
+                continue
+            delta = (today - due).days
+            move.wecare_days_overdue = max(0, delta)
+            if delta <= 30:
+                move.wecare_aging_bucket = 'current'
+            elif delta <= 60:
+                move.wecare_aging_bucket = '31_60'
+            elif delta <= 90:
+                move.wecare_aging_bucket = '61_90'
+            else:
+                move.wecare_aging_bucket = '90_plus'
+
+    def _search_wecare_days_overdue(self, operator, value):
+        from datetime import timedelta
+        today = fields.Date.context_today(self)
+        target_date = today - timedelta(days=value)
+        # delta = today - due >= value => due <= today - value
+        date_operator_map = {
+            '>=': '<=',
+            '>': '<',
+            '<=': '>=',
+            '<': '>',
+            '=': '=',
+            '!=': '!=',
+        }
+        mapped_op = date_operator_map.get(operator, '=')
+        return ['&', ('move_type', 'in', ('out_invoice', 'out_refund')),
+                '|', ('invoice_date_due', mapped_op, target_date),
+                '&', ('invoice_date_due', '=', False), ('invoice_date', mapped_op, target_date)]
+
+    def _search_wecare_aging_bucket(self, operator, value):
+        from datetime import timedelta
+        today = fields.Date.context_today(self)
+        date_30 = today - timedelta(days=30)
+        date_60 = today - timedelta(days=60)
+        date_90 = today - timedelta(days=90)
+        
+        if value == 'current':
+            return ['|', ('invoice_date_due', '>=', date_30), '&', ('invoice_date_due', '=', False), ('invoice_date', '>=', date_30)]
+        elif value == '31_60':
+            return ['|', '&', ('invoice_date_due', '<', date_30), ('invoice_date_due', '>=', date_60),
+                         '&', '&', ('invoice_date_due', '=', False), ('invoice_date', '<', date_30), ('invoice_date', '>=', date_60)]
+        elif value == '61_90':
+            return ['|', '&', ('invoice_date_due', '<', date_60), ('invoice_date_due', '>=', date_90),
+                         '&', '&', ('invoice_date_due', '=', False), ('invoice_date', '<', date_60), ('invoice_date', '>=', date_90)]
+        elif value == '90_plus':
+            return ['|', ('invoice_date_due', '<', date_90), '&', ('invoice_date_due', '=', False), ('invoice_date', '<', date_90)]
+        return []
+
+
     @api.depends('invoice_line_ids.sale_line_ids')
     def _compute_wecare_warehouse_location(self):
         # Carry the warehouse / location selected on the quotation / sales order.
