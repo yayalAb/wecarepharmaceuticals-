@@ -141,9 +141,13 @@ class SaleOrderLine(models.Model):
                 draft_invoice_lines.write({'lot_ids': [fields.Command.set(line.lot_ids.ids)]})
 
     def _get_delivered_lots(self):
-        """Lots actually delivered for this line."""
+        """Lots actually delivered for this line, or reserved on active moves."""
         self.ensure_one()
-        return self.move_ids.filtered(lambda m: m.state == 'done').move_line_ids.lot_id
+        done_lots = self.move_ids.filtered(lambda m: m.state == 'done').move_line_ids.lot_id
+        if done_lots:
+            return done_lots
+        active_moves = self.move_ids.filtered(lambda m: m.state not in ('cancel',))
+        return active_moves.move_line_ids.lot_id or active_moves.restrict_lot_ids
 
     def _prepare_procurement_values(self, group_id=False):
         values = super()._prepare_procurement_values(group_id=group_id)
@@ -153,8 +157,23 @@ class SaleOrderLine(models.Model):
 
     def _prepare_invoice_line(self, **optional_values):
         res = super()._prepare_invoice_line(**optional_values)
-        # Serials from the sales order line; otherwise the lots that were delivered.
+        # Serials from the sales order line; otherwise the lots that were delivered or reserved.
         lots = self.lot_ids or self._get_delivered_lots()
         if lots:
             res['lot_ids'] = [fields.Command.set(lots.ids)]
         return res
+
+
+class SaleOrder(models.Model):
+    _inherit = 'sale.order'
+
+    def action_confirm(self):
+        res = super().action_confirm()
+        for order in self:
+            for line in order.order_line.filtered(lambda l: l.product_id.tracking != 'none'):
+                if not line.lot_ids:
+                    lots = line._get_delivered_lots()
+                    if lots:
+                        line.lot_ids = lots
+        return res
+

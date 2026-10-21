@@ -5,17 +5,30 @@
         <field name="model">account.move</field>
         <field name="inherit_id" ref="account.view_move_form"/>
         <field name="arch" type="xml">
+            <!-- List view of invoice lines -->
             <xpath expr="//field[@name='invoice_line_ids']/list/field[@name='quantity']" position="before">
                 <field name="lot_ids"
                        string="Serial Numbers"
                        widget="many2many_tags"
+                       domain="[('product_id', '=', product_id)]"
                        optional="show"
-                       invisible="display_type"
-                       readonly="1"/>
+                       invisible="display_type in ('line_section', 'line_note')"/>
                 <field name="expiration_date"
                        string="Expiration Date"
                        optional="show"
-                       invisible="display_type or not lot_ids"
+                       invisible="display_type in ('line_section', 'line_note')"
+                       readonly="1"/>
+            </xpath>
+            <!-- Form view of invoice lines (modal) -->
+            <xpath expr="//field[@name='invoice_line_ids']/form//field[@name='quantity']" position="before">
+                <field name="lot_ids"
+                       string="Serial Numbers"
+                       widget="many2many_tags"
+                       domain="[('product_id', '=', product_id)]"
+                       invisible="display_type in ('line_section', 'line_note')"/>
+                <field name="expiration_date"
+                       string="Expiration Date"
+                       invisible="display_type in ('line_section', 'line_note')"
                        readonly="1"/>
             </xpath>
         </field>

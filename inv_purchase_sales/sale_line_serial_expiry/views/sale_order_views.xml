@@ -16,11 +16,11 @@
                        domain="[('id', 'in', available_lot_ids)]"
                        context="{'default_product_id': product_id, 'default_company_id': parent.company_id}"
                        options="{'no_create': True}"
-                       invisible="display_type or not product_id or product_tracking == 'none'"/>
+                       invisible="display_type in ('line_section', 'line_note') or not product_id or product_tracking == 'none'"/>
                 <field name="expiration_date"
                        string="Expiration Date"
                        optional="show"
-                       invisible="display_type or not lot_ids"/>
+                       invisible="display_type in ('line_section', 'line_note')"/>
             </xpath>
             <!-- Keep Quantity label clear (already product_uom_qty) -->
             <xpath expr="//field[@name='order_line']/list/field[@name='product_uom_qty']" position="attributes">
@@ -36,10 +36,10 @@
                        domain="[('id', 'in', available_lot_ids)]"
                        context="{'default_product_id': product_id}"
                        options="{'no_create': True}"
-                       invisible="display_type or not product_id or product_tracking == 'none'"/>
+                       invisible="display_type in ('line_section', 'line_note') or not product_id or product_tracking == 'none'"/>
                 <field name="expiration_date"
                        string="Expiration Date"
-                       invisible="display_type or not lot_ids"/>
+                       invisible="display_type in ('line_section', 'line_note')"/>
             </xpath>
         </field>
     </record>

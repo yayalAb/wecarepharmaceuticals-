@@ -86,3 +86,40 @@ class StockMove(models.Model):
                 owner_id=owner_id, strict=strict,
             )
         return taken
+
+    def _action_assign(self):
+        res = super()._action_assign()
+        for move in self:
+            if not move.sale_line_id or move.product_id.tracking == 'none':
+                continue
+            sale_line = move.sale_line_id
+            lots = move.move_line_ids.lot_id or move.restrict_lot_ids
+            if not lots:
+                continue
+            if not sale_line.lot_ids:
+                sale_line.lot_ids = lots
+            draft_inv_lines = sale_line.invoice_lines.filtered(
+                lambda l: l.move_id.state == 'draft' and not l.lot_ids
+            )
+            if draft_inv_lines:
+                draft_inv_lines.write({'lot_ids': [fields.Command.set(lots.ids)]})
+        return res
+
+    def _action_done(self, cancel_backorder=False):
+        res = super()._action_done(cancel_backorder=cancel_backorder)
+        for move in self:
+            if not move.sale_line_id or move.product_id.tracking == 'none':
+                continue
+            sale_line = move.sale_line_id
+            lots = move.move_line_ids.lot_id or move.restrict_lot_ids
+            if not lots:
+                continue
+            if not sale_line.lot_ids:
+                sale_line.lot_ids = lots
+            draft_inv_lines = sale_line.invoice_lines.filtered(
+                lambda l: l.move_id.state == 'draft' and not l.lot_ids
+            )
+            if draft_inv_lines:
+                draft_inv_lines.write({'lot_ids': [fields.Command.set(lots.ids)]})
+        return res
+

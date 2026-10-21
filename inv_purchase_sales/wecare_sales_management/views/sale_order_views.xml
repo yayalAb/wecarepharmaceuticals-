@@ -26,7 +26,7 @@
                 <field name="stock_location_id" invisible="1" force_save="1"/>
             </xpath>
             <xpath expr="//field[@name='order_line']/list/field[@name='product_uom_qty']" position="before">
-                <field name="stock_location_id" optional="show" invisible="display_type"
+                <field name="stock_location_id" optional="show" invisible="display_type in ('line_section', 'line_note')"
                        options="{'no_create': True}"
                        domain="[('usage', '=', 'internal'), ('warehouse_id', '=?', parent.warehouse_id), '|', ('company_id', '=', False), ('company_id', '=', parent.company_id)]"/>
             </xpath>
