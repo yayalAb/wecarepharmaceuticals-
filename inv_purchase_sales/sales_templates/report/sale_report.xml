@@ -173,7 +173,7 @@
                                     </tr>
                                     <t t-foreach="doc.tax_totals.get('subtotals', [])"
                                         t-as="subtotal_item">
-                                        <t t-if="subtotal_item.get('name') == 'Untaxed Amount'">
+                                        <t t-if="subtotal_item.get('tax_groups')">
                                             <t t-foreach="subtotal_item.get('tax_groups', [])"
                                                 t-as="tax_group">
                                                 <tr>
@@ -499,7 +499,7 @@
                                         <td style="border: 1px solid black;"></td>
                                     </tr>
                                     <t t-foreach="doc.tax_totals.get('subtotals', [])" t-as="subtotal_item">
-                                        <t t-if="subtotal_item.get('name') == 'Untaxed Amount'">
+                                        <t t-if="subtotal_item.get('tax_groups')">
                                             <t t-foreach="subtotal_item.get('tax_groups', [])" t-as="tax_group">
                                                 <tr>
                                                     <td colspan="5"></td>

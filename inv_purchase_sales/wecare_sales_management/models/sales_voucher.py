@@ -103,7 +103,7 @@ class WecareSalesVoucherMixin(models.AbstractModel):
             'tax_rows': self._wecare_tax_rows(lines),
             'grand_total': self.amount_total,
             'amount_words': self._wecare_amount_to_words(self.amount_total, currency),
-            'watermark': 'Attachment',
+            'watermark': 'Attachment' if self._name == 'account.move' else '',
             'copy_distribution': COPY_DISTRIBUTION,
             'company_tin': self.company_id.vat or '',
             'company_vat': '',
