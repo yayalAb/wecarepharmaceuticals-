@@ -103,7 +103,7 @@
                     <!-- ========================================================= -->
                     <!-- A. REGISTRATION INFORMATION                               -->
                     <!-- ========================================================= -->
-                    <group string="A. Registration Information">
+                    <group string="Registration Information">
                         <group>
                             <field name="payment_type" readonly="state in ('deposited', 'cleared', 'cancelled')"/>
                             <field name="collection_type" readonly="state in ('deposited', 'cleared', 'cancelled')"/>
@@ -118,7 +118,7 @@
                     <!-- ========================================================= -->
                     <!-- B. CUSTOMER & INVOICE DETAILS                             -->
                     <!-- ========================================================= -->
-                    <group string="B. Customer &amp; Invoice Details">
+                    <group string="Customer &amp; Invoice Details">
                         <group>
                             <field name="partner_id" string="Customer"
                                    options="{'no_create': True}"
@@ -165,7 +165,7 @@
                         <!-- ========================================================= -->
                         <!-- C. CHEQUE DETAILS                                         -->
                         <!-- ========================================================= -->
-                        <page string="C. Cheque Details" name="cheque_details">
+                        <page string="Cheque Details" name="cheque_details">
                             <group>
                                 <group>
                                     <field name="amount" widget="monetary" readonly="state in ('cleared', 'cancelled')"/>
@@ -183,7 +183,7 @@
                         <!-- ========================================================= -->
                         <!-- D. DEPOSIT & ACCOUNTING DETAILS                           -->
                         <!-- ========================================================= -->
-                        <page string="D. Deposit &amp; Accounting" name="deposit_accounting">
+                        <page string="Deposit &amp; Accounting" name="deposit_accounting">
                             <group>
                                 <group>
                                     <field name="journal_id" options="{'no_create': True}"
@@ -206,7 +206,7 @@
                         <!-- ========================================================= -->
                         <!-- E. WORKFLOW AUDIT TRAIL & HISTORY                         -->
                         <!-- ========================================================= -->
-                        <page string="E. Workflow &amp; Audit Trail" name="audit_trail">
+                        <page string="Workflow &amp; Audit Trail" name="audit_trail">
                             <group string="Deposit &amp; Clearance History">
                                 <group>
                                     <field name="deposit_user_id"/>
