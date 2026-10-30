@@ -5,3 +5,4 @@ from . import share_to_media_wizard
 from . import kpi_wizard
 from . import sales_analysis_wizard
 from . import stock_valuation_wizard
+from . import cheque_action_wizard

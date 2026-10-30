@@ -74,6 +74,18 @@
               action="action_wecare_cheque_register"
               sequence="10"/>
 
+    <menuitem id="menu_wecare_outstanding_cheques"
+              name="Outstanding Cheque Balances"
+              parent="menu_wecare_collections"
+              action="action_wecare_outstanding_cheque_balances"
+              sequence="15"/>
+
+    <menuitem id="menu_wecare_unallocated"
+              name="Unallocated Collections"
+              parent="menu_wecare_collections"
+              action="action_wecare_unallocated_collections"
+              sequence="18"/>
+
     <menuitem id="menu_wecare_bounced"
               name="Bounced Cheques"
               parent="menu_wecare_collections"
@@ -225,6 +237,18 @@
               parent="menu_wecare_reports_cheque_root"
               action="action_wecare_report_cheque_due_date_monitoring"
               sequence="100"/>
+
+    <menuitem id="menu_wecare_rep_outstanding_balances"
+              name="11. Outstanding Cheque Balances"
+              parent="menu_wecare_reports_cheque_root"
+              action="action_wecare_outstanding_cheque_balances"
+              sequence="110"/>
+
+    <menuitem id="menu_wecare_rep_unallocated_collections"
+              name="12. Unallocated Collections Report"
+              parent="menu_wecare_reports_cheque_root"
+              action="action_wecare_unallocated_collections"
+              sequence="120"/>
 
     <!-- Inventory -->
     <menuitem id="menu_wecare_lot_expiry"

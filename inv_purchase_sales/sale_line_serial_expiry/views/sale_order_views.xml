@@ -9,9 +9,8 @@
             <xpath expr="//field[@name='order_line']/list/field[@name='product_uom_qty']" position="before">
                 <field name="product_tracking" column_invisible="1"/>
                 <field name="available_lot_ids" column_invisible="1"/>
-                <field name="lot_ids"
-                       string="Serial Numbers"
-                       widget="many2many_tags"
+                <field name="lot_id"
+                       string="Batch / Serial No"
                        optional="show"
                        domain="[('id', 'in', available_lot_ids)]"
                        context="{'default_product_id': product_id, 'default_company_id': parent.company_id}"
@@ -20,7 +19,7 @@
                 <field name="expiration_date"
                        string="Expiration Date"
                        optional="show"
-                       invisible="display_type in ('line_section', 'line_note')"/>
+                       invisible="display_type in ('line_section', 'line_note') or not lot_id"/>
             </xpath>
             <!-- Keep Quantity label clear (already product_uom_qty) -->
             <xpath expr="//field[@name='order_line']/list/field[@name='product_uom_qty']" position="attributes">
@@ -30,16 +29,15 @@
             <xpath expr="//field[@name='order_line']/form//field[@name='product_uom_qty']" position="before">
                 <field name="product_tracking" invisible="1"/>
                 <field name="available_lot_ids" invisible="1"/>
-                <field name="lot_ids"
-                       string="Serial Numbers"
-                       widget="many2many_tags"
+                <field name="lot_id"
+                       string="Batch / Serial No"
                        domain="[('id', 'in', available_lot_ids)]"
                        context="{'default_product_id': product_id}"
                        options="{'no_create': True}"
                        invisible="display_type in ('line_section', 'line_note') or not product_id or product_tracking == 'none'"/>
                 <field name="expiration_date"
                        string="Expiration Date"
-                       invisible="display_type in ('line_section', 'line_note')"/>
+                       invisible="display_type in ('line_section', 'line_note') or not lot_id"/>
             </xpath>
         </field>
     </record>

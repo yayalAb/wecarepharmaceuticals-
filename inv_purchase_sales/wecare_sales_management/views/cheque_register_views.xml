@@ -1,10 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+    <!-- List / Tree View -->
     <record id="view_wecare_cheque_register_list" model="ir.ui.view">
         <field name="name">wecare.cheque.register.list</field>
         <field name="model">wecare.cheque.register</field>
         <field name="arch" type="xml">
-            <list decoration-danger="state == 'bounced'" decoration-success="state == 'cleared'" decoration-warning="state == 'received'">
+            <list decoration-danger="state == 'bounced'"
+                  decoration-success="state == 'cleared'"
+                  decoration-warning="state in ('draft', 'received')"
+                  decoration-info="state == 'deposited'"
+                  decoration-muted="state == 'cancelled'">
                 <header>
                     <button name="action_print_weekly_collection" type="object" string="Print Collection"/>
                     <button name="action_print_weekly_bank_deposit" type="object" string="Print Bank Deposited"/>
@@ -15,145 +20,279 @@
                     <button name="action_print_bank_summary" type="object" string="Print Bank Summary"/>
                 </header>
                 <field name="collection_no"/>
-                <field name="name"/>
+                <field name="name" string="Cheque No."/>
+                <field name="partner_id" string="Customer"/>
                 <field name="salesperson_id"/>
-                <field name="partner_id"/>
-                <field name="amount" sum="Total"/>
+                <field name="amount" sum="Total Cheque Amount"/>
+                <field name="total_allocated" sum="Total Allocated" optional="show"/>
+                <field name="unallocated_amount" sum="Total Unallocated" optional="show"/>
                 <field name="cheque_date"/>
-                <field name="received_date"/>
-                <field name="deposit_date"/>
-                <field name="journal_id"/>
-                <field name="is_credit_sale" optional="show"/>
+                <field name="received_date" string="Registration Date"/>
+                <field name="journal_id" string="Deposit Bank"/>
+                <field name="deposit_date" optional="show"/>
+                <field name="payment_method_display" string="Payment Method" optional="show"/>
+                <field name="accounting_status" widget="badge"
+                       decoration-warning="accounting_status == 'pending'"
+                       decoration-info="accounting_status == 'deposited'"
+                       decoration-success="accounting_status == 'cleared'"
+                       decoration-danger="accounting_status in ('bounced', 'cancelled')"
+                       optional="show"/>
                 <field name="state" widget="badge"
-                       decoration-warning="state == 'received'"
+                       decoration-warning="state in ('draft', 'received')"
                        decoration-info="state == 'deposited'"
                        decoration-success="state == 'cleared'"
-                       decoration-danger="state == 'bounced'"/>
+                       decoration-danger="state == 'bounced'"
+                       decoration-muted="state == 'cancelled'"/>
                 <field name="currency_id" column_invisible="1"/>
             </list>
         </field>
     </record>
 
+    <!-- Form View (Redesigned with Integrated Business Workflow) -->
     <record id="view_wecare_cheque_register_form" model="ir.ui.view">
         <field name="name">wecare.cheque.register.form</field>
         <field name="model">wecare.cheque.register</field>
         <field name="arch" type="xml">
-            <form>
+            <form string="Cheque Registration">
                 <header>
-                    <button name="action_deposit" type="object" string="Deposit"
+                    <!-- Workflow Buttons -->
+                    <button name="action_receive" type="object" string="Confirm / Receive"
+                            invisible="state != 'draft'" class="btn-primary"/>
+                    <button name="action_deposit" type="object" string="Deposit to Bank"
                             invisible="state != 'received'" class="btn-primary"/>
-                    <button name="action_clear" type="object" string="Cleared"
+                    <button name="action_clear" type="object" string="Confirm Clearance"
                             invisible="state != 'deposited'" class="btn-primary"/>
-                    <button name="action_bounce" type="object" string="Bounced"
-                            invisible="state not in ('received', 'deposited')"
+                    <button name="action_bounce" type="object" string="Mark as Bounced"
+                            invisible="state not in ('received', 'deposited', 'cleared')"
                             class="btn-danger"/>
                     <button name="action_redeposit" type="object" string="Re-deposit"
                             invisible="state != 'bounced'" class="btn-primary"/>
-                    <button name="action_open_payment" type="object" string="Payment"
-                            invisible="not payment_id"/>
+                    <button name="action_cancel_cheque" type="object" string="Cancel Cheque"
+                            invisible="state in ('cleared', 'cancelled')"
+                            class="btn-secondary"/>
+                    <button name="action_reset_draft" type="object" string="Reset to Draft"
+                            invisible="state not in ('cancelled', 'bounced')"
+                            groups="wecare_sales_management.group_wecare_manager"
+                            class="btn-secondary"/>
                     <field name="state" widget="statusbar"
-                           statusbar_visible="received,deposited,cleared,bounced"/>
+                           statusbar_visible="draft,received,deposited,cleared"/>
                 </header>
                 <sheet>
-                    <div class="oe_title">
-                        <label for="name"/>
-                        <h1><field name="name" placeholder="CK-45821"/></h1>
-                        <h2><field name="collection_no" readonly="1"/></h2>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_open_payment" type="object" class="oe_stat_button"
+                                icon="fa-money" invisible="not payment_id">
+                            <div class="o_stat_info">
+                                <span class="o_stat_text">Linked Payment</span>
+                                <span class="o_stat_value"><field name="payment_id" readonly="1" options="{'no_open': True}"/></span>
+                            </div>
+                        </button>
                     </div>
-                    <group>
+
+                    <div class="oe_title">
+                        <label for="collection_no" string="Registration Reference"/>
+                        <h1><field name="collection_no" readonly="1"/></h1>
+                        <label for="name" string="Cheque Number"/>
+                        <h2><field name="name" placeholder="e.g. CK-1002345" readonly="state in ('cleared', 'cancelled')"/></h2>
+                    </div>
+
+                    <!-- ========================================================= -->
+                    <!-- A. REGISTRATION INFORMATION                               -->
+                    <!-- ========================================================= -->
+                    <group string="A. Registration Information">
                         <group>
-                            <field name="payment_type"/>
-                            <field name="collection_type"/>
-                            <field name="partner_id"/>
-                            <field name="salesperson_id"/>
-                            <field name="invoice_ids" widget="many2many_tags"/>
-                            <field name="payment_id"/>
-                            <field name="is_credit_sale"/>
+                            <field name="payment_type" readonly="state in ('deposited', 'cleared', 'cancelled')"/>
+                            <field name="collection_type" readonly="state in ('deposited', 'cleared', 'cancelled')"/>
                         </group>
                         <group>
-                            <field name="amount"/>
+                            <field name="received_date" string="Registration Date" readonly="state in ('cleared', 'cancelled')"/>
+                            <field name="company_id" groups="base.group_multi_company" readonly="state != 'draft'"/>
                             <field name="currency_id" invisible="1"/>
-                            <field name="cheque_date"/>
-                            <field name="received_date"/>
-                            <field name="deposit_date"/>
-                            <field name="journal_id"/>
-                            <field name="partner_bank_id"/>
-                            <field name="company_id" groups="base.group_multi_company"/>
                         </group>
                     </group>
-                    <group string="Bounce / Re-deposit" invisible="state != 'bounced' and not original_cheque_id">
+
+                    <!-- ========================================================= -->
+                    <!-- B. CUSTOMER & INVOICE DETAILS                             -->
+                    <!-- ========================================================= -->
+                    <group string="B. Customer &amp; Invoice Details">
                         <group>
-                            <field name="bounce_date"/>
-                            <field name="bounce_reason"/>
-                            <field name="outstanding"/>
+                            <field name="partner_id" string="Customer"
+                                   options="{'no_create': True}"
+                                   readonly="state in ('deposited', 'cleared', 'cancelled')"/>
+                            <field name="salesperson_id"
+                                   options="{'no_create': True}"
+                                   readonly="state in ('cleared', 'cancelled')"/>
                         </group>
                         <group>
-                            <field name="original_cheque_id"/>
-                            <field name="redeposit_date"/>
-                            <field name="redeposit_ids"/>
+                            <field name="customer_balance" widget="monetary" readonly="1"/>
+                            <field name="payment_method_display" readonly="1"/>
+                            <button name="action_load_outstanding_invoices" type="object"
+                                    string="Load Outstanding Invoices"
+                                    invisible="state in ('deposited', 'cleared', 'cancelled')"
+                                    class="btn-link" icon="fa-refresh"/>
                         </group>
                     </group>
-                    <group>
-                        <field name="remarks"/>
-                    </group>
+
+                    <notebook>
+                        <page string="Invoice Allocation Table" name="invoice_allocations">
+                            <field name="allocation_line_ids" readonly="state in ('cleared', 'cancelled')">
+                                <list editable="bottom">
+                                    <field name="invoice_id"
+                                           options="{'no_create': True}"
+                                           domain="[('move_type', '=', 'out_invoice'), ('state', '=', 'posted'), ('payment_state', 'in', ('not_paid', 'partial')), ('partner_id', '=', parent.partner_id)]"/>
+                                    <field name="invoice_date"/>
+                                    <field name="amount_total" sum="Total Invoiced"/>
+                                    <field name="amount_paid" sum="Total Previously Paid"/>
+                                    <field name="amount_residual" sum="Total Outstanding"/>
+                                    <field name="amount_allocated" sum="Total Allocated"/>
+                                    <field name="currency_id" column_invisible="1"/>
+                                </list>
+                            </field>
+                            <group class="oe_subtotal_footer oe_right">
+                                <field name="amount" string="Cheque Amount" readonly="1"/>
+                                <field name="total_allocated" string="Total Allocated" readonly="1"/>
+                                <field name="unallocated_amount" string="Remaining Unallocated" readonly="1"
+                                       decoration-danger="unallocated_amount &gt; 0 and not allow_excess_credit"/>
+                                <field name="allow_excess_credit" readonly="state in ('cleared', 'cancelled')"/>
+                            </group>
+                            <div class="clearfix"/>
+                        </page>
+
+                        <!-- ========================================================= -->
+                        <!-- C. CHEQUE DETAILS                                         -->
+                        <!-- ========================================================= -->
+                        <page string="C. Cheque Details" name="cheque_details">
+                            <group>
+                                <group>
+                                    <field name="amount" widget="monetary" readonly="state in ('cleared', 'cancelled')"/>
+                                    <field name="cheque_date" readonly="state in ('cleared', 'cancelled')"/>
+                                    <field name="drawer_bank" placeholder="e.g. Commercial Bank of Ethiopia" readonly="state in ('cleared', 'cancelled')"/>
+                                    <field name="partner_bank_id" readonly="state in ('cleared', 'cancelled')"/>
+                                </group>
+                                <group>
+                                    <field name="cheque_image" filename="cheque_image_filename" widget="binary" readonly="state in ('cleared', 'cancelled')"/>
+                                    <field name="cheque_image_filename" invisible="1"/>
+                                </group>
+                            </group>
+                        </page>
+
+                        <!-- ========================================================= -->
+                        <!-- D. DEPOSIT & ACCOUNTING DETAILS                           -->
+                        <!-- ========================================================= -->
+                        <page string="D. Deposit &amp; Accounting" name="deposit_accounting">
+                            <group>
+                                <group>
+                                    <field name="journal_id" options="{'no_create': True}"
+                                           required="state == 'deposited'"
+                                           readonly="state in ('cleared', 'cancelled')"/>
+                                    <field name="deposit_date"
+                                           required="state == 'deposited'"
+                                           readonly="state in ('cleared', 'cancelled')"/>
+                                    <field name="deposit_reference" placeholder="e.g. SLIP-88492" readonly="state in ('cleared', 'cancelled')"/>
+                                </group>
+                                <group>
+                                    <field name="deposit_slip" filename="deposit_slip_filename" widget="binary" readonly="state in ('cleared', 'cancelled')"/>
+                                    <field name="deposit_slip_filename" invisible="1"/>
+                                    <field name="payment_id" readonly="1"/>
+                                    <field name="accounting_status" widget="badge"/>
+                                </group>
+                            </group>
+                        </page>
+
+                        <!-- ========================================================= -->
+                        <!-- E. WORKFLOW AUDIT TRAIL & HISTORY                         -->
+                        <!-- ========================================================= -->
+                        <page string="E. Workflow &amp; Audit Trail" name="audit_trail">
+                            <group string="Deposit &amp; Clearance History">
+                                <group>
+                                    <field name="deposit_user_id"/>
+                                    <field name="deposit_date" readonly="1"/>
+                                </group>
+                                <group>
+                                    <field name="clear_user_id"/>
+                                    <field name="clear_date"/>
+                                </group>
+                            </group>
+                            <group string="Bounce History" invisible="state != 'bounced' and not bounce_date">
+                                <group>
+                                    <field name="bounce_user_id"/>
+                                    <field name="bounce_date" readonly="1"/>
+                                    <field name="bounce_reason" readonly="1"/>
+                                </group>
+                                <group>
+                                    <field name="bounce_attachment" filename="bounce_attachment_filename" widget="binary" readonly="1"/>
+                                    <field name="bounce_attachment_filename" invisible="1"/>
+                                    <field name="outstanding"/>
+                                    <field name="original_cheque_id" readonly="1"/>
+                                    <field name="redeposit_date" readonly="1"/>
+                                </group>
+                            </group>
+                            <group string="Cancellation History" invisible="state != 'cancelled' and not cancel_date">
+                                <group>
+                                    <field name="cancel_user_id"/>
+                                    <field name="cancel_date" readonly="1"/>
+                                </group>
+                                <group>
+                                    <field name="cancel_reason" readonly="1"/>
+                                </group>
+                            </group>
+                            <group string="General Remarks">
+                                <field name="remarks" placeholder="Add administrative or operational comments..."/>
+                            </group>
+                        </page>
+                    </notebook>
                 </sheet>
                 <chatter/>
             </form>
         </field>
     </record>
 
+    <!-- Search View -->
     <record id="view_wecare_cheque_register_search" model="ir.ui.view">
         <field name="name">wecare.cheque.register.search</field>
         <field name="model">wecare.cheque.register</field>
         <field name="arch" type="xml">
             <search>
-                <field name="name"/>
-                <field name="collection_no"/>
-                <field name="partner_id"/>
+                <field name="name" string="Cheque No."/>
+                <field name="collection_no" string="Registration Ref"/>
+                <field name="partner_id" string="Customer"/>
                 <field name="salesperson_id"/>
-                <field name="journal_id"/>
+                <field name="journal_id" string="Bank"/>
+                <field name="drawer_bank" string="Customer Bank"/>
+                <field name="deposit_reference" string="Deposit Ref"/>
                 <field name="state"/>
-                <filter name="received" string="Received" domain="[('state', '=', 'received')]"/>
-                <filter name="deposited" string="Deposited" domain="[('state', '=', 'deposited')]"/>
+                <separator/>
+                <filter name="draft" string="Draft" domain="[('state', '=', 'draft')]"/>
+                <filter name="received" string="Received / In-Hand" domain="[('state', '=', 'received')]"/>
+                <filter name="deposited" string="Deposited / In Clearing" domain="[('state', '=', 'deposited')]"/>
                 <filter name="cleared" string="Cleared" domain="[('state', '=', 'cleared')]"/>
                 <filter name="bounced" string="Bounced" domain="[('state', '=', 'bounced')]"/>
-                <filter name="open_bounce" string="Current Existing Bounce" domain="[('outstanding', '=', True)]"/>
+                <filter name="cancelled" string="Cancelled" domain="[('state', '=', 'cancelled')]"/>
+                <separator/>
+                <filter name="awaiting_clearance" string="Outstanding Cheque Balances" domain="[('state', 'in', ('received', 'deposited'))]"/>
+                <filter name="unallocated" string="Unallocated Collections" domain="[('unallocated_amount', '&gt;', 0)]"/>
+                <filter name="open_bounce" string="Current Open Bounce" domain="[('outstanding', '=', True)]"/>
+                <separator/>
                 <filter name="inbound" string="Customer Collections" domain="[('payment_type', '=', 'inbound')]"/>
                 <filter name="outbound" string="Vendor Payments" domain="[('payment_type', '=', 'outbound')]"/>
-                <filter name="credit" string="Credit Sales" domain="[('is_credit_sale', '=', True)]"/>
-                <filter name="cash" string="Cash Sales" domain="[('is_credit_sale', '=', False)]"/>
                 <separator/>
-                <filter name="filter_received_date" string="Received Date" date="received_date"/>
+                <filter name="filter_received_date" string="Registration Date" date="received_date"/>
                 <filter name="filter_deposit_date" string="Deposit Date" date="deposit_date"/>
                 <filter name="filter_cheque_date" string="Cheque Date" date="cheque_date"/>
                 <filter name="filter_bounce_date" string="Bounce Date" date="bounce_date"/>
-                <group>
-                    <filter name="group_salesperson" string="Salesperson" context="{'group_by': 'salesperson_id'}"/>
+                <group expand="0" string="Group By">
                     <filter name="group_customer" string="Customer" context="{'group_by': 'partner_id'}"/>
-                    <filter name="group_bank" string="Bank" context="{'group_by': 'journal_id'}"/>
+                    <filter name="group_salesperson" string="Salesperson" context="{'group_by': 'salesperson_id'}"/>
+                    <filter name="group_bank" string="Deposit Bank" context="{'group_by': 'journal_id'}"/>
                     <filter name="group_state" string="Status" context="{'group_by': 'state'}"/>
-                    <filter name="group_credit" string="Credit / Cash" context="{'group_by': 'is_credit_sale'}"/>
-                    <filter name="group_received" string="Received Date" context="{'group_by': 'received_date'}"/>
-                    <filter name="group_deposit" string="Deposit Date" context="{'group_by': 'deposit_date'}"/>
+                    <filter name="group_payment_method" string="Cash / Credit" context="{'group_by': 'payment_method_display'}"/>
+                    <filter name="group_received" string="Registration Date" context="{'group_by': 'received_date:month'}"/>
+                    <filter name="group_deposit" string="Deposit Date" context="{'group_by': 'deposit_date:month'}"/>
                 </group>
             </search>
         </field>
     </record>
 
-    <record id="action_wecare_weekly_reports" model="ir.actions.act_window">
-        <field name="name">Weekly Reports</field>
-        <field name="res_model">wecare.cheque.register</field>
-        <field name="view_mode">list,form</field>
-        <field name="context">{
-            'search_default_inbound': 1,
-            'search_default_group_salesperson': 1,
-        }</field>
-        <field name="help" type="html">
-            <p class="o_view_nocontent_smiling_face">No collections in this filter</p>
-            <p>Use Filters (Received Date, Salesperson, Bank, Status) and Group By, then Print from the buttons or the Print menu.</p>
-        </field>
-    </record>
-
+    <!-- Window Actions -->
     <record id="action_wecare_cheque_register" model="ir.actions.act_window">
         <field name="name">Cheque Register</field>
         <field name="res_model">wecare.cheque.register</field>
@@ -161,12 +300,28 @@
         <field name="context">{'search_default_inbound': 1}</field>
     </record>
 
+    <record id="action_wecare_outstanding_cheque_balances" model="ir.actions.act_window">
+        <field name="name">Outstanding Cheque Balances</field>
+        <field name="res_model">wecare.cheque.register</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('state', 'in', ('received', 'deposited')), ('payment_type', '=', 'inbound')]</field>
+        <field name="context">{'search_default_awaiting_clearance': 1, 'search_default_group_salesperson': 1}</field>
+    </record>
+
+    <record id="action_wecare_unallocated_collections" model="ir.actions.act_window">
+        <field name="name">Unallocated Collections</field>
+        <field name="res_model">wecare.cheque.register</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('unallocated_amount', '&gt;', 0), ('state', 'not in', ('cancelled', 'bounced'))]</field>
+        <field name="context">{'search_default_unallocated': 1, 'search_default_group_customer': 1}</field>
+    </record>
+
     <record id="action_wecare_bounced_cheques" model="ir.actions.act_window">
         <field name="name">Bounced Cheques</field>
         <field name="res_model">wecare.cheque.register</field>
         <field name="view_mode">list,form</field>
         <field name="domain">[('state', '=', 'bounced')]</field>
-        <field name="context">{'search_default_bounced': 1}</field>
+        <field name="context">{'search_default_bounced': 1, 'search_default_open_bounce': 1}</field>
     </record>
 
     <record id="action_wecare_outstanding_invoices" model="ir.actions.act_window">
@@ -182,5 +337,15 @@
         <field name="view_mode">list,form</field>
         <field name="domain">[('payment_type', '=', 'outbound')]</field>
         <field name="context">{'default_payment_type': 'outbound'}</field>
+    </record>
+
+    <record id="action_wecare_weekly_reports" model="ir.actions.act_window">
+        <field name="name">Weekly Reports</field>
+        <field name="res_model">wecare.cheque.register</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{
+            'search_default_inbound': 1,
+            'search_default_group_salesperson': 1,
+        }</field>
     </record>
 </odoo>

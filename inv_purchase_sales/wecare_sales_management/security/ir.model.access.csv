@@ -8,6 +8,11 @@ access_wecare_target_line_manager,wecare.sales.target.line.manager,model_wecare_
 access_wecare_cheque_user,wecare.cheque.register.user,model_wecare_cheque_register,wecare_sales_management.group_wecare_user,1,1,1,0
 access_wecare_cheque_invoice,wecare.cheque.register.invoice,model_wecare_cheque_register,account.group_account_invoice,1,1,1,0
 access_wecare_cheque_manager,wecare.cheque.register.manager,model_wecare_cheque_register,wecare_sales_management.group_wecare_manager,1,1,1,1
+access_wecare_cheque_line_user,wecare.cheque.invoice.line.user,model_wecare_cheque_invoice_line,wecare_sales_management.group_wecare_user,1,1,1,1
+access_wecare_cheque_line_invoice,wecare.cheque.invoice.line.invoice,model_wecare_cheque_invoice_line,account.group_account_invoice,1,1,1,1
+access_wecare_cheque_line_manager,wecare.cheque.invoice.line.manager,model_wecare_cheque_invoice_line,wecare_sales_management.group_wecare_manager,1,1,1,1
+access_wecare_cheque_bounce_wizard,wecare.cheque.bounce.wizard.user,model_wecare_cheque_bounce_wizard,wecare_sales_management.group_wecare_user,1,1,1,1
+access_wecare_cheque_cancel_wizard,wecare.cheque.cancel.wizard.user,model_wecare_cheque_cancel_wizard,wecare_sales_management.group_wecare_user,1,1,1,1
 access_wecare_share_history_user,wecare.share.history.user,model_wecare_share_history,base.group_user,1,1,1,0
 access_wecare_share_history_manager,wecare.share.history.manager,model_wecare_share_history,wecare_sales_management.group_wecare_manager,1,1,1,1
 access_wecare_weekly_wizard,wecare.weekly.report.wizard,model_wecare_weekly_report_wizard,wecare_sales_management.group_wecare_user,1,1,1,1

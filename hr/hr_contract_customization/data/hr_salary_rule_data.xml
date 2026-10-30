@@ -29,7 +29,7 @@
 
         <record id="hr_salary_rule_travel" model="hr.salary.rule">
             <field name="name">Travel Allowance</field>
-            <field name="code">DA</field>
+            <field name="code">TRA</field>
             <field name="sequence" eval="52" />
             <field name="category_id" ref="hr_payroll.ALW" />
             <field name="condition_select">python</field>
@@ -42,7 +42,7 @@
 
         <record id="hr_salary_rule_meal" model="hr.salary.rule">
             <field name="name">Meal Allowance</field>
-            <field name="code">DA</field>
+            <field name="code">MEA</field>
             <field name="sequence" eval="53" />
             <field name="category_id" ref="hr_payroll.ALW" />
             <field name="condition_select">python</field>
@@ -55,7 +55,7 @@
 
         <record id="hr_salary_rule_medical" model="hr.salary.rule">
             <field name="name">Medical Allowance</field>
-            <field name="code">DA</field>
+            <field name="code">MEDA</field>
             <field name="sequence" eval="54" />
             <field name="category_id" ref="hr_payroll.ALW" />
             <field name="condition_select">python</field>
@@ -68,7 +68,7 @@
 
         <record id="hr_salary_rule_position" model="hr.salary.rule">
             <field name="name">Position Allowance</field>
-            <field name="code">DA</field>
+            <field name="code">POSA</field>
             <field name="sequence" eval="55" />
             <field name="category_id" ref="hr_payroll.ALW" />
             <field name="condition_select">python</field>
@@ -152,7 +152,7 @@
             <field name="condition_select">python</field>
             <field name="condition_python"><![CDATA[
 result = contract.apply_cash_indemnity and ('CIR' in inputs)
-    ]]></field>
+            ]]></field>
             <field name="amount_select">code</field>
             <field name="amount_python_compute">result = inputs['CIR'].amount</field>
             <field name="appears_on_payslip" eval="True" />
@@ -173,7 +173,7 @@ result = contract.apply_cash_indemnity and ('CIR' in inputs)
         </record>
 
         <record id="hr_salary_rule_professional" model="hr.salary.rule">
-            <field name="name">professional Allowance</field>
+            <field name="name">Professional Allowance</field>
             <field name="code">PROA</field>
             <field name="sequence" eval="63" />
             <field name="category_id" ref="hr_payroll.ALW" />
@@ -182,6 +182,120 @@ result = contract.apply_cash_indemnity and ('CIR' in inputs)
             <field name="amount_select">code</field>
             <field name="amount_python_compute">result = contract.professional_allowance</field>
             <field name="appears_on_payslip" eval="True" />
+            <field name="struct_id" ref="hr_payroll.default_structure" />
+        </record>
+
+        <!-- Total Non-taxable Allowance -->
+        <record id="hr_salary_rule_total_nontaxable" model="hr.salary.rule">
+            <field name="name">Total Nontaxable Allowance</field>
+            <field name="code">TOTALNONTAX</field>
+            <field name="sequence" eval="90" />
+            <field name="category_id" ref="hr_payroll.ALW" />
+            <field name="condition_select">none</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute"><![CDATA[
+result = contract.transport_work_allowance or 0.0
+            ]]></field>
+            <field name="appears_on_payslip" eval="True" />
+            <field name="struct_id" ref="hr_payroll.default_structure" />
+        </record>
+
+        <!-- Taxable Salary (TAXSAL) -->
+        <record id="hr_salary_rule_taxable_salary" model="hr.salary.rule">
+            <field name="name">Taxable Salary</field>
+            <field name="code">TAXSAL</field>
+            <field name="sequence" eval="99" />
+            <field name="category_id" ref="hr_payroll.GROSS" />
+            <field name="condition_select">none</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute"><![CDATA[
+# Taxable Salary = Basic Wage + Taxable Allowances
+taxable_allowances = (
+    (contract.house_rent_allowance or 0.0) +
+    (contract.dearness_allowance or 0.0) +
+    (contract.travel_allowance or 0.0) +
+    (contract.position_allowance or 0.0) +
+    (contract.professional_allowance or 0.0) +
+    (contract.other_allowance or 0.0) +
+    (contract.transport_home_allowance or 0.0) +
+    (contract.meal_allowance or 0.0) +
+    (contract.medical_allowance or 0.0) +
+    (contract.fuel_allowance or 0.0)
+)
+basic = categories['BASIC'] if 'BASIC' in categories else contract.wage
+result = basic + taxable_allowances
+            ]]></field>
+            <field name="appears_on_payslip" eval="True" />
+            <field name="struct_id" ref="hr_payroll.default_structure" />
+        </record>
+
+        <!-- Employee Pension 7% (PENSION) -->
+        <record id="hr_salary_rule_employee_pension" model="hr.salary.rule">
+            <field name="name">Pension Contribution 7%</field>
+            <field name="code">PENSION</field>
+            <field name="sequence" eval="101" />
+            <field name="category_id" ref="hr_payroll.DED" />
+            <field name="condition_select">none</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute"><![CDATA[
+# 7% Employee Pension Contribution on Basic Salary
+basic = categories['BASIC'] if 'BASIC' in categories else contract.wage
+result = -round(basic * 0.07, 2)
+            ]]></field>
+            <field name="appears_on_payslip" eval="True" />
+            <field name="struct_id" ref="hr_payroll.default_structure" />
+        </record>
+
+        <!-- Income Tax / Employment Tax (INTAX) -->
+        <record id="hr_salary_rule_income_tax" model="hr.salary.rule">
+            <field name="name">Income Tax</field>
+            <field name="code">INTAX</field>
+            <field name="sequence" eval="102" />
+            <field name="category_id" ref="hr_payroll.DED" />
+            <field name="condition_select">none</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute"><![CDATA[
+# Ethiopian Employment Income Tax
+# Current Proclamation No. 1395/2025:
+#   0 - 2,000 ETB: 0%
+#   2,001 - 4,000 ETB: 15% - 300
+#   4,001 - 7,000 ETB: 20% - 500
+#   7,001 - 10,000 ETB: 25% - 850
+#   10,001 - 14,000 ETB: 30% - 1350
+#   Over 14,000 ETB: 35% - 2050
+taxable = result_rules['TAXSAL']['total'] if 'TAXSAL' in result_rules else (categories['GROSS'] if 'GROSS' in categories else contract.wage)
+if taxable <= 2000:
+    tax = 0.0
+elif taxable <= 4000:
+    tax = taxable * 0.15 - 300
+elif taxable <= 7000:
+    tax = taxable * 0.20 - 500
+elif taxable <= 10000:
+    tax = taxable * 0.25 - 850
+elif taxable <= 14000:
+    tax = taxable * 0.30 - 1350
+else:
+    tax = taxable * 0.35 - 2050
+result = -round(max(0.0, tax), 2)
+            ]]></field>
+            <field name="appears_on_payslip" eval="True" />
+            <field name="struct_id" ref="hr_payroll.default_structure" />
+        </record>
+
+        <!-- Company Pension 11% (PENSION11) -->
+        <record id="hr_salary_rule_company_pension" model="hr.salary.rule">
+            <field name="name">Pension Contribution 11%</field>
+            <field name="code">PENSION11</field>
+            <field name="sequence" eval="103" />
+            <field name="category_id" ref="hr_payroll.COMP" />
+            <field name="condition_select">none</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute"><![CDATA[
+# 11% Company Pension Contribution on Basic Salary
+basic = categories['BASIC'] if 'BASIC' in categories else contract.wage
+result = round(basic * 0.11, 2)
+            ]]></field>
+            <field name="appears_on_payslip" eval="False" />
             <field name="struct_id" ref="hr_payroll.default_structure" />
         </record>
 

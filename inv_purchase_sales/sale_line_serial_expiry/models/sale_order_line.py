@@ -7,30 +7,32 @@ from odoo.tools import float_compare
 class SaleOrderLine(models.Model):
     _inherit = 'sale.order.line'
 
+    lot_id = fields.Many2one(
+        'stock.lot',
+        string='Batch / Serial Number',
+        domain="[('product_id', '=', product_id)]",
+        check_company=True,
+        copy=False,
+        help='Single batch or serial number for this sales line.',
+    )
     lot_ids = fields.Many2many(
         'stock.lot',
         'sale_order_line_stock_lot_rel',
         'sale_order_line_id',
         'stock_lot_id',
         string='Serial Numbers',
-        domain="[('product_id', '=', product_id)]",
+        compute='_compute_lot_ids',
+        store=True,
+        readonly=False,
         check_company=True,
         copy=False,
         help='Lots / serial numbers to deliver for this sales line.',
-    )
-    # First selected lot, kept for code and reports that expect a single lot.
-    lot_id = fields.Many2one(
-        'stock.lot',
-        string='Serial Number',
-        compute='_compute_lot_id',
-        store=True,
-        check_company=True,
     )
     expiration_date = fields.Datetime(
         string='Expiration Date',
         compute='_compute_expiration_date',
         store=True,
-        help='Earliest expiration date of the selected lots.',
+        help='Expiration date of the selected batch / serial number.',
     )
     product_tracking = fields.Selection(
         related='product_id.tracking',
@@ -43,16 +45,22 @@ class SaleOrderLine(models.Model):
         help='Lots / serials with free stock in the location the line ships from.',
     )
 
-    @api.depends('lot_ids')
-    def _compute_lot_id(self):
+    @api.depends('lot_id')
+    def _compute_lot_ids(self):
         for line in self:
-            line.lot_id = line.lot_ids[:1]
+            if line.lot_id:
+                line.lot_ids = line.lot_id
+            elif not line.lot_ids:
+                line.lot_ids = False
 
-    @api.depends('lot_ids.expiration_date')
+    @api.depends('lot_id.expiration_date', 'lot_ids.expiration_date')
     def _compute_expiration_date(self):
         for line in self:
-            dates = [d for d in line.lot_ids.mapped('expiration_date') if d]
-            line.expiration_date = min(dates) if dates else False
+            if line.lot_id and line.lot_id.expiration_date:
+                line.expiration_date = line.lot_id.expiration_date
+            else:
+                dates = [d for d in line.lot_ids.mapped('expiration_date') if d]
+                line.expiration_date = min(dates) if dates else False
 
     def _get_lot_source_location(self):
         """Location the line will be delivered from (whole warehouse by default)."""
@@ -65,7 +73,7 @@ class SaleOrderLine(models.Model):
         for line in self:
             location = line._get_lot_source_location() if line.product_id else False
             if not location or line.product_id.tracking == 'none':
-                line.available_lot_ids = line.lot_ids
+                line.available_lot_ids = line.lot_id | line.lot_ids
                 continue
             quants = Quant.search([
                 ('product_id', '=', line.product_id.id),
@@ -75,50 +83,45 @@ class SaleOrderLine(models.Model):
             ])
             free_lots = quants.filtered(lambda q: q.quantity > q.reserved_quantity).lot_id
             # Keep the lots already on the line selectable (e.g. reserved by this order).
-            line.available_lot_ids = free_lots | line.lot_ids
+            line.available_lot_ids = free_lots | line.lot_id | line.lot_ids
 
     @api.onchange('product_id')
     def _onchange_product_id_clear_lot(self):
-        if self.lot_ids:
+        if self.lot_id and self.lot_id.product_id != self.product_id:
+            self.lot_id = False
+            self.lot_ids = False
+        elif self.lot_ids:
             self.lot_ids = self.lot_ids.filtered(lambda lot: lot.product_id == self.product_id)
+            self.lot_id = self.lot_ids[:1]
 
-    @api.onchange('lot_ids')
-    def _onchange_lot_ids_serial_qty(self):
-        """Serial-tracked products: quantity = number of selected serials."""
-        if self.lot_ids and self.product_id.tracking == 'serial':
-            self.product_uom_qty = len(self.lot_ids)
+    @api.onchange('lot_id')
+    def _onchange_lot_id_sync(self):
+        if self.lot_id:
+            self.lot_ids = self.lot_id
+            self.expiration_date = self.lot_id.expiration_date
+        else:
+            self.lot_ids = False
+            self.expiration_date = False
 
-    @api.constrains('lot_ids', 'product_id', 'product_uom_qty')
+    @api.constrains('lot_id', 'lot_ids', 'product_id')
     def _check_lot_matches_product(self):
         for line in self:
-            if not line.lot_ids:
+            lots = line.lot_id | line.lot_ids
+            if not lots:
                 continue
-            wrong = line.lot_ids.filtered(lambda lot: lot.product_id != line.product_id)
+            wrong = lots.filtered(lambda lot: lot.product_id != line.product_id)
             if wrong:
                 raise ValidationError(_(
                     'Serial/Lot "%(lot)s" does not belong to product "%(product)s".',
                     lot=', '.join(wrong.mapped('display_name')),
                     product=line.product_id.display_name,
                 ))
-            if (
-                line.product_id.tracking == 'serial'
-                and float_compare(
-                    line.product_uom_qty,
-                    len(line.lot_ids),
-                    precision_rounding=line.product_uom.rounding if line.product_uom else 0.01,
-                ) != 0
-            ):
-                raise ValidationError(_(
-                    'Serial-tracked product "%(product)s": Quantity (%(qty)s) must equal '
-                    'the number of selected Serial Numbers (%(count)s).',
-                    product=line.product_id.display_name,
-                    qty=line.product_uom_qty,
-                    count=len(line.lot_ids),
-                ))
 
     def write(self, vals):
+        if 'lot_id' in vals and 'lot_ids' not in vals:
+            vals['lot_ids'] = [fields.Command.set([vals['lot_id']])] if vals['lot_id'] else [fields.Command.clear()]
         res = super().write(vals)
-        if 'lot_ids' in vals:
+        if 'lot_id' in vals or 'lot_ids' in vals:
             self._sync_lot_to_moves_and_invoices()
         return res
 

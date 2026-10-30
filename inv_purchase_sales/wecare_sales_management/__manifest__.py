@@ -62,6 +62,7 @@ WeCare Pharmaceuticals — Sales Planning, Collections and Weekly Reporting
         'wizard/kpi_wizard_views.xml',
         'wizard/sales_analysis_wizard_views.xml',
         'wizard/stock_valuation_wizard_views.xml',
+        'wizard/cheque_action_wizard_views.xml',
         'report/wecare_report_paperformat.xml',
         'report/weekly_collection_report.xml',
         'report/weekly_bank_deposit_report.xml',
