@@ -60,6 +60,35 @@ class AccountMove(models.Model):
         search='_search_wecare_aging_bucket',
     )
 
+    wecare_cheque_ids = fields.Many2many(
+        'wecare.cheque.register',
+        'wecare_cheque_invoice_rel',
+        'invoice_id',
+        'cheque_id',
+        string='Cheque Registrations',
+        readonly=True,
+    )
+    wecare_cheque_count = fields.Integer(
+        string='Cheques Count',
+        compute='_compute_wecare_cheque_count',
+    )
+
+    @api.depends('wecare_cheque_ids')
+    def _compute_wecare_cheque_count(self):
+        for move in self:
+            move.wecare_cheque_count = len(move.wecare_cheque_ids)
+
+    def action_view_wecare_cheques(self):
+        self.ensure_one()
+        return {
+            'name': self.env._('Cheque Registrations'),
+            'type': 'ir.actions.act_window',
+            'res_model': 'wecare.cheque.register',
+            'view_mode': 'list,form',
+            'domain': [('id', 'in', self.wecare_cheque_ids.ids)],
+            'context': {'default_partner_id': self.partner_id.id},
+        }
+
     @api.depends('invoice_date_due', 'invoice_date', 'payment_state', 'state')
     def _compute_wecare_aging(self):
         today = fields.Date.context_today(self)

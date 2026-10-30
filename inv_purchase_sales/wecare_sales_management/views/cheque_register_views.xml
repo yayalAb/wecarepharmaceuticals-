@@ -59,20 +59,25 @@
                     <button name="action_receive" type="object" string="Confirm / Receive"
                             invisible="state != 'draft'" class="btn-primary"/>
                     <button name="action_deposit" type="object" string="Deposit to Bank"
-                            invisible="state != 'received'" class="btn-primary"/>
+                            invisible="state != 'received'" class="btn-primary"
+                            groups="wecare_sales_management.group_wecare_cashier,wecare_sales_management.group_wecare_accountant,wecare_sales_management.group_wecare_manager"/>
                     <button name="action_clear" type="object" string="Confirm Clearance"
-                            invisible="state != 'deposited'" class="btn-primary"/>
+                            invisible="state != 'deposited'" class="btn-primary"
+                            groups="wecare_sales_management.group_wecare_accountant,wecare_sales_management.group_wecare_manager"/>
                     <button name="action_bounce" type="object" string="Mark as Bounced"
                             invisible="state not in ('received', 'deposited', 'cleared')"
-                            class="btn-danger"/>
+                            class="btn-danger"
+                            groups="wecare_sales_management.group_wecare_accountant,wecare_sales_management.group_wecare_manager"/>
                     <button name="action_redeposit" type="object" string="Re-deposit"
-                            invisible="state != 'bounced'" class="btn-primary"/>
+                            invisible="state != 'bounced'" class="btn-primary"
+                            groups="wecare_sales_management.group_wecare_cashier,wecare_sales_management.group_wecare_accountant,wecare_sales_management.group_wecare_manager"/>
                     <button name="action_cancel_cheque" type="object" string="Cancel Cheque"
                             invisible="state in ('cleared', 'cancelled')"
-                            class="btn-secondary"/>
+                            class="btn-secondary"
+                            groups="wecare_sales_management.group_wecare_finance_manager,wecare_sales_management.group_wecare_manager"/>
                     <button name="action_reset_draft" type="object" string="Reset to Draft"
                             invisible="state not in ('cancelled', 'bounced')"
-                            groups="wecare_sales_management.group_wecare_manager"
+                            groups="wecare_sales_management.group_wecare_finance_manager,wecare_sales_management.group_wecare_manager"
                             class="btn-secondary"/>
                     <field name="state" widget="statusbar"
                            statusbar_visible="draft,received,deposited,cleared"/>
