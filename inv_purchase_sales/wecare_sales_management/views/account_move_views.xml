@@ -6,6 +6,11 @@
         <field name="inherit_id" ref="account.view_move_form"/>
         <field name="arch" type="xml">
             <xpath expr="//header" position="inside">
+                <button name="action_register_cheque" type="object"
+                        string="Register Cheque"
+                        class="btn-secondary"
+                        data-hotkey="k"
+                        invisible="state != 'posted' or payment_state in ('paid', 'reversed') or move_type not in ('out_invoice', 'out_refund', 'in_invoice', 'in_refund')"/>
                 <button name="action_share_to_media" type="object"
                         string="Share to Media"
                         class="btn-secondary"
@@ -13,7 +18,8 @@
             </xpath>
             <xpath expr="//div[@name='button_box']" position="inside">
                 <button name="action_view_wecare_cheques" type="object" class="oe_stat_button"
-                        icon="fa-money" invisible="wecare_cheque_count == 0">
+                        icon="fa-money"
+                        invisible="move_type not in ('out_invoice', 'out_refund', 'in_invoice', 'in_refund')">
                     <field name="wecare_cheque_count" widget="statinfo" string="Cheques"/>
                 </button>
             </xpath>
@@ -34,6 +40,36 @@
                        invisible="display_type in ('line_section', 'line_note')" readonly="parent.state != 'draft'"
                        options="{'no_create': True}"
                        domain="[('usage', '=', 'internal'), ('warehouse_id', '=?', parent.wecare_warehouse_id), '|', ('company_id', '=', False), ('company_id', '=', parent.company_id)]"/>
+            </xpath>
+            <xpath expr="//notebook" position="inside">
+                <page id="wecare_cheques_tab" name="wecare_cheques_tab" string="Linked Cheques"
+                      invisible="move_type not in ('out_invoice', 'out_refund', 'in_invoice', 'in_refund')">
+                    <div class="mb-2">
+                        <button name="action_register_cheque" type="object"
+                                string="Register Cheque"
+                                class="btn btn-primary btn-sm"
+                                invisible="state != 'posted' or payment_state in ('paid', 'reversed')"/>
+                        <button name="action_view_wecare_cheques" type="object"
+                                string="View All Cheques"
+                                class="btn btn-secondary btn-sm ms-2"/>
+                    </div>
+                    <field name="wecare_cheque_line_ids" readonly="1">
+                        <list create="false" delete="false">
+                            <field name="cheque_id" string="Registration Ref"/>
+                            <field name="cheque_number" string="Cheque No"/>
+                            <field name="cheque_bank_name" string="Bank"/>
+                            <field name="cheque_date" string="Cheque Date"/>
+                            <field name="cheque_amount" string="Cheque Amount"/>
+                            <field name="amount_allocated" string="Allocated to this Invoice" sum="Total Allocated"/>
+                            <field name="cheque_state" string="Cheque Status" widget="badge"
+                                   decoration-info="cheque_state == 'draft'"
+                                   decoration-primary="cheque_state == 'received'"
+                                   decoration-warning="cheque_state == 'deposited'"
+                                   decoration-success="cheque_state == 'cleared'"
+                                   decoration-danger="cheque_state in ('bounced', 'cancelled')"/>
+                        </list>
+                    </field>
+                </page>
             </xpath>
         </field>
     </record>

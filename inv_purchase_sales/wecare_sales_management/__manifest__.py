@@ -74,6 +74,11 @@ WeCare Pharmaceuticals — Sales Planning, Collections and Weekly Reporting
         'views/wecare_advanced_reports_views.xml',
         'views/menus.xml',
     ],
+    'assets': {
+        'web.assets_backend': [
+            'wecare_sales_management/static/src/js/account_pick_currency_date_widget.js',
+        ],
+    },
     'pre_init_hook': 'pre_init_hook',
     'installable': True,
     'application': True,

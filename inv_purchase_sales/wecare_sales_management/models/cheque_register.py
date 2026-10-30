@@ -57,6 +57,31 @@ class WecareChequeInvoiceLine(models.Model):
         string='Amount Allocated',
         required=True,
     )
+    cheque_number = fields.Char(
+        string='Cheque Number',
+        related='cheque_id.name',
+        readonly=True,
+    )
+    cheque_date = fields.Date(
+        string='Cheque Date',
+        related='cheque_id.cheque_date',
+        readonly=True,
+    )
+    cheque_bank_name = fields.Char(
+        string='Bank',
+        related='cheque_id.drawer_bank',
+        readonly=True,
+    )
+    cheque_state = fields.Selection(
+        related='cheque_id.state',
+        string='Cheque Status',
+        readonly=True,
+    )
+    cheque_amount = fields.Monetary(
+        related='cheque_id.amount',
+        string='Cheque Amount',
+        readonly=True,
+    )
 
     @api.depends('amount_total', 'amount_residual')
     def _compute_amount_paid(self):
@@ -195,6 +220,11 @@ class WecareChequeRegister(models.Model):
         tracking=True,
         copy=False,
         index=True,
+    )
+    cheque_number = fields.Char(
+        string='Cheque Number Alias',
+        related='name',
+        readonly=False,
     )
     amount = fields.Monetary(
         string='Cheque Amount',

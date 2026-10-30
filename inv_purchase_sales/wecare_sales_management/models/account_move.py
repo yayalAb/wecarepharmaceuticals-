@@ -60,33 +60,106 @@ class AccountMove(models.Model):
         search='_search_wecare_aging_bucket',
     )
 
+    wecare_cheque_line_ids = fields.One2many(
+        'wecare.cheque.invoice.line',
+        'invoice_id',
+        string='Cheque Allocations',
+    )
     wecare_cheque_ids = fields.Many2many(
         'wecare.cheque.register',
-        'wecare_cheque_invoice_rel',
-        'invoice_id',
-        'cheque_id',
         string='Cheque Registrations',
-        readonly=True,
+        compute='_compute_wecare_cheques',
     )
     wecare_cheque_count = fields.Integer(
         string='Cheques Count',
-        compute='_compute_wecare_cheque_count',
+        compute='_compute_wecare_cheques',
     )
 
-    @api.depends('wecare_cheque_ids')
-    def _compute_wecare_cheque_count(self):
+    @api.depends('wecare_cheque_line_ids.cheque_id')
+    def _compute_wecare_cheques(self):
+        ChequeRegister = self.env['wecare.cheque.register']
         for move in self:
-            move.wecare_cheque_count = len(move.wecare_cheque_ids)
+            cheques = move.wecare_cheque_line_ids.mapped('cheque_id')
+            if move.id:
+                # Also include cheques where this invoice is in invoice_ids
+                direct = ChequeRegister.search([('invoice_ids', 'in', move.id)])
+                cheques = cheques | direct
+                # Also include cheques linked to reconciled payments of this invoice
+                if hasattr(move, '_get_reconciled_payments'):
+                    payments = move._get_reconciled_payments()
+                    if payments:
+                        pm_cheques = ChequeRegister.search([('payment_id', 'in', payments.ids)])
+                        cheques = cheques | pm_cheques
+            move.wecare_cheque_ids = cheques
+            move.wecare_cheque_count = len(cheques)
 
     def action_view_wecare_cheques(self):
         self.ensure_one()
-        return {
-            'name': self.env._('Cheque Registrations'),
+        cheques = self.wecare_cheque_ids
+        action = {
+            'name': self.env._('Linked Cheques'),
             'type': 'ir.actions.act_window',
             'res_model': 'wecare.cheque.register',
-            'view_mode': 'list,form',
-            'domain': [('id', 'in', self.wecare_cheque_ids.ids)],
-            'context': {'default_partner_id': self.partner_id.id},
+            'context': {
+                'default_partner_id': self.partner_id.id,
+                'default_payment_type': 'inbound' if self.move_type in ('out_invoice', 'out_refund') else 'outbound',
+                'default_company_id': self.company_id.id,
+                'default_currency_id': self.currency_id.id,
+            },
+        }
+        if len(cheques) == 1:
+            action['view_mode'] = 'form'
+            action['res_id'] = cheques.id
+        elif len(cheques) > 1:
+            action['view_mode'] = 'list,form'
+            action['domain'] = [('id', 'in', cheques.ids)]
+        else:
+            action['view_mode'] = 'list,form'
+            action['domain'] = [('id', 'in', cheques.ids)]
+            action['context'].update({
+                'default_amount': self.amount_residual or self.amount_total,
+                'default_collection_method': 'cheque',
+                'default_salesperson_id': (self.invoice_user_id or self.user_id).id if (getattr(self, 'invoice_user_id', None) or getattr(self, 'user_id', None)) else False,
+                'default_allocation_line_ids': [
+                    (0, 0, {
+                        'invoice_id': self.id,
+                        'amount_allocated': self.amount_residual or self.amount_total,
+                    })
+                ],
+            })
+        return action
+
+    def action_register_cheque(self):
+        self.ensure_one()
+        salesperson = False
+        if getattr(self, 'invoice_user_id', None):
+            salesperson = self.invoice_user_id.id
+        elif getattr(self, 'user_id', None):
+            salesperson = self.user_id.id
+        elif self.partner_id.user_id:
+            salesperson = self.partner_id.user_id.id
+
+        return {
+            'name': self.env._('Register Cheque'),
+            'type': 'ir.actions.act_window',
+            'res_model': 'wecare.cheque.register',
+            'view_mode': 'form',
+            'target': 'current',
+            'context': {
+                'default_partner_id': self.partner_id.id,
+                'default_payment_type': 'inbound' if self.move_type in ('out_invoice', 'out_refund') else 'outbound',
+                'default_collection_method': 'cheque',
+                'default_amount': self.amount_residual or self.amount_total,
+                'default_salesperson_id': salesperson,
+                'default_company_id': self.company_id.id,
+                'default_currency_id': self.currency_id.id,
+                'default_allocation_line_ids': [
+                    (0, 0, {
+                        'invoice_id': self.id,
+                        'amount_allocated': self.amount_residual or self.amount_total,
+                    })
+                ],
+            },
         }
 
     @api.depends('invoice_date_due', 'invoice_date', 'payment_state', 'state')
