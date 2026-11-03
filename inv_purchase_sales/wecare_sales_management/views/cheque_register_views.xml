@@ -7,7 +7,7 @@
         <field name="arch" type="xml">
             <list decoration-danger="state == 'bounced'"
                   decoration-success="state == 'cleared'"
-                  decoration-warning="state in ('draft', 'received')"
+                  decoration-warning="state in ('draft', 'received', 'submitted')"
                   decoration-info="state == 'deposited'"
                   decoration-muted="state == 'cancelled'">
                 <header>
@@ -38,7 +38,7 @@
                        decoration-danger="accounting_status in ('bounced', 'cancelled')"
                        optional="show"/>
                 <field name="state" widget="badge"
-                       decoration-warning="state in ('draft', 'received')"
+                       decoration-warning="state in ('draft', 'received', 'submitted')"
                        decoration-info="state == 'deposited'"
                        decoration-success="state == 'cleared'"
                        decoration-danger="state == 'bounced'"
@@ -56,8 +56,11 @@
             <form string="Cheque Registration">
                 <header>
                     <!-- Workflow Buttons -->
-                    <button name="action_receive" type="object" string="Confirm / Receive"
+                    <button name="action_submit" type="object" string="Submit"
                             invisible="state != 'draft'" class="btn-primary"/>
+                    <button name="action_receive" type="object" string="Confirm / Receive"
+                            invisible="state != 'submitted'" class="btn-primary"
+                            groups="wecare_sales_management.group_wecare_cashier,wecare_sales_management.group_wecare_accountant,wecare_sales_management.group_wecare_manager"/>
                     <button name="action_deposit" type="object" string="Deposit to Bank"
                             invisible="state != 'received'" class="btn-primary"
                             groups="wecare_sales_management.group_wecare_cashier,wecare_sales_management.group_wecare_accountant,wecare_sales_management.group_wecare_manager"/>
@@ -76,11 +79,11 @@
                             class="btn-secondary"
                             groups="wecare_sales_management.group_wecare_finance_manager,wecare_sales_management.group_wecare_manager"/>
                     <button name="action_reset_draft" type="object" string="Reset to Draft"
-                            invisible="state not in ('cancelled', 'bounced')"
+                            invisible="state not in ('cancelled', 'bounced', 'submitted')"
                             groups="wecare_sales_management.group_wecare_finance_manager,wecare_sales_management.group_wecare_manager"
                             class="btn-secondary"/>
                     <field name="state" widget="statusbar"
-                           statusbar_visible="draft,received,deposited,cleared"/>
+                           statusbar_visible="draft,submitted,received,deposited,cleared"/>
                 </header>
                 <sheet>
                     <div class="oe_button_box" name="button_box">
@@ -122,6 +125,12 @@
                         <group>
                             <field name="partner_id" string="Customer"
                                    options="{'no_create': True}"
+                                   readonly="state in ('deposited', 'cleared', 'cancelled')"/>
+                            <field name="sale_order_id"
+                                   options="{'no_create': True}"
+                                   readonly="state in ('deposited', 'cleared', 'cancelled')"/>
+                            <field name="customer_reference"
+                                   placeholder="Customer PO / Reference"
                                    readonly="state in ('deposited', 'cleared', 'cancelled')"/>
                             <field name="salesperson_id"
                                    options="{'no_create': True}"
@@ -267,6 +276,7 @@
                 <field name="state"/>
                 <separator/>
                 <filter name="draft" string="Draft" domain="[('state', '=', 'draft')]"/>
+                <filter name="submitted" string="Submitted" domain="[('state', '=', 'submitted')]"/>
                 <filter name="received" string="Received / In-Hand" domain="[('state', '=', 'received')]"/>
                 <filter name="deposited" string="Deposited / In Clearing" domain="[('state', '=', 'deposited')]"/>
                 <filter name="cleared" string="Cleared" domain="[('state', '=', 'cleared')]"/>

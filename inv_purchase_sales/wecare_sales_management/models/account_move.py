@@ -96,6 +96,11 @@ class AccountMove(models.Model):
     def action_view_wecare_cheques(self):
         self.ensure_one()
         cheques = self.wecare_cheque_ids
+
+        # Resolve originating sale order for default context
+        sale_order = self.invoice_line_ids.mapped('sale_line_ids.order_id')[:1]
+        customer_reference = sale_order.client_order_ref or self.ref or ''
+
         action = {
             'name': self.env._('Linked Cheques'),
             'type': 'ir.actions.act_window',
@@ -107,6 +112,11 @@ class AccountMove(models.Model):
                 'default_currency_id': self.currency_id.id,
             },
         }
+        if sale_order:
+            action['context']['default_sale_order_id'] = sale_order.id
+        if customer_reference:
+            action['context']['default_customer_reference'] = customer_reference
+
         if len(cheques) == 1:
             action['view_mode'] = 'form'
             action['res_id'] = cheques.id
@@ -139,27 +149,41 @@ class AccountMove(models.Model):
         elif self.partner_id.user_id:
             salesperson = self.partner_id.user_id.id
 
+        # Resolve the originating sale order (if any) from invoice lines
+        sale_order = self.invoice_line_ids.mapped('sale_line_ids.order_id')[:1]
+        customer_reference = (
+            sale_order.client_order_ref
+            or self.ref
+            or ''
+        )
+
+        ctx = {
+            'default_partner_id': self.partner_id.id,
+            'default_payment_type': 'inbound' if self.move_type in ('out_invoice', 'out_refund') else 'outbound',
+            'default_collection_method': 'cheque',
+            'default_amount': self.amount_residual or self.amount_total,
+            'default_salesperson_id': salesperson,
+            'default_company_id': self.company_id.id,
+            'default_currency_id': self.currency_id.id,
+            'default_allocation_line_ids': [
+                (0, 0, {
+                    'invoice_id': self.id,
+                    'amount_allocated': self.amount_residual or self.amount_total,
+                })
+            ],
+        }
+        if sale_order:
+            ctx['default_sale_order_id'] = sale_order.id
+        if customer_reference:
+            ctx['default_customer_reference'] = customer_reference
+
         return {
             'name': self.env._('Register Cheque'),
             'type': 'ir.actions.act_window',
             'res_model': 'wecare.cheque.register',
             'view_mode': 'form',
             'target': 'current',
-            'context': {
-                'default_partner_id': self.partner_id.id,
-                'default_payment_type': 'inbound' if self.move_type in ('out_invoice', 'out_refund') else 'outbound',
-                'default_collection_method': 'cheque',
-                'default_amount': self.amount_residual or self.amount_total,
-                'default_salesperson_id': salesperson,
-                'default_company_id': self.company_id.id,
-                'default_currency_id': self.currency_id.id,
-                'default_allocation_line_ids': [
-                    (0, 0, {
-                        'invoice_id': self.id,
-                        'amount_allocated': self.amount_residual or self.amount_total,
-                    })
-                ],
-            },
+            'context': ctx,
         }
 
     @api.depends('invoice_date_due', 'invoice_date', 'payment_state', 'state')

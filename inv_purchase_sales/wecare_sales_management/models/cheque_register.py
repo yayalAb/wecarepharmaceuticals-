@@ -306,17 +306,37 @@ class WecareChequeRegister(models.Model):
     state = fields.Selection(
         [
             ('draft', 'Draft'),
+            ('submitted', 'Submitted'),
             ('received', 'Received'),
             ('deposited', 'Deposited'),
             ('cleared', 'Cleared'),
             ('bounced', 'Bounced'),
             ('cancelled', 'Cancelled'),
         ],
-        default='received',
+        default='draft',
         required=True,
         tracking=True,
         copy=False,
         index=True,
+    )
+
+    # -------------------------------------------------------------------------
+    # F. SALE ORDER LINK & CUSTOMER REFERENCE
+    # -------------------------------------------------------------------------
+    sale_order_id = fields.Many2one(
+        'sale.order',
+        string='Linked Sale Order',
+        tracking=True,
+        domain="[('partner_id', '=', partner_id), ('state', 'in', ('sale', 'done'))]",
+        help='Sale order linked to this cheque registration.',
+    )
+    customer_reference = fields.Char(
+        string='Customer Reference',
+        compute='_compute_customer_reference',
+        store=True,
+        readonly=False,
+        tracking=True,
+        help='Customer reference (PO number) from the linked sale order.',
     )
     deposit_user_id = fields.Many2one(
         'res.users',
@@ -478,6 +498,14 @@ class WecareChequeRegister(models.Model):
             else:
                 cheque.payment_method_display = 'credit'
 
+    @api.depends('sale_order_id', 'sale_order_id.client_order_ref')
+    def _compute_customer_reference(self):
+        for cheque in self:
+            if cheque.sale_order_id:
+                cheque.customer_reference = cheque.sale_order_id.client_order_ref or ''
+            else:
+                cheque.customer_reference = cheque.customer_reference or ''
+
     @api.depends('state', 'payment_id', 'payment_id.state', 'payment_id.is_reconciled')
     def _compute_accounting_status(self):
         for cheque in self:
@@ -562,7 +590,7 @@ class WecareChequeRegister(models.Model):
     @api.constrains('allocation_line_ids', 'amount', 'allow_excess_credit', 'state')
     def _check_allocation_amounts(self):
         for cheque in self:
-            if cheque.state in ('draft', 'cancelled'):
+            if cheque.state in ('draft', 'submitted', 'cancelled'):
                 continue
             if cheque.payment_type == 'inbound' and cheque.allocation_line_ids:
                 total_allocated = sum(cheque.allocation_line_ids.mapped('amount_allocated'))
@@ -652,11 +680,23 @@ class WecareChequeRegister(models.Model):
         if not self.salesperson_id:
             self.salesperson_id = open_invoices[:1].invoice_user_id or self.partner_id.user_id
 
-    def action_receive(self):
-        """Transition from Draft to Received."""
+    def action_submit(self):
+        """Transition from Draft to Submitted (awaiting cashier/accountant review)."""
         for cheque in self:
-            if cheque.state not in ('draft', 'received'):
-                raise UserError(self.env._('Only draft cheques can be confirmed.'))
+            if cheque.state != 'draft':
+                raise UserError(self.env._('Only draft cheques can be submitted.'))
+            cheque.state = 'submitted'
+            cheque.message_post(body=self.env._(
+                'Cheque %s submitted for review by %s.',
+                cheque.name,
+                self.env.user.name,
+            ))
+
+    def action_receive(self):
+        """Transition from Draft/Submitted to Received."""
+        for cheque in self:
+            if cheque.state not in ('draft', 'submitted', 'received'):
+                raise UserError(self.env._('Only draft or submitted cheques can be confirmed.'))
             cheque._check_allocation_amounts()
             cheque.state = 'received'
             cheque.message_post(body=self.env._(
@@ -668,7 +708,7 @@ class WecareChequeRegister(models.Model):
     def action_deposit(self):
         """Deposit stage: requires journal_id and deposit_date. Syncs/reconciles payment."""
         for cheque in self:
-            if cheque.state not in ('draft', 'received'):
+            if cheque.state not in ('draft', 'submitted', 'received'):
                 raise UserError(self.env._('Only received cheques can be deposited.'))
             if not cheque.journal_id:
                 raise UserError(self.env._('Please select a Deposit Bank / Journal.'))
