@@ -28,7 +28,7 @@
             </xpath>
             <xpath expr="//page[@name='sales_purchases']//field[@name='user_id']" position="after">
                 <field name="wecare_customer_type"/>
-                <field name="wecare_territory_id"/>
+                <field name="wecare_territory_id" domain="[]"/>
             </xpath>
         </field>
     </record>

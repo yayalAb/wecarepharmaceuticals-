@@ -22,7 +22,7 @@ class ResPartner(models.Model):
         'wecare.sales.territory',
         string='Sales Territory',
         tracking=True,
-        check_company=True,
+        domain="[]",
     )
     telegram_username = fields.Char(
         string='Telegram Username',
