@@ -96,6 +96,30 @@
                                 </div>
                             </div>
 
+                            <div class="row mb-1">
+                                <div class="col-2">
+                                    <strong>Salesperson:</strong>
+                                </div>
+                                <div class="col-7">
+                                    <div
+                                        style="flex-grow: 1; border-bottom: 1px solid black; margin-right: 8px; min-height: 20px;">
+                                        <span t-field="doc.user_id.name"
+                                            style="padding-left: 15px;" />
+                                    </div>
+                                </div>
+                                <div class="col-1">
+                                    <strong>Phone:</strong>
+                                </div>
+                                <div class="col-2">
+                                    <div
+                                        style="flex-grow: 1; border-bottom: 1px solid black; margin-right: 8px; min-height: 20px;">
+                                        <t t-set="sp_phone" t-value="doc.user_id.partner_id.phone or doc.user_id.partner_id.mobile or doc.user_id.phone or ''"/>
+                                        <span t-out="sp_phone"
+                                            style="padding-left: 15px;" />
+                                    </div>
+                                </div>
+                            </div>
+
                             <table class="table table-sm table-bordered mt-3"
                                 style="border: 1px solid black; border-collapse: collapse; width: 100%;">
                                 <thead
@@ -323,7 +347,8 @@
                                         <strong style="white-space: nowrap;">Tel</strong>
                                         <div
                                             style="flex-grow: 1;  margin-left: 8px; min-height: 20px;">
-                                            <span t-field="doc.user_id.phone"
+                                            <t t-set="sp_phone" t-value="doc.user_id.partner_id.phone or doc.user_id.partner_id.mobile or doc.user_id.phone or ''"/>
+                                            <span t-out="sp_phone"
                                                 style="border-bottom: 1px solid black; width: 150px; display: inline-block;"></span>
                                         </div>
                                     </div>
@@ -435,6 +460,27 @@
                                 <div class="col-2">
                                     <div style="flex-grow: 1; border-bottom: 1px solid black; margin-right: 8px; min-height: 20px;">
                                         <span t-field="doc.contract_ref" style="padding-left: 15px;" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- CUSTOMER INFO ROW 4 (Salesperson & Phone) -->
+                            <div class="row mb-1">
+                                <div class="col-2">
+                                    <strong>የሽያጭ ባለሙያ<br />Salesperson:</strong>
+                                </div>
+                                <div class="col-7">
+                                    <div style="flex-grow: 1; border-bottom: 1px solid black; margin-right: 8px; min-height: 20px;">
+                                        <span t-field="doc.user_id.name" style="padding-left: 15px;" />
+                                    </div>
+                                </div>
+                                <div class="col-1">
+                                    <strong>ስልክ<br />Phone:</strong>
+                                </div>
+                                <div class="col-2">
+                                    <div style="flex-grow: 1; border-bottom: 1px solid black; margin-right: 8px; min-height: 20px;">
+                                        <t t-set="sp_phone" t-value="doc.user_id.partner_id.phone or doc.user_id.partner_id.mobile or doc.user_id.phone or ''"/>
+                                        <span t-out="sp_phone" style="padding-left: 15px;" />
                                     </div>
                                 </div>
                             </div>

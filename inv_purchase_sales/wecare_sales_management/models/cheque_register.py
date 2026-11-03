@@ -498,13 +498,21 @@ class WecareChequeRegister(models.Model):
             else:
                 cheque.payment_method_display = 'credit'
 
-    @api.depends('sale_order_id', 'sale_order_id.client_order_ref')
+    @api.depends('sale_order_id', 'sale_order_id.client_order_ref',
+                 'allocation_line_ids.invoice_id', 'invoice_ids')
     def _compute_customer_reference(self):
         for cheque in self:
-            if cheque.sale_order_id:
-                cheque.customer_reference = cheque.sale_order_id.client_order_ref or ''
-            else:
-                cheque.customer_reference = cheque.customer_reference or ''
+            sale_order = cheque.sale_order_id
+            if not sale_order:
+                invoices = cheque.allocation_line_ids.mapped('invoice_id') | cheque.invoice_ids
+                orders = invoices.mapped('invoice_line_ids.sale_line_ids.order_id')
+                if orders:
+                    sale_order = orders[:1]
+                    cheque.sale_order_id = sale_order
+            if sale_order and sale_order.client_order_ref:
+                cheque.customer_reference = sale_order.client_order_ref
+            elif not cheque.customer_reference:
+                cheque.customer_reference = ''
 
     @api.depends('state', 'payment_id', 'payment_id.state', 'payment_id.is_reconciled')
     def _compute_accounting_status(self):
@@ -550,6 +558,21 @@ class WecareChequeRegister(models.Model):
     # -------------------------------------------------------------------------
     # ONCHANGE & CONSTRAINS
     # -------------------------------------------------------------------------
+    @api.onchange('sale_order_id')
+    def _onchange_sale_order_id(self):
+        if self.sale_order_id and self.sale_order_id.client_order_ref:
+            self.customer_reference = self.sale_order_id.client_order_ref
+
+    @api.onchange('allocation_line_ids', 'invoice_ids')
+    def _onchange_invoices_set_sale_order(self):
+        if not self.sale_order_id:
+            invoices = self.allocation_line_ids.mapped('invoice_id') | self.invoice_ids
+            orders = invoices.mapped('invoice_line_ids.sale_line_ids.order_id')
+            if orders:
+                self.sale_order_id = orders[:1]
+                if self.sale_order_id.client_order_ref:
+                    self.customer_reference = self.sale_order_id.client_order_ref
+
     @api.onchange('partner_id')
     def _onchange_partner_id_set_details(self):
         if self.partner_id:

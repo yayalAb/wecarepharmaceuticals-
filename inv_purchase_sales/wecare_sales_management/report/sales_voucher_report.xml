@@ -126,6 +126,15 @@
                                         <span style="margin-left: 6px;"><t t-out="v['mrc_no']"/></span>
                                     </div>
                                 </div>
+                                <div class="sv-r" t-if="v.get('salesperson') or v.get('source')">
+                                    <div class="sv-c sv-lbl">Salesperson</div>
+                                    <div class="sv-c">
+                                        <span style="font-weight: bold;"><t t-out="v.get('salesperson') or v.get('source')"/></span>
+                                        <span t-if="v.get('salesperson_phone') or v.get('source_address')" style="margin-left: 8px;">
+                                            <t t-out="v.get('salesperson_phone') or v.get('source_address')"/>
+                                        </span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <div class="sv-c" style="width: 2%; padding: 0;"/>

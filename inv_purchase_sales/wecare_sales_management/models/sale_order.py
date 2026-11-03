@@ -45,7 +45,14 @@ class SaleOrder(models.Model):
         prepared = self.get_proforma_prepared_by()
         approved = self.get_proforma_approved_by()
         salesperson = self.user_id
-        salesperson_phone = salesperson.partner_id.phone or salesperson.partner_id.mobile
+        salesperson_phone = (
+            salesperson.partner_id.phone
+            or salesperson.partner_id.mobile
+            or getattr(salesperson, 'phone', False)
+            or getattr(salesperson, 'mobile', False)
+            or ''
+        ) if salesperson else ''
+        salesperson_phone_str = f"Tel. {salesperson_phone}" if salesperson_phone else ''
         return {
             'title': 'Sales Quotation' if self.state in ('draft', 'sent') else 'Sales Order',
             'to': self.partner_id.display_name or '',
@@ -58,9 +65,11 @@ class SaleOrder(models.Model):
             'date': self._wecare_fmt_date(self.date_order, with_time=True),
             'store': self.warehouse_id.name or '',
             'payment': self.get_sales_attachment_payment_method(),
-            'source': salesperson.name or '',
+            'salesperson': salesperson.name or '' if salesperson else '',
+            'salesperson_phone': salesperson_phone_str,
+            'source': salesperson.name or '' if salesperson else '',
             'source_tin': '',
-            'source_address': f'Tel. {salesperson_phone}' if salesperson_phone else '',
+            'source_address': salesperson_phone_str,
             'prepared_by': prepared.name or '',
             'prepared_on': self._wecare_fmt_date(self.create_date, with_time=True),
             'approved_by': approved.name if approved else '',

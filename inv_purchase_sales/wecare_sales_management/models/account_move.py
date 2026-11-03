@@ -99,7 +99,7 @@ class AccountMove(models.Model):
 
         # Resolve originating sale order for default context
         sale_order = self.invoice_line_ids.mapped('sale_line_ids.order_id')[:1]
-        customer_reference = sale_order.client_order_ref or self.ref or ''
+        customer_reference = sale_order.client_order_ref or ''
 
         action = {
             'name': self.env._('Linked Cheques'),
@@ -151,11 +151,7 @@ class AccountMove(models.Model):
 
         # Resolve the originating sale order (if any) from invoice lines
         sale_order = self.invoice_line_ids.mapped('sale_line_ids.order_id')[:1]
-        customer_reference = (
-            sale_order.client_order_ref
-            or self.ref
-            or ''
-        )
+        customer_reference = sale_order.client_order_ref or ''
 
         ctx = {
             'default_partner_id': self.partner_id.id,
@@ -294,8 +290,19 @@ class AccountMove(models.Model):
         else:
             title = 'Sales Voucher'
         approved = getattr(self, 'approved_by_id', False)
-        salesperson = self.invoice_user_id
-        salesperson_phone = salesperson.partner_id.phone or salesperson.partner_id.mobile
+        salesperson = (
+            self.invoice_user_id
+            or self.invoice_line_ids.mapped('sale_line_ids.order_id.user_id')[:1]
+            or getattr(self, 'user_id', False)
+        )
+        salesperson_phone = (
+            salesperson.partner_id.phone
+            or salesperson.partner_id.mobile
+            or getattr(salesperson, 'phone', False)
+            or getattr(salesperson, 'mobile', False)
+            or ''
+        ) if salesperson else ''
+        salesperson_phone_str = f"Tel. {salesperson_phone}" if salesperson_phone else ''
         warehouses = self.wecare_warehouse_id or self.invoice_line_ids.stock_warehouse_id
         return {
             'title': title,
@@ -310,9 +317,11 @@ class AccountMove(models.Model):
             or self._wecare_fmt_date(self.create_date, with_time=True),
             'store': ', '.join(warehouses.mapped('name')),
             'payment': dict(self._fields['payment_method'].selection).get(self.payment_method, ''),
-            'source': salesperson.name or '',
+            'salesperson': salesperson.name or '' if salesperson else '',
+            'salesperson_phone': salesperson_phone_str,
+            'source': salesperson.name or '' if salesperson else '',
             'source_tin': '',
-            'source_address': f'Tel. {salesperson_phone}' if salesperson_phone else '',
+            'source_address': salesperson_phone_str,
             'prepared_by': self.create_uid.name or '',
             'prepared_on': self._wecare_fmt_date(self.create_date, with_time=True),
             'approved_by': approved.name if approved else '',
