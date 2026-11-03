@@ -1,5 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+    <!-- Customer List / Tree View -->
+    <record id="view_partner_tree_wecare" model="ir.ui.view">
+        <field name="name">res.partner.list.wecare</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_tree"/>
+        <field name="priority" eval="20"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='display_name']" position="after">
+                <field name="customer_address" string="Address" optional="show"/>
+                <field name="contact_name" string="Contact Name" optional="show"/>
+                <field name="contact_phone" string="Contact Phone" optional="show"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Customer Form View -->
     <record id="view_partner_form_wecare" model="ir.ui.view">
         <field name="name">res.partner.form.wecare</field>
         <field name="model">res.partner</field>
@@ -7,6 +23,8 @@
         <field name="arch" type="xml">
             <xpath expr="//field[@name='mobile']" position="after">
                 <field name="telegram_username"/>
+                <field name="contact_name" placeholder="Primary Contact Person"/>
+                <field name="contact_phone" placeholder="Primary Contact Phone"/>
             </xpath>
             <xpath expr="//page[@name='sales_purchases']//field[@name='user_id']" position="after">
                 <field name="wecare_customer_type"/>
