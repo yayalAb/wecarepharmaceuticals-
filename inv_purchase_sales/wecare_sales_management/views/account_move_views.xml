@@ -32,6 +32,9 @@
                 <field name="stock_location_id" options="{'no_create': True}"
                        invisible="move_type not in ('out_invoice', 'out_refund')"
                        readonly="state != 'draft'"/>
+                <field name="print_count"
+                       invisible="move_type not in ('out_invoice', 'out_refund')"
+                       readonly="1"/>
             </xpath>
             <xpath expr="//field[@name='invoice_line_ids']/list/field[@name='quantity']" position="before">
                 <field name="stock_warehouse_id" optional="show"
@@ -73,4 +76,24 @@
             </xpath>
         </field>
     </record>
+    <record id="view_invoice_tree_wecare" model="ir.ui.view">
+
+        <field name="name">account.invoice.list.wecare</field>
+
+        <field name="model">account.move</field>
+
+        <field name="inherit_id" ref="account.view_invoice_tree"/>
+
+        <field name="arch" type="xml">
+
+            <xpath expr="//field[@name='status_in_payment']" position="after">
+
+                <field name="print_count" optional="show" readonly="1"/>
+
+            </xpath>
+
+        </field>
+
+    </record>
+
 </odoo>

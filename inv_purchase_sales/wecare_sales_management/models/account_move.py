@@ -74,6 +74,37 @@ class AccountMove(models.Model):
         string='Cheques Count',
         compute='_compute_wecare_cheques',
     )
+    print_count = fields.Integer(
+        string='Print Count',
+        default=0,
+        copy=False,
+        readonly=True,
+        help='Number of times this invoice has been printed.',
+    )
+
+    def _wecare_invoice_print_copies(self):
+        self.ensure_one()
+        new_count = (self.print_count or 0) + 1
+        self.env.cr.execute(
+            "UPDATE account_move SET print_count = %s WHERE id = %s",
+            (new_count, self.id)
+        )
+        self.invalidate_recordset(['print_count'])
+
+        # For more than 5 prints, print sample
+        if new_count > 5:
+            return [
+                {'distribution': 'Sample', 'copy_num': i, 'watermark': 'Sample'}
+                for i in range(1, 6)
+            ]
+
+        return [
+            {'distribution': 'Customer', 'copy_num': 1, 'watermark': 'Attachment'},
+            {'distribution': 'Accountant', 'copy_num': 2, 'watermark': 'Attachment'},
+            {'distribution': 'Store Manager', 'copy_num': 3, 'watermark': 'Attachment'},
+            {'distribution': 'FMHACA', 'copy_num': 4, 'watermark': 'Attachment'},
+            {'distribution': 'Z Report', 'copy_num': 5, 'watermark': 'Attachment'},
+        ]
 
     @api.depends('wecare_cheque_line_ids.cheque_id')
     def _compute_wecare_cheques(self):

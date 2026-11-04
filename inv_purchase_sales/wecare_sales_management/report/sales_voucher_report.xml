@@ -11,12 +11,15 @@
 
     <template id="report_sales_voucher_invoice">
         <t t-set="o" t-value="o.with_context(lang=lang)"/>
-        <t t-set="v" t-value="o._wecare_voucher_values()"/>
-        <t t-set="doc_title" t-value="v['title']"/>
-        <t t-set="doc_number" t-value="v['voucher_no']"/>
-        <t t-set="issue_number" t-value="'1'"/>
-        <t t-call="web.external_layout">
-            <t t-call="wecare_sales_management.sales_voucher_body"/>
+        <t t-set="copies" t-value="o._wecare_invoice_print_copies()"/>
+        <t t-foreach="copies" t-as="copy_info">
+            <t t-set="v" t-value="o._wecare_voucher_values(distribution=copy_info['distribution'], watermark=copy_info.get('watermark'))"/>
+            <t t-set="doc_title" t-value="v['title']"/>
+            <t t-set="doc_number" t-value="v['voucher_no']"/>
+            <t t-set="issue_number" t-value="str(copy_info.get('copy_num', 1))"/>
+            <t t-call="web.external_layout">
+                <t t-call="wecare_sales_management.sales_voucher_body"/>
+            </t>
         </t>
     </template>
 
@@ -144,7 +147,7 @@
                                 <div class="sv-r"><div class="sv-c sv-lbl">Date</div><div class="sv-c"><t t-out="v['date']"/></div></div>
                                 <div class="sv-r"><div class="sv-c sv-lbl">Cart</div><div class="sv-c"><t t-out="v['cart']"/></div></div>
                                 <div class="sv-r"><div class="sv-c sv-lbl">Store</div><div class="sv-c"><t t-out="v['store']"/></div></div>
-                                <div class="sv-r"><div class="sv-c sv-lbl">Distribution</div><div class="sv-c"><t t-out="v['distribution']"/></div></div>
+                                <div class="sv-r"><div class="sv-c sv-lbl">Distribution</div><div class="sv-c" style="font-weight: bold;"><t t-out="v['distribution']"/></div></div>
                             </div>
                         </div>
                     </div>

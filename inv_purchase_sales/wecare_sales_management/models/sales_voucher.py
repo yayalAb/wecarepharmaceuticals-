@@ -98,10 +98,19 @@ class WecareSalesVoucherMixin(models.AbstractModel):
                 text = f"{text} Only"
         return text
 
-    def _wecare_voucher_values(self):
+    def _wecare_voucher_values(self, distribution=None, watermark=None):
         self.ensure_one()
         currency = self.currency_id or self.company_id.currency_id
         lines = self._wecare_voucher_lines()
+        wm = watermark
+        if wm is None:
+            if distribution == 'Sample':
+                wm = 'Sample'
+            elif self._name == 'account.move':
+                wm = 'Attachment'
+            else:
+                wm = ''
+
         values = {
             'currency': currency,
             'lines': lines,
@@ -110,12 +119,16 @@ class WecareSalesVoucherMixin(models.AbstractModel):
             'tax_rows': self._wecare_tax_rows(lines),
             'grand_total': self.amount_total,
             'amount_words': self._wecare_amount_to_words(self.amount_total, currency),
-            'watermark': 'Attachment' if self._name == 'account.move' else '',
+            'watermark': wm,
             'copy_distribution': COPY_DISTRIBUTION,
             'company_tin': self.company_id.vat or '',
             'company_vat': '',
             'cart': '',
-            'distribution': '',
+            'distribution': distribution or '',
         }
         values.update(self._wecare_voucher_header())
+        if distribution is not None:
+            values['distribution'] = distribution
+        if wm is not None:
+            values['watermark'] = wm
         return values
