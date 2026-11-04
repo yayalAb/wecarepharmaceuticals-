@@ -154,6 +154,7 @@ class WecareChequeRegister(models.Model):
         required=True,
         tracking=True,
         check_company=True,
+        domain="[('is_company', '=', True)]",
     )
     salesperson_id = fields.Many2one(
         'res.users',
@@ -210,6 +211,24 @@ class WecareChequeRegister(models.Model):
         tracking=True,
         help='When enabled, allows cheque amount to exceed invoice total under company credit policy.',
     )
+    has_withholding = fields.Boolean(
+        string='Has Withholding',
+        default=False,
+        tracking=True,
+        help='Indicates if withholding tax applies to this payment/collection.',
+    )
+    withholding_amount = fields.Monetary(
+        string='Withholding Amount',
+        currency_field='currency_id',
+        tracking=True,
+        help='Withholding tax amount deducted from the collection.',
+    )
+    withholding_attachment = fields.Binary(
+        string='Withholding Attachment',
+        attachment=True,
+        help='Uploaded copy of the withholding receipt or document.',
+    )
+    withholding_attachment_filename = fields.Char(string='Withholding Attachment Filename')
 
     # -------------------------------------------------------------------------
     # C. CHEQUE DETAILS
@@ -558,6 +577,13 @@ class WecareChequeRegister(models.Model):
     # -------------------------------------------------------------------------
     # ONCHANGE & CONSTRAINS
     # -------------------------------------------------------------------------
+    @api.onchange('has_withholding')
+    def _onchange_has_withholding(self):
+        if not self.has_withholding:
+            self.withholding_amount = 0.0
+            self.withholding_attachment = False
+            self.withholding_attachment_filename = False
+
     @api.onchange('sale_order_id')
     def _onchange_sale_order_id(self):
         if self.sale_order_id and self.sale_order_id.client_order_ref:
@@ -601,6 +627,19 @@ class WecareChequeRegister(models.Model):
                     'Cheque number "%s" already exists in the system. Duplicate cheque numbers are not allowed.',
                     cheque.name,
                 ))
+
+    @api.constrains('has_withholding', 'withholding_amount', 'withholding_attachment')
+    def _check_withholding_required(self):
+        for cheque in self:
+            if cheque.has_withholding:
+                if (cheque.withholding_amount or 0.0) <= 0:
+                    raise ValidationError(self.env._(
+                        'Withholding Amount must be greater than zero when "Has Withholding" is checked.'
+                    ))
+                if not cheque.withholding_attachment:
+                    raise ValidationError(self.env._(
+                        'Please upload the Withholding Attachment when "Has Withholding" is checked.'
+                    ))
 
     @api.constrains('amount', 'cheque_date')
     def _check_amount_date(self):
