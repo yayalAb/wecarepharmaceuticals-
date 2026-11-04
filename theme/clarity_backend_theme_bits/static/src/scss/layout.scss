@@ -159,11 +159,9 @@ body.o_web_client {
         width: 100%;
         .content-wrapper-bits {
             width: 100%;
+            height: 100%;
+            overflow-y: auto;
             overflow-x: clip;
-            @media (max-width: 1540px) {
-                height: 100%;
-                overflow: auto;
-            }
             .btn-link {
                 color: $mk_color_primary !important;
             }
