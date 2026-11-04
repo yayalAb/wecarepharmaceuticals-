@@ -8,6 +8,13 @@
 
                         <div class="oe_structure" />
 
+                        <!-- Diagonal Watermark: Draft if not confirmed, Attachment if confirmed -->
+                        <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; overflow: hidden; pointer-events: none; z-index: 0;">
+                            <div style="position: absolute; top: 38%; left: 50%; width: 800px; margin-left: -400px; text-align: center; font-family: Arial, Helvetica, sans-serif; font-size: 120px; font-weight: bold; color: #808080; opacity: 0.35; -webkit-transform: rotate(-38deg); transform: rotate(-38deg); letter-spacing: 2px; line-height: 1;">
+                                <t t-if="doc.state in ('sale', 'done')">Attachment</t>
+                                <t t-else="">Draft</t>
+                            </div>
+                        </div>
 
                         <t t-if="doc.state in ['draft', 'sent', 'cancelled']">
                             <t t-set="doc" t-value="doc.with_context(lang=doc.partner_id.lang)" />

@@ -108,6 +108,8 @@ class WecareSalesVoucherMixin(models.AbstractModel):
                 wm = 'Sample'
             elif self._name == 'account.move':
                 wm = 'Attachment'
+            elif self._name == 'sale.order':
+                wm = 'Attachment' if self.state in ('sale', 'done') else 'Draft'
             else:
                 wm = ''
 
