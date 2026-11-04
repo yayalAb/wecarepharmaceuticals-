@@ -68,6 +68,24 @@ class AccountMove(models.Model):
                     'group_label': False,
                 })
 
+            # Merge duplicate groups by name (e.g. "Not Taxable")
+            merged_groups = []
+            groups_by_name = {}
+            for g in orig_tax_groups:
+                name = (g.get('group_name') or '').strip()
+                if name in groups_by_name:
+                    existing = groups_by_name[name]
+                    existing['tax_amount_currency'] += g.get('tax_amount_currency', 0.0)
+                    existing['tax_amount'] += g.get('tax_amount', 0.0)
+                    existing['base_amount_currency'] += g.get('base_amount_currency', 0.0)
+                    existing['base_amount'] += g.get('base_amount', 0.0)
+                    existing['display_base_amount_currency'] += g.get('display_base_amount_currency', 0.0)
+                    existing['display_base_amount'] += g.get('display_base_amount', 0.0)
+                else:
+                    groups_by_name[name] = g
+                    merged_groups.append(g)
+            orig_tax_groups = merged_groups
+
             move.tax_totals['total_label'] = _('Grand Total')
 
             if total_discount:

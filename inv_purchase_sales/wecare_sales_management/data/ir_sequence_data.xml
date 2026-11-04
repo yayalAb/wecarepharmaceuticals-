@@ -15,4 +15,11 @@
         <field name="padding">4</field>
         <field name="company_id" eval="False"/>
     </record>
+    <record id="seq_wecare_original_doc_request" model="ir.sequence">
+        <field name="name">WeCare Original Document Request</field>
+        <field name="code">wecare.original.document.request</field>
+        <field name="prefix">ODR-%(year)s-</field>
+        <field name="padding">4</field>
+        <field name="company_id" eval="False"/>
+    </record>
 </odoo>

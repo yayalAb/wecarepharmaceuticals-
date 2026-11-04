@@ -20,6 +20,33 @@ class SaleOrder(models.Model):
              'Stock is deducted from this location when the invoice is validated.',
     )
     share_history_count = fields.Integer(compute='_compute_share_history_count')
+    original_doc_request_ids = fields.One2many(
+        'wecare.original.document.request',
+        'sales_order_id',
+        string='Original Document Requests',
+    )
+    original_doc_request_count = fields.Integer(
+        string='Doc Request Count',
+        compute='_compute_original_doc_request_count',
+    )
+
+    def _compute_original_doc_request_count(self):
+        for order in self:
+            order.original_doc_request_count = len(order.original_doc_request_ids)
+
+    def action_view_original_doc_requests(self):
+        self.ensure_one()
+        return {
+            'name': self.env._('Original Document Requests'),
+            'type': 'ir.actions.act_window',
+            'res_model': 'wecare.original.document.request',
+            'view_mode': 'list,form',
+            'domain': [('sales_order_id', '=', self.id)],
+            'context': {
+                'default_sales_order_id': self.id,
+                'default_requested_person': self.env.user.id,
+            },
+        }
 
     def _compute_share_history_count(self):
         History = self.env['wecare.share.history']

@@ -17,6 +17,11 @@
                         invisible="not share_history_count">
                     <field name="share_history_count" widget="statinfo" string="Shares"/>
                 </button>
+                <button name="action_view_original_doc_requests" type="object"
+                        class="oe_stat_button" icon="fa-file-text-o"
+                        invisible="state not in ('sale', 'done')">
+                    <field name="original_doc_request_count" widget="statinfo" string="Doc Requests"/>
+                </button>
             </div>
             <!-- Warehouse on the order header (after Payment Method); the order Stock Location
                  stays hidden and only serves as the default for new lines. -->

@@ -35,6 +35,8 @@ WeCare Pharmaceuticals — Sales Planning, Collections and Weekly Reporting
         'custom_payment',
         'sale_line_serial_expiry',
         'stock_picking_custom',
+        'hr_employee_self_service',
+        'manager_service',
     ],
     'data': [
         'security/wecare_security.xml',
@@ -47,6 +49,7 @@ WeCare Pharmaceuticals — Sales Planning, Collections and Weekly Reporting
         'views/cheque_register_views.xml',
         'views/share_history_views.xml',
         'views/sale_order_views.xml',
+        'views/original_document_request_views.xml',
         'views/account_move_views.xml',
         'views/stock_picking_views.xml',
         'views/purchase_order_views.xml',

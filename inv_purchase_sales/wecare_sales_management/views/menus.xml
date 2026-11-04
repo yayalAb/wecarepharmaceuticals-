@@ -42,6 +42,39 @@
               action="action_wecare_share_history"
               sequence="40"/>
 
+    <menuitem id="menu_wecare_original_doc_request"
+              name="Original Document Requests"
+              parent="sale.sale_menu_root"
+              action="action_wecare_original_document_request"
+              sequence="16"/>
+
+    <!-- Self Service -->
+    <record id="action_wecare_orig_doc_req_self_service" model="ir.actions.act_window">
+        <field name="name">Original Document Requests</field>
+        <field name="res_model">wecare.original.document.request</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('requested_person', '=', uid)]</field>
+        <field name="context">{'default_requested_person': uid}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create an Original Document Request
+            </p>
+        </field>
+    </record>
+
+    <menuitem id="menu_wecare_orig_doc_req_self_service"
+              name="Original Document Requests"
+              parent="hr_employee_self_service.main_menu_self_service_probc"
+              action="action_wecare_orig_doc_req_self_service"
+              sequence="25"/>
+
+    <!-- Employee Requests (Manager Service) -->
+    <menuitem id="menu_wecare_orig_doc_req_manager_service"
+              name="Original Document Requests"
+              parent="manager_service.employee_requests_menu_probc"
+              action="action_wecare_original_document_request"
+              sequence="20"/>
+
     <menuitem id="menu_wecare_kpi"
               name="Management KPIs"
               parent="sale.menu_sale_report"

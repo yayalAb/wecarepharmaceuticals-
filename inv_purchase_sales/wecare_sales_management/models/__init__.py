@@ -23,3 +23,5 @@ from . import supplies_rfp
 from . import stock_scrap
 from . import store_request
 from . import stock_valuation_layer
+
+from . import original_document_request

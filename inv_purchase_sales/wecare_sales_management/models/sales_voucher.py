@@ -55,18 +55,25 @@ class WecareSalesVoucherMixin(models.AbstractModel):
     def _wecare_tax_rows(self, lines):
         """(label, base, tax) rows below Sub Total: one per tax group, plus
         "Not Taxable" for the lines without taxes."""
-        rows = []
+        tax_map = {}
         for subtotal in (self.tax_totals or {}).get('subtotals', []):
             for group in subtotal.get('tax_groups', []):
-                rows.append((
-                    group.get('group_name'),
-                    group.get('display_base_amount_currency', group.get('base_amount_currency', 0.0)),
-                    group.get('tax_amount_currency', 0.0),
-                ))
+                name = (group.get('group_name') or 'Not Taxable').strip()
+                base = group.get('display_base_amount_currency', group.get('base_amount_currency', 0.0)) or 0.0
+                tax = group.get('tax_amount_currency', 0.0) or 0.0
+                if name not in tax_map:
+                    tax_map[name] = [base, tax]
+                else:
+                    tax_map[name][0] += base
+                    tax_map[name][1] += tax
+
+        has_not_taxable = any('not taxable' in k.lower() for k in tax_map)
         untaxed = sum(line['subtotal'] for line in lines if not line['taxed'])
-        if untaxed or not rows:
-            rows.append(('Not Taxable', untaxed, 0.0))
-        return rows
+        if not has_not_taxable:
+            if untaxed or not tax_map:
+                tax_map['Not Taxable'] = [untaxed, 0.0]
+
+        return [(label, vals[0], vals[1]) for label, vals in tax_map.items()]
 
     # --------------------------------------------------------------- interface
     def _wecare_voucher_header(self):
