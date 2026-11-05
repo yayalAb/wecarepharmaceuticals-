@@ -10,9 +10,10 @@
                 <field name="lot_id"
                        string="Batch / Serial No"
                        domain="[('product_id', '=', product_id)]"
+                       options="{'no_create': True}"
                        optional="show"
                        invisible="display_type in ('line_section', 'line_note')"
-                       readonly="1"/>
+                       readonly="parent_state != 'draft'"/>
                 <field name="expiration_date"
                        string="Expiration Date"
                        optional="show"
@@ -24,8 +25,9 @@
                 <field name="lot_id"
                        string="Batch / Serial No"
                        domain="[('product_id', '=', product_id)]"
+                       options="{'no_create': True}"
                        invisible="display_type in ('line_section', 'line_note')"
-                       readonly="1"/>
+                       readonly="parent_state != 'draft'"/>
                 <field name="expiration_date"
                        string="Expiration Date"
                        invisible="display_type in ('line_section', 'line_note') or not lot_id"

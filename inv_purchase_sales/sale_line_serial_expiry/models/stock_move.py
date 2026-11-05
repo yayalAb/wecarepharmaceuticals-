@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-from odoo import api, fields, models
+from odoo import _, api, fields, models
+from odoo.exceptions import ValidationError
 from odoo.tools import float_compare
 
 
@@ -14,13 +15,16 @@ class StockMove(models.Model):
         string='Restrict Lots/Serials',
         help='When set (from the sales order line), reservation only uses these lots/serials.',
     )
-    # First restricted lot, kept for views / code that expect a single lot.
+    # Single batch or serial number for this move
     restrict_lot_id = fields.Many2one(
         'stock.lot',
         string='Restrict Lot/Serial',
         compute='_compute_restrict_lot_id',
+        inverse='_inverse_restrict_lot_id',
         store=True,
+        readonly=False,
         index=True,
+        check_company=True,
     )
     restrict_lot_expiration_date = fields.Datetime(
         string='Expiration Date',
@@ -36,10 +40,30 @@ class StockMove(models.Model):
         compute='_compute_lot_display',
     )
 
+    @api.constrains('restrict_lot_ids')
+    def _check_single_restrict_lot(self):
+        for move in self:
+            if len(move.restrict_lot_ids) > 1:
+                raise ValidationError(_("You can only select one serial number per stock move."))
+
     @api.depends('restrict_lot_ids')
     def _compute_restrict_lot_id(self):
         for move in self:
             move.restrict_lot_id = move.restrict_lot_ids[:1]
+
+    def _inverse_restrict_lot_id(self):
+        for move in self:
+            if move.restrict_lot_id:
+                move.restrict_lot_ids = move.restrict_lot_id
+            else:
+                move.restrict_lot_ids = False
+
+    @api.onchange('restrict_lot_id')
+    def _onchange_restrict_lot_id(self):
+        if self.restrict_lot_id:
+            self.restrict_lot_ids = self.restrict_lot_id
+        else:
+            self.restrict_lot_ids = False
 
     @api.depends('restrict_lot_ids', 'move_line_ids.lot_id', 'move_line_ids.lot_name')
     def _compute_lot_display(self):
@@ -97,12 +121,16 @@ class StockMove(models.Model):
             if not lots:
                 continue
             if not sale_line.lot_ids:
-                sale_line.lot_ids = lots
+                sale_line.lot_ids = lots[:1]
+                sale_line.lot_id = lots[:1]
             draft_inv_lines = sale_line.invoice_lines.filtered(
                 lambda l: l.move_id.state == 'draft' and not l.lot_ids
             )
             if draft_inv_lines:
-                draft_inv_lines.write({'lot_ids': [fields.Command.set(lots.ids)]})
+                draft_inv_lines.write({
+                    'lot_ids': [fields.Command.set(lots[:1].ids)],
+                    'lot_id': lots[0].id,
+                })
         return res
 
     def _action_done(self, cancel_backorder=False):
@@ -115,11 +143,14 @@ class StockMove(models.Model):
             if not lots:
                 continue
             if not sale_line.lot_ids:
-                sale_line.lot_ids = lots
+                sale_line.lot_ids = lots[:1]
+                sale_line.lot_id = lots[:1]
             draft_inv_lines = sale_line.invoice_lines.filtered(
                 lambda l: l.move_id.state == 'draft' and not l.lot_ids
             )
             if draft_inv_lines:
-                draft_inv_lines.write({'lot_ids': [fields.Command.set(lots.ids)]})
+                draft_inv_lines.write({
+                    'lot_ids': [fields.Command.set(lots[:1].ids)],
+                    'lot_id': lots[0].id,
+                })
         return res
-

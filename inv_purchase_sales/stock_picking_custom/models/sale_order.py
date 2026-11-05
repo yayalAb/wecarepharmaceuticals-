@@ -78,6 +78,11 @@ class SaleOrder(models.Model):
                 ', '.join(missing.mapped('name')),
             ))
         res = super().action_confirm()
+        for order in self:
+            if hasattr(order, 'approved_by_id') and not order.approved_by_id:
+                order.approved_by_id = self.env.user.id
+            if hasattr(order, 'approved_date') and not order.approved_date:
+                order.approved_date = fields.Date.today()
         self._sync_driver_to_pickings()
         return res
 
@@ -114,7 +119,22 @@ class SaleOrder(models.Model):
 
     def get_proforma_approved_by(self):
         self.ensure_one()
-        return getattr(self, 'approved_by_id', False) or False
+        if getattr(self, 'approved_by_id', False):
+            return self.approved_by_id
+        if self.state in ('sale', 'done'):
+            confirm_subtype = self.env.ref('sale.mt_order_confirmed', raise_if_not_found=False)
+            if confirm_subtype:
+                confirm_msg = self.message_ids.filtered(lambda m: m.subtype_id == confirm_subtype)[:1]
+                if confirm_msg and confirm_msg.author_id and confirm_msg.author_id.user_ids:
+                    return confirm_msg.author_id.user_ids[0]
+            for msg in self.message_ids:
+                for track in msg.tracking_value_ids:
+                    if track.field_id.name == 'state' and track.new_value_char in ('Sales Order', 'sale'):
+                        if msg.author_id and msg.author_id.user_ids:
+                            return msg.author_id.user_ids[0]
+            if self.write_uid:
+                return self.write_uid
+        return False
 
     def get_proforma_prepared_date(self):
         self.ensure_one()

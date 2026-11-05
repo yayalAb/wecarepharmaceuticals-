@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Sale Line Serial & Expiration',
-    'version': '18.0.1.3.0',
+    'version': '18.0.1.3.1',
     'category': 'Sales',
     'summary': 'Serial Number, Quantity, and Expiration Date on sales quotation/order lines',
     'description': """

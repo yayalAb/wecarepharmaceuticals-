@@ -116,6 +116,10 @@ class SaleOrderLine(models.Model):
                     lot=', '.join(wrong.mapped('display_name')),
                     product=line.product_id.display_name,
                 ))
+            if len(line.lot_ids) > 1:
+                raise ValidationError(_(
+                    "You can only select one serial number per sales order line."
+                ))
 
     def write(self, vals):
         if 'lot_id' in vals and 'lot_ids' not in vals:

@@ -1,5 +1,14 @@
 # -*- coding: utf-8 -*-
-from odoo import api, fields, models
+from odoo import _, api, fields, models
+from odoo.exceptions import ValidationError
+
+
+class AccountMove(models.Model):
+    _inherit = 'account.move'
+
+    def refresh_invoice_currency_rate(self):
+        """Compatibility method so legacy Studio/custom views validate during module load."""
+        return True
 
 
 class AccountMoveLine(models.Model):
@@ -23,6 +32,7 @@ class AccountMoveLine(models.Model):
         'stock.lot',
         string='Batch / Serial No',
         compute='_compute_lot_id',
+        inverse='_inverse_lot_id',
         store=True,
         readonly=False,
         check_company=True,
@@ -33,6 +43,12 @@ class AccountMoveLine(models.Model):
         store=True,
         help='Expiration date of the batch / serial number.',
     )
+
+    @api.constrains('lot_ids')
+    def _check_single_lot(self):
+        for line in self:
+            if len(line.lot_ids) > 1:
+                raise ValidationError(_("You can only select one serial number per invoice line."))
 
     @api.depends('sale_line_ids.lot_id', 'sale_line_ids.lot_ids', 'sale_line_ids.move_ids.move_line_ids.lot_id', 'sale_line_ids.move_ids.state')
     def _compute_lot_ids(self):
@@ -49,7 +65,7 @@ class AccountMoveLine(models.Model):
                     active_moves = line.sale_line_ids.move_ids.filtered(lambda m: m.state not in ('cancel', 'done'))
                     lots = active_moves.move_line_ids.lot_id or active_moves.restrict_lot_ids
                 if lots:
-                    line.lot_ids = lots
+                    line.lot_ids = lots[:1]
                     line.lot_id = lots[:1]
             elif not line.lot_ids and not line.lot_id:
                 line.lot_ids = False
@@ -65,7 +81,7 @@ class AccountMoveLine(models.Model):
                 active_moves = self.sale_line_ids.move_ids.filtered(lambda m: m.state not in ('cancel', 'done'))
                 lots = active_moves.move_line_ids.lot_id or active_moves.restrict_lot_ids
             if lots:
-                self.lot_ids = lots
+                self.lot_ids = lots[:1]
                 self.lot_id = lots[:1]
 
     @api.depends('lot_ids')
@@ -73,6 +89,24 @@ class AccountMoveLine(models.Model):
         for line in self:
             if not line.lot_id and line.lot_ids:
                 line.lot_id = line.lot_ids[:1]
+
+    def _inverse_lot_id(self):
+        for line in self:
+            if line.lot_id:
+                line.lot_ids = line.lot_id
+                line.expiration_date = line.lot_id.expiration_date
+            else:
+                line.lot_ids = False
+                line.expiration_date = False
+
+    @api.onchange('lot_id')
+    def _onchange_lot_id_sync(self):
+        if self.lot_id:
+            self.lot_ids = self.lot_id
+            self.expiration_date = self.lot_id.expiration_date
+        else:
+            self.lot_ids = False
+            self.expiration_date = False
 
     @api.depends('lot_id.expiration_date', 'lot_ids.expiration_date')
     def _compute_expiration_date(self):

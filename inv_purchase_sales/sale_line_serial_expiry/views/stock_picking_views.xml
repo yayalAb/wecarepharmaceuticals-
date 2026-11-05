@@ -6,8 +6,12 @@
         <field name="inherit_id" ref="stock.view_picking_move_tree"/>
         <field name="arch" type="xml">
             <xpath expr="//field[@name='product_id']" position="after">
-                <field name="restrict_lot_ids" string="Serial Numbers" widget="many2many_tags" optional="show"/>
-                <field name="restrict_lot_expiration_date" optional="show"/>
+                <field name="restrict_lot_id"
+                       string="Batch / Serial No"
+                       domain="[('product_id', '=', product_id)]"
+                       options="{'no_create': True}"
+                       optional="show"/>
+                <field name="restrict_lot_expiration_date" string="Expiration Date" optional="show"/>
             </xpath>
         </field>
     </record>
@@ -19,9 +23,16 @@
         <field name="inherit_id" ref="stock.view_picking_form"/>
         <field name="arch" type="xml">
             <xpath expr="//field[@name='move_ids_without_package']/list/field[@name='product_id']" position="after">
-                <field name="lot_display" optional="show"
+                <field name="restrict_lot_id"
+                       string="Batch / Serial No"
+                       domain="[('product_id', '=', product_id)]"
+                       options="{'no_create': True}"
+                       optional="show"
+                       readonly="state == 'done'"
                        column_invisible="parent.picking_type_code != 'outgoing'"/>
-                <field name="lot_expiration_display" optional="show"
+                <field name="restrict_lot_expiration_date"
+                       string="Expiration Date"
+                       optional="show"
                        column_invisible="parent.picking_type_code != 'outgoing'"/>
                 <xpath expr="//field[@name='move_ids_without_package']/list/field[@name='location_id']" position="move"/>
             </xpath>
