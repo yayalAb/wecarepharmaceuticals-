@@ -40,6 +40,7 @@
     ══════════════════════════════════════════ -->
     <template id="report_outgoing_letter">
         <t t-call="web.html_container">
+            <t t-call="outgoing_letters.font_noto_sans_ethiopic"/>
             <div data-report-margin-top="6" data-report-header-spacing="0" data-report-margin-bottom="18" data-report-margin-left="12" data-report-margin-right="12">
             <t t-foreach="docs" t-as="o">
                 <t t-set="comp" t-value="o.company_id or env.company"/>
@@ -60,9 +61,17 @@
 
                 <!-- ════ ARTICLE BODY (Letterhead placed directly inside to guarantee zero top void & 1:1 on-screen match) ════ -->
                 <div class="article o_report_layout_standard" t-att-data-oe-model="o._name" t-att-data-oe-id="o.id"
-                     t-attf-style="position: relative; font-family: '{{ doc_font }}', 'Abyssinica SIL', 'Noto Sans Ethiopic', 'Nyala', 'Ebrima', 'Segoe UI', Arial, sans-serif; font-size: 14px; line-height: 1.8; color: #1a1a1a;">
+                     t-attf-style="position: relative; font-family: 'Noto Sans Ethiopic', 'Abyssinica SIL', 'Nyala', 'Ebrima', '{{ doc_font }}', Arial, sans-serif; font-size: 14px; line-height: 1.8; color: #1a1a1a;">
 
                     <style>
+                        .article,
+                        .page,
+                        .article *,
+                        .page *,
+                        .ol_pdf_letterhead *,
+                        .footer * {
+                            font-family: 'Noto Sans Ethiopic', 'Abyssinica SIL', 'Nyala', 'Ebrima', '{{ doc_font }}', Arial, sans-serif !important;
+                        }
                         .article {
                             padding-top: 0 !important;
                             margin-top: 0 !important;
@@ -157,7 +166,7 @@
                         </div>
                     </t>
 
-                    <div class="page" t-attf-style="position: relative; z-index: 1; font-family: '{{ doc_font }}', 'Abyssinica SIL', 'Noto Sans Ethiopic', 'Nyala', 'Ebrima', 'Segoe UI', Arial, sans-serif;">
+                    <div class="page" t-attf-style="position: relative; z-index: 1; font-family: 'Noto Sans Ethiopic', 'Abyssinica SIL', 'Nyala', 'Ebrima', '{{ doc_font }}', Arial, sans-serif;">
 
                         <!-- ════ ELEGANT 3-COLUMN LETTERHEAD (Unified Logo + Brand Lockup) ════ -->
                         <div class="ol_pdf_letterhead" t-attf-style="{{ topbar_accent }} width: 100%; clear: both; position: relative; z-index: 1; margin-top: -6px;">
@@ -251,7 +260,7 @@
                 </div>
 
                 <!-- ════ REAL WKHTMLTOPDF FOOTER (Clean footer pinned to bottom margin) ════ -->
-                <div class="footer" t-attf-style="margin: 0 !important; padding: 0 !important; font-family: '{{ doc_font }}', 'Abyssinica SIL', 'Noto Sans Ethiopic', 'Nyala', 'Ebrima', 'Segoe UI', Arial, sans-serif; position: relative;">
+                <div class="footer" t-attf-style="margin: 0 !important; padding: 0 !important; font-family: 'Noto Sans Ethiopic', 'Abyssinica SIL', 'Nyala', 'Ebrima', '{{ doc_font }}', Arial, sans-serif; position: relative;">
                     <!-- Wave Decorative Footer Shape -->
                      
                     <t t-if="layout_name == 'Wave'">

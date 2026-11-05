@@ -1,6 +1,6 @@
 {
     'name': 'Outgoing Letters',
-    'version': '18.0.1.33.0',
+    'version': '18.0.1.34.0',
     'category': 'Productivity',
     'summary': 'Register and print outgoing letters with automatic reference numbers',
     'depends': ['base', 'mail', 'web'],
@@ -8,6 +8,7 @@
         'security/outgoing_letter_security.xml',
         'security/ir.model.access.csv',
         'data/ir_sequence_data.xml',
+        'report/outgoing_letter_font.xml',
         'report/outgoing_letter_report.xml',
         'views/outgoing_letter_views.xml',
         'views/res_company_views.xml',
