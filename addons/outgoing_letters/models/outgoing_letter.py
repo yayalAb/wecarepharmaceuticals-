@@ -35,16 +35,21 @@ def _clean_logo_image(logo_data):
                 r, g, b, a = pixels[x, y]
                 if a > 30 and (r < 235 or g < 235 or b < 235):
                     has_content = True
-                    if x < min_x: min_x = x
-                    if x > max_x: max_x = x
-                    if y < min_y: min_y = y
-                    if y > max_y: max_y = y
+                    if x < min_x:
+                        min_x = x
+                    if x > max_x:
+                        max_x = x
+                    if y < min_y:
+                        min_y = y
+                    if y > max_y:
+                        max_y = y
 
         if not has_content or min_x > max_x or min_y > max_y:
             return logo_data
 
         pad = 4
-        crop_box = (max(0, min_x - pad), max(0, min_y - pad), min(w, max_x + 1 + pad), min(h, max_y + 1 + pad))
+        crop_box = (max(0, min_x - pad), max(0, min_y - pad),
+                    min(w, max_x + 1 + pad), min(h, max_y + 1 + pad))
         img = img.crop(crop_box)
         w, h = img.size
         pixels = img.load()
@@ -156,9 +161,9 @@ class OutgoingLetter(models.Model):
     def _default_letter_header(self):
         from markupsafe import Markup
         company = self.env.company
-        name = (company.name or 'KALKIDAN ABEBAW DERSO').upper()
+        name = (company.name or 'WECARE PHARMACEUTICALS PLC').upper()
         return Markup(
-            '<div style="font-size: 19px; font-weight: 800; color: #0f172a; margin-bottom: 2px; line-height: 1.25; white-space: nowrap;">ቃልኪዳን አበባው ደርሶ</div>'
+            '<div style="font-size: 19px; font-weight: 800; color: #0f172a; margin-bottom: 2px; line-height: 1.25; white-space: nowrap;">ዌኬር ፋርማሲዉቲካልስ ኃለ/የተ/የግ/ማህበር</div>'
             f'<div style="font-size: 14.5px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.4px; white-space: nowrap; color: #0f172a; margin-bottom: 2px; line-height: 1.25;">{name}</div>'
             '<div style="font-size: 11.5px; color: #475569; line-height: 1.4; white-space: nowrap;">Addis Abeba, Ethiopia.</div>'
         )
@@ -169,8 +174,8 @@ class OutgoingLetter(models.Model):
     def _default_letter_footer(self):
         from markupsafe import Markup
         return Markup('''<div style="border-top: 1.5px solid #222; padding-top: 6px; text-align: center; font-size: 11px; line-height: 1.5; color: #222;">
-    <p style="margin: 0;"><strong>E-mail:</strong> info@kadglobaltrading.com &nbsp;&nbsp;&nbsp; <strong>Website:</strong> https://kadglobaltrading.com/</p>
-    <p style="margin: 0;"><strong>Tel:</strong> +251-911 357 216 / +251 970606160 / +251116687378</p>
+    <p style="margin: 0;"><strong>E-mail:</strong> info@wecarepharmaceuticals.com &nbsp;&nbsp;&nbsp; <strong>Website:</strong> https://wecarepharmaceuticals.com/</p>
+    <p style="margin: 0;"><strong>Tel:</strong> +251-116 674 939 / +251 913 784 547 / +251 911 223 102</p>
     <p style="margin: 0;"><strong>Address:</strong> Addis Ababa: Ethiopia</p>
 </div>''')
 
@@ -182,9 +187,9 @@ class OutgoingLetter(models.Model):
                 UPDATE res_partner p
                 SET street = 'Addis Ababa: Ethiopia',
                     city = 'Addis Ababa',
-                    phone = '+251-911 357 216 / +251 970606160 / +251116687378',
-                    email = 'info@kadglobaltrading.com',
-                    website = 'https://kadglobaltrading.com/'
+                    phone = '+251-116 674 939 / +251 913 784 547 / +251 911 223 102',
+                    email = 'info@wecarepharmaceuticals.com',
+                    website = 'https://wecarepharmaceuticals.com/'
                 FROM res_company c
                 WHERE c.partner_id = p.id;
             """)
@@ -193,14 +198,14 @@ class OutgoingLetter(models.Model):
         # Cleanly reset letter_header and letter_footer for all existing records
         footer_html = (
             '<div style="border-top: 1.5px solid #222; padding-top: 6px; text-align: center; font-size: 11px; line-height: 1.5; color: #222;">'
-            '<p style="margin: 0;"><strong>E-mail:</strong> info@kadglobaltrading.com &nbsp;&nbsp;&nbsp; <strong>Website:</strong> https://kadglobaltrading.com/</p>'
-            '<p style="margin: 0;"><strong>Tel:</strong> +251-911 357 216 / +251 970606160 / +251116687378</p>'
+            '<p style="margin: 0;"><strong>E-mail:</strong> info@wecarepharmaceuticals.com &nbsp;&nbsp;&nbsp; <strong>Website:</strong> https://wecarepharmaceuticals.com/</p>'
+            '<p style="margin: 0;"><strong>Tel:</strong> +251-116 674 939 / +251 913 784 547 / +251 911 223 102</p>'
             '<p style="margin: 0;"><strong>Address:</strong> Addis Ababa: Ethiopia</p>'
             '</div>'
         )
         header_html = (
-            '<div style="font-size: 19px; font-weight: 800; color: #0f172a; margin-bottom: 2px; line-height: 1.25; white-space: nowrap;">ቃልኪዳን አበባው ደርሶ</div>'
-            '<div style="font-size: 14.5px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.4px; white-space: nowrap; color: #0f172a; margin-bottom: 2px; line-height: 1.25;">KALKIDAN ABEBAW DERSO</div>'
+            '<div style="font-size: 19px; font-weight: 800; color: #0f172a; margin-bottom: 2px; line-height: 1.25; white-space: nowrap;">ዌኬር ፋርማሲዉቲካልስ ኃለ/የተ/የግ/ማህበር</div>'
+            '<div style="font-size: 14.5px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.4px; white-space: nowrap; color: #0f172a; margin-bottom: 2px; line-height: 1.25;">WECARE PHARMACEUTICALS</div>'
             '<div style="font-size: 11.5px; color: #475569; line-height: 1.4; white-space: nowrap;">Addis Abeba, Ethiopia.</div>'
         )
         try:
@@ -229,10 +234,12 @@ class OutgoingLetter(models.Model):
     def _default_report_layout(self):
         company = self.env.company
         if company.external_report_layout_id:
-            layout = self.env['report.layout'].search([('view_id.key', '=', company.external_report_layout_id.key)], limit=1)
+            layout = self.env['report.layout'].search(
+                [('view_id.key', '=', company.external_report_layout_id.key)], limit=1)
             if layout:
                 return layout.id
-        layout = self.env['report.layout'].search([('name', '=', 'Light')], limit=1)
+        layout = self.env['report.layout'].search(
+            [('name', '=', 'Light')], limit=1)
         if not layout:
             layout = self.env['report.layout'].search([], limit=1)
         return layout.id if layout else False
@@ -314,7 +321,8 @@ class OutgoingLetter(models.Model):
     @api.depends('approved_by_id', 'state', 'write_uid', 'create_uid')
     def _compute_approver_info(self):
         for letter in self:
-            approver = letter.approved_by_id or (letter.state in ('approved', 'printable') and (letter.write_uid or letter.create_uid))
+            approver = letter.approved_by_id or (letter.state in (
+                'approved', 'printable') and (letter.write_uid or letter.create_uid))
             letter.approver_name = approver.name if approver else False
             sig = False
             if approver:
@@ -322,7 +330,8 @@ class OutgoingLetter(models.Model):
                     sig = approver.sign_signature
                 elif hasattr(approver, 'employee_id') and approver.employee_id and hasattr(approver.employee_id, 'emp_signature') and approver.employee_id.emp_signature:
                     sig = approver.employee_id.emp_signature
-            letter.approver_signature = _clean_signature_image(sig) if sig else False
+            letter.approver_signature = _clean_signature_image(
+                sig) if sig else False
 
     def _check_state(self, allowed):
         for letter in self:
@@ -337,7 +346,8 @@ class OutgoingLetter(models.Model):
 
     @api.model
     def action_open_last_letter(self):
-        last_letter = self.search([], order='write_date desc, id desc', limit=1)
+        last_letter = self.search(
+            [], order='write_date desc, id desc', limit=1)
         action = {
             'name': _('Outgoing Letters'),
             'type': 'ir.actions.act_window',
@@ -354,7 +364,8 @@ class OutgoingLetter(models.Model):
     def create(self, vals_list):
         for vals in vals_list:
             if not vals.get('name') or vals.get('name') == _('New'):
-                vals['name'] = self.env['ir.sequence'].next_by_code('outgoing.letter') or _('New')
+                vals['name'] = self.env['ir.sequence'].next_by_code(
+                    'outgoing.letter') or _('New')
         return super().create(vals_list)
 
     def action_submit(self):
