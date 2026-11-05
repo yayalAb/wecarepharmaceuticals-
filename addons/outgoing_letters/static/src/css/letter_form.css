@@ -1,0 +1,786 @@
+/* ============================================================
+   Outgoing Letter — Word-Style Editor Layout (Sidebar + Paper)
+   ============================================================ */
+
+/* ── Prevent horizontal overflow on entire form view ── */
+.o_outgoing_letter_form {
+    overflow-x: hidden !important;
+}
+
+.o_outgoing_letter_form .o_content {
+    padding: 0 !important;
+    margin: 0 !important;
+    overflow-x: hidden !important;
+}
+
+.o_outgoing_letter_form .o_form_renderer {
+    padding: 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+}
+
+.o_outgoing_letter_form .o_form_statusbar {
+    margin: 0 !important;
+    padding-top: 4px !important;
+    padding-bottom: 4px !important;
+    border-bottom: 1px solid #cfd6df !important;
+    background: #ffffff !important;
+}
+
+/* ── Strip default Odoo sheet chrome and padding completely ── */
+.o_outgoing_letter_form .o_form_sheet_bg {
+    background: #e4e7ec !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    border: none !important;
+}
+
+.o_outgoing_letter_form .o_form_sheet {
+    max-width: 100% !important;
+    width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    border: none !important;
+}
+
+/* ── App layout: sidebar + paper area (Flush to left, strict <10px gap) ── */
+.ol_app_layout {
+    display: flex !important;
+    width: 100% !important;
+    min-height: calc(100vh - 90px);
+    overflow: hidden;
+    gap: 8px !important; /* EXACTLY 8px gap between sidebar and paper content (< 10px) */
+    background: #e4e7ec;
+}
+
+/* Ensure Odoo widget wrapper doesn't inject width or margins */
+.ol_app_layout > div:has(.ol_sidebar),
+.ol_app_layout .o_widget,
+.ol_app_layout div[name="letter_sidebar"] {
+    display: flex !important;
+    flex-direction: column !important;
+    height: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 280px !important;
+    min-width: 280px !important;
+    max-width: 280px !important;
+    flex-shrink: 0 !important;
+}
+
+/* ════════════════════════════════════════════
+   SIDEBAR (Recent Letters — flush to left edge)
+════════════════════════════════════════════ */
+.ol_sidebar {
+    width: 280px !important;
+    min-width: 280px !important;
+    max-width: 280px !important;
+    flex-shrink: 0 !important;
+    background: #1e293b;
+    color: #cbd5e1;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: calc(100vh - 90px);
+    overflow-y: auto;
+    border-right: 1px solid #334155;
+    margin: 0 !important;
+}
+
+/* Header row */
+.ol_sidebar_header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 14px;
+    background: #0f172a;
+    border-bottom: 1px solid #334155;
+    flex-shrink: 0;
+}
+
+.ol_sidebar_title {
+    font-size: 11.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    color: #94a3b8;
+}
+
+/* Sidebar action buttons */
+.ol_sidebar_actions {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+}
+
+.ol_sidebar_action_btn {
+    border: none;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    transition: background .15s, transform .1s;
+}
+
+.ol_sidebar_new_btn {
+    background: #2563eb;
+    color: #fff;
+    font-size: 17px;
+    line-height: 1;
+}
+.ol_sidebar_new_btn:hover {
+    background: #1d4ed8;
+    transform: scale(1.08);
+}
+
+/* Sidebar Search (Ref, Date, Approver, etc.) */
+.ol_sidebar_search_wrap {
+    padding: 8px 12px;
+    background: #0f172a;
+    border-bottom: 1px solid #334155;
+    flex-shrink: 0;
+}
+
+.ol_sidebar_search_box {
+    position: relative;
+    display: flex;
+    align-items: center;
+    background: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 6px;
+    padding: 0 9px;
+    transition: border-color .15s, background .15s;
+}
+
+.ol_sidebar_search_box:focus-within {
+    border-color: #3b82f6;
+    background: #0b1120;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+}
+
+.ol_search_icon {
+    font-size: 11px;
+    color: #64748b;
+    margin-right: 7px;
+    flex-shrink: 0;
+}
+
+.ol_sidebar_search_input {
+    width: 100%;
+    background: transparent !important;
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    color: #f1f5f9 !important;
+    font-size: 11.5px !important;
+    padding: 5px 0 !important;
+    line-height: 1.4 !important;
+}
+
+.ol_sidebar_search_input::placeholder {
+    color: #64748b !important;
+    font-size: 11px !important;
+}
+
+.ol_search_clear_btn {
+    background: transparent;
+    border: none;
+    color: #94a3b8;
+    font-size: 15px;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0 2px;
+    margin-left: 4px;
+}
+.ol_search_clear_btn:hover {
+    color: #f1f5f9;
+}
+
+/* Loading / empty */
+.ol_sidebar_loading,
+.ol_sidebar_empty {
+    padding: 24px 14px;
+    font-size: 12px;
+    color: #94a3b8;
+    text-align: center;
+}
+
+/* Letter list */
+.ol_sidebar_list {
+    flex: 1;
+    overflow-y: auto;
+}
+
+/* Single item */
+.ol_sidebar_item {
+    padding: 11px 14px;
+    cursor: pointer;
+    border-bottom: 1px solid #334155;
+    transition: background .12s;
+}
+.ol_sidebar_item:hover {
+    background: #334155;
+}
+.ol_sidebar_item_active {
+    background: #2563eb !important;
+}
+.ol_sidebar_item_active .ol_sidebar_item_ref,
+.ol_sidebar_item_active .ol_sidebar_item_date,
+.ol_sidebar_item_active .ol_sidebar_item_snippet {
+    color: #ffffff !important;
+}
+
+/* Item top row: ref + badge */
+.ol_sidebar_item_top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+}
+
+.ol_sidebar_item_ref {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: #f1f5f9;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.ol_sidebar_item_meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 11px;
+    color: #94a3b8;
+    margin-top: 3px;
+    gap: 6px;
+}
+
+.ol_sidebar_item_date {
+    font-size: 11px;
+    color: #94a3b8;
+}
+
+.ol_sidebar_item_approver {
+    font-size: 10px;
+    color: #38bdf8;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 140px;
+}
+.ol_sidebar_item_active .ol_sidebar_item_approver {
+    color: #e0f2fe !important;
+}
+
+.ol_sidebar_item_snippet {
+    font-size: 11px;
+    color: #94a3b8;
+    margin-top: 3px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* State badges in sidebar */
+.ol_badge {
+    flex-shrink: 0;
+    font-size: 9px;
+    padding: 2px 7px;
+    border-radius: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .03em;
+    white-space: nowrap;
+}
+.ol_badge_draft     { background: #475569; color: #cbd5e1; }
+.ol_badge_submitted { background: #1e3a8a; color: #bfdbfe; }
+.ol_badge_approved  { background: #854d0e; color: #fef08a; }
+.ol_badge_printable { background: #166534; color: #bbf7d0; }
+
+/* ════════════════════════════════════════════
+   PAPER WRAPPER (Starts immediately 8px next to sidebar, zero top space)
+════════════════════════════════════════════ */
+.ol_paper_wrap {
+    flex: 1 !important;
+    min-width: 0 !important;
+    background: #e4e7ec;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 0 16px 36px 0 !important; /* 0 top padding, 0 left padding so no gap before header */
+    display: flex;
+    justify-content: flex-start !important;
+    align-items: flex-start;
+}
+
+/* White A4 paper — flush to top with minimal 10px breathing room */
+.ol_paper {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    margin: 0 !important;
+    background: #ffffff;
+    box-shadow: 0 2px 14px rgba(0, 0, 0, 0.12), 0 1px 3px rgba(0, 0, 0, 0.08);
+    border-radius: 3px;
+    padding: 10px 50px 42px 50px !important; /* Zero top waste before header */
+    min-height: 840px;
+    font-family: 'Ebrima', 'Nyala', 'Noto Sans Ethiopic', 'Segoe UI', Arial, sans-serif;
+    font-size: 14px;
+    line-height: 1.78;
+    color: #1a1a1a;
+}
+
+/* Printing Header Topbar */
+.ol_paper_topbar {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    margin-top: -6px !important;
+    margin-bottom: 20px !important;
+    padding-top: 0 !important;
+    padding-bottom: 10px !important;
+    border-bottom: 2px solid var(--ol-p-color, #1e293b) !important;
+    position: relative;
+    z-index: 1;
+}
+
+/* Brand Lockup: Logo + Company Name & Address unified as ONE aligned block */
+.ol_brand_lockup {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important; /* Perfect vertical centering between logo and company info */
+    gap: 14px !important;           /* 14px gap (under 15px max) */
+    margin: 0 !important;
+    padding: 0 !important;
+    flex: 0 1 auto !important;
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+.ol_brand_lockup,
+.ol_brand_lockup * {
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+.ol_header_col_logo {
+    flex: 0 0 auto !important;
+    display: flex !important;
+    align-items: center !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.ol_logo_wrapper {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.ol_company_logo,
+.ol_company_logo img {
+    max-height: 105px !important;
+    max-width: 260px !important;
+    height: auto !important;
+    width: auto !important;
+    object-fit: contain !important;
+    border: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    display: block !important;
+}
+
+.ol_header_col_info {
+    flex: 0 1 auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+}
+
+.ol_header_editor {
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.ol_header_editor .odoo-editor-editable,
+.ol_header_editor .o_field_html .odoo-editor-editable {
+    border: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
+    padding: 0 !important;
+    min-height: 24px;
+    font-family: 'Ebrima', 'Nyala', 'Noto Sans Ethiopic', 'Segoe UI', Arial, sans-serif !important;
+    font-size: 11.5px !important;
+    color: #475569 !important;
+    line-height: 1.4 !important;
+}
+
+/* Company Name: uppercase, larger & strictly on one line */
+.ol_header_editor .odoo-editor-editable > *:first-child,
+.ol_header_editor .odoo-editor-editable strong:first-child,
+.ol_header_editor .odoo-editor-editable b:first-child,
+.ol_header_editor .odoo-editor-editable p:first-child,
+.ol_header_editor .odoo-editor-editable div:first-child,
+.ol_header_editor .odoo-editor-editable h1,
+.ol_header_editor .odoo-editor-editable h2,
+.ol_header_editor .odoo-editor-editable h3 {
+    text-transform: uppercase !important;
+    font-size: 16.5px !important;
+    font-weight: 800 !important;
+    letter-spacing: 0.4px !important;
+    white-space: nowrap !important;
+    overflow: visible !important;
+    color: #0f172a !important;
+    line-height: 1.25 !important;
+    margin-bottom: 2px !important;
+}
+
+.ol_header_editor .o_field_html {
+    border: none !important;
+    padding: 0 !important;
+}
+
+.ol_header_col_meta {
+    flex: 0 0 auto;
+    min-width: 210px;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    padding-top: 18px !important;
+}
+
+/* Bilingual Ethiopian Ref No & Date format */
+.ol_meta_bilingual_box {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 200px;
+}
+.ol_meta_row {
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+}
+.ol_meta_lbl {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.15;
+    flex-shrink: 0;
+    min-width: 50px;
+    text-align: left;
+}
+.ol_lbl_am {
+    font-weight: 700;
+    font-size: 12.5px;
+    color: #0f172a;
+}
+.ol_lbl_en {
+    font-size: 11px;
+    font-weight: 600;
+    color: #475569;
+}
+.ol_meta_val {
+    flex: 1;
+    border-bottom: 1.5px solid #1e293b;
+    padding-bottom: 1px;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: #0f172a;
+    min-height: 20px;
+    text-align: left;
+}
+
+/* Strip widget chrome inside topbar */
+.ol_paper_topbar .o_field_widget,
+.ol_paper_topbar .o_field_widget input,
+.ol_paper_topbar .o_field_widget span {
+    border: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
+    padding: 0 !important;
+    font-size: 12.5px !important;
+    color: #1a1a1a !important;
+}
+
+/* Html editor body */
+.ol_paper_body .odoo-editor-editable,
+.ol_paper_body .o_field_html .odoo-editor-editable {
+    border: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
+    padding: 0 !important;
+    min-height: 380px;
+    font-family: 'Ebrima', 'Nyala', 'Noto Sans Ethiopic', 'Segoe UI', Arial, sans-serif !important;
+    font-size: 14px !important;
+    line-height: 1.8 !important;
+}
+.ol_paper_body .o_field_html {
+    border: none !important;
+    padding: 0 !important;
+}
+
+/* Greeting: right end directly above sign and stamp */
+.ol_paper_greeting {
+    margin-top: 28px;
+    margin-bottom: 8px;
+    text-align: right !important;
+    display: flex !important;
+    justify-content: flex-end !important;
+    padding-right: 120px !important;
+    font-weight: 700;
+    font-size: 14.5px;
+    color: #1e293b;
+}
+.ol_paper_greeting .o_field_widget {
+    display: inline-block !important;
+    text-align: right !important;
+    width: auto !important;
+    max-width: 320px !important;
+}
+.ol_paper_greeting .o_field_widget input {
+    border: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
+    padding: 0 !important;
+    font-size: 14.5px !important;
+    font-weight: 700 !important;
+    text-align: right !important;
+    color: #1e293b !important;
+    direction: ltr;
+}
+.ol_paper_greeting .o_field_widget span {
+    border: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
+    padding: 0 !important;
+    font-size: 14.5px !important;
+    font-weight: 700 !important;
+    text-align: right !important;
+    color: #1e293b !important;
+}
+
+/* Approved by & Sign/Stamp placeholders: Hidden on editing form (kept on PDF printout) */
+.ol_paper_approver,
+.ol_paper_sigstamp {
+    display: none !important;
+}
+}
+.ol_sig_box {
+    width: 150px;
+    height: 70px;
+    border: 1.5px dashed #94a3b8;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    color: #64748b;
+    margin-right: -32px;
+    z-index: 1;
+    background: #ffffff;
+}
+.ol_stamp_circle {
+    width: 110px;
+    height: 110px;
+    border: 1.5px dashed #94a3b8;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    color: #64748b;
+    background: #ffffff;
+}
+
+/* ════════════════════════════════════════════
+   COMPACT VERTICAL STYLE TOOLBAR (Uses minimal space)
+════════════════════════════════════════════ */
+.ol_style_toolbar {
+    width: 140px;
+    min-width: 140px;
+    max-width: 140px;
+    flex-shrink: 0;
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 4px;
+    padding: 10px 8px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-self: flex-start;
+    box-sizing: border-box;
+    margin: 8px 0 0 0;
+}
+
+.ol_style_toolbar_title {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    color: #334155;
+    padding-bottom: 5px;
+    border-bottom: 1.5px solid #e2e8f0;
+    text-align: center;
+}
+
+.ol_style_group {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.ol_style_label {
+    font-size: 10.5px;
+    font-weight: 700;
+    color: #64748b;
+    margin-bottom: 1px;
+}
+
+.ol_style_field select,
+.ol_style_field input {
+    width: 100% !important;
+    font-size: 11.5px !important;
+    padding: 2px 4px !important;
+    border: 1px solid #cbd5e1 !important;
+    border-radius: 3px !important;
+    background: #f8fafc !important;
+    color: #1e293b !important;
+    box-sizing: border-box !important;
+}
+
+.ol_style_img img {
+    max-height: 22px !important;
+    width: auto !important;
+    border-radius: 2px !important;
+}
+
+.ol_style_color .o_color_picker {
+    width: 100% !important;
+    height: 22px !important;
+}
+
+/* ════════════════════════════════════════════
+   DYNAMIC FORMAT STYLING ON THE PAPER (Content Reflection)
+════════════════════════════════════════════ */
+.ol_paper {
+    --ol-p-color: #1e293b;
+    --ol-s-color: #475569;
+    --ol-p-color-rgb: 30, 41, 59;
+    --ol-s-color-rgb: 71, 85, 105;
+}
+
+/* 1. Folder Format (Clean underline with soft tint) */
+.ol_paper.ol_layout_folder .ol_paper_topbar {
+    border-bottom: 2px solid var(--ol-p-color) !important;
+    padding-bottom: 12px !important;
+    margin-top: 0 !important;
+    margin-bottom: 20px !important;
+}
+.ol_paper.ol_layout_folder .ol_footer_editor {
+    border-top: 2px solid var(--ol-p-color) !important;
+    padding: 8px 14px !important;
+}
+
+/* 2. Boxed Format (Clean structured divider with crisp contrast) */
+.ol_paper.ol_layout_boxed .ol_paper_topbar {
+    border-bottom: 2px solid var(--ol-p-color) !important;
+    padding-bottom: 12px !important;
+    margin-top: 0 !important;
+    margin-bottom: 20px !important;
+}
+.ol_paper.ol_layout_boxed .ol_footer_editor {
+    border-top: 1.5px solid var(--ol-p-color) !important;
+    padding-top: 8px !important;
+}
+
+/* 3. Bold Format (Bold 3px primary divider) */
+.ol_paper.ol_layout_bold .ol_paper_topbar {
+    border-bottom: 3px solid var(--ol-p-color) !important;
+    padding-bottom: 12px !important;
+    margin-bottom: 20px !important;
+}
+.ol_paper.ol_layout_bold .ol_footer_editor {
+    border-top: 3px solid var(--ol-p-color) !important;
+    padding-top: 8px !important;
+}
+
+/* 4. Striped Format (Double-stripe footer accent, clean header) */
+.ol_paper.ol_layout_striped .ol_paper_topbar {
+    border-bottom: 2px solid var(--ol-p-color) !important;
+    padding-bottom: 12px !important;
+    margin-bottom: 20px !important;
+}
+.ol_paper.ol_layout_striped .ol_footer_editor {
+    border-top: 2px solid var(--ol-p-color) !important;
+    border-bottom: 1px solid var(--ol-s-color) !important;
+    padding: 8px 12px !important;
+}
+
+/* 5. Bubble Format (Soft rounded footer, clean header) */
+.ol_paper.ol_layout_bubble .ol_paper_topbar {
+    border-bottom: 2px solid var(--ol-p-color) !important;
+    padding-bottom: 12px !important;
+    margin-bottom: 20px !important;
+}
+.ol_paper.ol_layout_bubble .ol_footer_editor {
+    border-top: 2px solid var(--ol-p-color) !important;
+    padding: 8px 16px !important;
+}
+
+/* 6. Wave Format (Soft gradient accent with rounded curve) */
+.ol_paper.ol_layout_wave .ol_paper_topbar {
+    position: relative;
+    border-bottom: 3px solid var(--ol-p-color) !important;
+    background: linear-gradient(135deg, rgba(var(--ol-p-color-rgb, 30, 41, 59), 0.08) 0%, rgba(var(--ol-s-color-rgb, 71, 85, 105), 0.03) 100%) !important;
+    border-radius: 0 0 20px 20px !important;
+    padding: 14px 18px !important;
+}
+.ol_paper.ol_layout_wave .ol_footer_editor {
+    border-top: 3px solid var(--ol-p-color) !important;
+    background: linear-gradient(135deg, rgba(var(--ol-s-color-rgb, 71, 85, 105), 0.03) 0%, rgba(var(--ol-p-color-rgb, 30, 41, 59), 0.08) 100%) !important;
+    border-radius: 16px 16px 0 0 !important;
+    padding: 8px 14px !important;
+}
+
+/* 7. Light Format (Clean minimalist divider line) */
+.ol_paper.ol_layout_light .ol_paper_topbar {
+    border-bottom: 2px solid var(--ol-p-color) !important;
+}
+
+/* Background watermark styling */
+.ol_paper.ol_bg_geometric {
+    background-color: #ffffff;
+}
+
+/* Logo wrapper with interactive hover */
+.ol_logo_wrapper {
+    display: inline-block;
+    position: relative;
+    cursor: pointer;
+}
+
+.o_outgoing_letter_form:not(.o_form_readonly) .ol_logo_wrapper:hover {
+    outline: 1.5px dashed #2563eb;
+    border-radius: 4px;
+}

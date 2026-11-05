@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="outgoing_letters.LetterSidebar">
+        <div class="ol_sidebar">
+
+            <!-- Header -->
+            <div class="ol_sidebar_header">
+                <span class="ol_sidebar_title">📄 Letters</span>
+                <div class="ol_sidebar_actions">
+                    <button class="ol_sidebar_action_btn ol_sidebar_new_btn"
+                            t-on-click="newLetter"
+                            title="New Letter">＋</button>
+                </div>
+            </div>
+
+            <!-- Search box (search by ref no, date, approver, content) -->
+            <div class="ol_sidebar_search_wrap">
+                <div class="ol_sidebar_search_box">
+                    <i class="fa fa-search ol_search_icon"/>
+                    <input type="text"
+                           class="ol_sidebar_search_input"
+                           placeholder="Search ref, date, approver…"
+                           t-att-value="state.searchQuery"
+                           t-on-input="onSearchInput"/>
+                    <button t-if="state.searchQuery"
+                            type="button"
+                            class="ol_search_clear_btn"
+                            t-on-click="clearSearch"
+                            title="Clear search">×</button>
+                </div>
+            </div>
+
+            <!-- Loading -->
+            <div t-if="state.loading" class="ol_sidebar_loading">
+                <span>Loading…</span>
+            </div>
+
+            <!-- Empty / No matches -->
+            <div t-elif="filteredLetters.length === 0" class="ol_sidebar_empty">
+                <span t-if="state.searchQuery">No letters matching "<t t-out="state.searchQuery"/>"</span>
+                <span t-else="">No letters yet</span>
+            </div>
+
+            <!-- Letter list -->
+            <div t-else="" class="ol_sidebar_list">
+                <t t-foreach="filteredLetters" t-as="letter" t-key="letter.id">
+                    <div class="ol_sidebar_item"
+                         t-att-class="{ ol_sidebar_item_active: letter.id === currentId }"
+                         t-on-click="() => this.openLetter(letter.id)">
+
+                        <div class="ol_sidebar_item_top">
+                            <span class="ol_sidebar_item_ref" t-out="letter.name"/>
+                            <span t-att-class="'ol_badge ol_badge_' + letter.state"
+                                  t-out="stateLabel(letter.state)"/>
+                        </div>
+
+                        <div class="ol_sidebar_item_meta">
+                            <span class="ol_sidebar_item_date" t-out="letter.date or ''"/>
+                            <span t-if="letter.approved_by_id" class="ol_sidebar_item_approver" title="Approved by">
+                                <i class="fa fa-check-circle me-1"/> <t t-out="approverName(letter.approved_by_id)"/>
+                            </span>
+                        </div>
+
+                        <div t-if="snippet(letter.content)"
+                             class="ol_sidebar_item_snippet"
+                             t-out="snippet(letter.content)"/>
+                    </div>
+                </t>
+            </div>
+
+        </div>
+    </t>
+
+</templates>

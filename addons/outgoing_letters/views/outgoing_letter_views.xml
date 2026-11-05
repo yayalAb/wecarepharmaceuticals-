@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ══════════════════════════════════════════
+         List view
+    ══════════════════════════════════════════ -->
+    <record id="view_outgoing_letter_list" model="ir.ui.view">
+        <field name="name">outgoing.letter.list</field>
+        <field name="model">outgoing.letter</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="approved_by_id" optional="show"/>
+                <field name="date"/>
+                <field name="state" widget="badge"
+                       decoration-info="state == 'submitted'"
+                       decoration-warning="state == 'approved'"
+                       decoration-success="state == 'printable'"/>
+                <field name="company_id" column_invisible="1"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- ══════════════════════════════════════════
+         Form view  —  Sidebar + Paper document
+    ══════════════════════════════════════════ -->
+    <record id="view_outgoing_letter_form" model="ir.ui.view">
+        <field name="name">outgoing.letter.form</field>
+        <field name="model">outgoing.letter</field>
+        <field name="arch" type="xml">
+            <form class="o_outgoing_letter_form">
+
+                <!-- ── Workflow buttons ── -->
+                <header>
+                    <button name="action_submit" type="object" string="Submit"
+                            class="btn-primary" invisible="state != 'draft'"
+                            groups="outgoing_letters.group_outgoing_letter_user"/>
+                    <button name="action_approve" type="object" string="Approve"
+                            class="btn-primary" invisible="state != 'submitted'"
+                            groups="outgoing_letters.group_outgoing_letter_approver"/>
+                    <button name="action_set_printable" type="object" string="Mark Printable"
+                            class="btn-primary" invisible="state != 'approved'"
+                            groups="outgoing_letters.group_outgoing_letter_approver"/>
+                    <button name="action_print" type="object" string="Print"
+                            class="btn-primary" invisible="state != 'printable'"
+                            groups="outgoing_letters.group_outgoing_letter_user"/>
+                    <button name="action_reset_to_draft" type="object" string="Reset to Draft"
+                            invisible="state == 'draft'"
+                            groups="outgoing_letters.group_outgoing_letter_approver"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,submitted,approved,printable"/>
+                </header>
+
+                <sheet>
+                    <!-- Hidden fields Odoo needs -->
+                    <field name="title" invisible="1"/>
+                    <field name="company_id" invisible="1"/>
+                    <field name="report_layout_id" invisible="1"/>
+                    <field name="layout_background" invisible="1"/>
+                    <field name="layout_background_image" invisible="1"/>
+                    <field name="primary_color" invisible="1"/>
+                    <field name="secondary_color" invisible="1"/>
+
+                    <!-- ════ App layout: sidebar + paper ════ -->
+                    <div class="ol_app_layout">
+
+                        <!-- 1. LEFT: Recent documents sidebar -->
+                        <widget name="letter_sidebar"/>
+
+                        <!-- 2. Paper document workspace -->
+                        <div class="ol_paper_wrap">
+                            <div class="ol_paper">
+
+                                <!-- Printing Header (Brand Lockup on Left | REF & Date on Right) -->
+                                <div class="ol_paper_topbar">
+                                    <!-- Brand Lockup: Logo + Company Name & Address as ONE cohesive unit -->
+                                    <div class="ol_brand_lockup">
+                                        <!-- Col 1: Logo -->
+                                        <div class="ol_header_col_logo" title="Click to change or upload logo">
+                                            <div class="ol_logo_wrapper">
+                                                <field name="logo" widget="image" options="{'size': [300, 130]}" readonly="state != 'draft'" nolabel="1" class="ol_company_logo"/>
+                                            </div>
+                                        </div>
+
+                                        <!-- Col 2: Name & Address -->
+                                        <div class="ol_header_col_info" title="Click to edit company name &amp; address">
+                                            <div class="ol_header_editor">
+                                                <field name="letter_header" readonly="state != 'draft'" placeholder="Company Name &amp; Address…" nolabel="1"/>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Col 3: REF No & Date (Bilingual Ethiopian standard format) -->
+                                    <div class="ol_header_col_meta">
+                                        <div class="ol_meta_bilingual_box">
+                                            <div class="ol_meta_row">
+                                                <div class="ol_meta_lbl">
+                                                    <span class="ol_lbl_am">ቁጥር</span>
+                                                    <span class="ol_lbl_en">Ref.No.</span>
+                                                </div>
+                                                <div class="ol_meta_val">
+                                                    <field name="name" readonly="1" nolabel="1"/>
+                                                </div>
+                                            </div>
+                                            <div class="ol_meta_row">
+                                                <div class="ol_meta_lbl">
+                                                    <span class="ol_lbl_am">ቀን</span>
+                                                    <span class="ol_lbl_en">Date</span>
+                                                </div>
+                                                <div class="ol_meta_val">
+                                                    <field name="date" readonly="state != 'draft'" nolabel="1"/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Letter body -->
+                                <div class="ol_paper_body">
+                                    <field name="content"
+                                           placeholder="Write the letter body here…"
+                                           readonly="state != 'draft'"
+                                           nolabel="1"/>
+                                </div>
+
+                                <!-- Greeting -->
+                                <div class="ol_paper_greeting">
+                                    <field name="greeting"
+                                           readonly="state != 'draft'"
+                                           nolabel="1"/>
+                                </div>
+
+                                <!-- Hidden on editing form (kept on PDF printout) -->
+                                <field name="approved_by_id" invisible="1"/>
+
+                                <!-- Letter Footer (Editable Footer with contacts & styling) -->
+                                <div class="ol_footer_editor" title="Click to format &amp; edit footer">
+                                    <field name="letter_footer" readonly="state != 'draft'" placeholder="Footer format &amp; styling…" nolabel="1"/>
+                                </div>
+
+                            </div><!-- end ol_paper -->
+                        </div><!-- end ol_paper_wrap -->
+
+                    </div><!-- end ol_app_layout -->
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- ══════════════════════════════════════════
+         Search view
+    ══════════════════════════════════════════ -->
+    <record id="view_outgoing_letter_search" model="ir.ui.view">
+        <field name="name">outgoing.letter.search</field>
+        <field name="model">outgoing.letter</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="title"/>
+                <filter name="filter_draft"     string="Draft"     domain="[('state','=','draft')]"/>
+                <filter name="filter_submitted" string="Submitted" domain="[('state','=','submitted')]"/>
+                <filter name="filter_approved"  string="Approved"  domain="[('state','=','approved')]"/>
+                <filter name="filter_printable" string="Printable" domain="[('state','=','printable')]"/>
+                <group expand="0" string="Group By">
+                    <filter name="group_state" string="Status" context="{'group_by': 'state'}"/>
+                    <filter name="group_date"  string="Date"   context="{'group_by': 'date'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- ══════════════════════════════════════════
+         Actions + Menus
+    ══════════════════════════════════════════ -->
+    <record id="action_outgoing_letter" model="ir.actions.act_window">
+        <field name="name">Outgoing Letters</field>
+        <field name="res_model">outgoing.letter</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Create your first outgoing letter</p>
+        </field>
+    </record>
+
+    <record id="action_outgoing_letter_open_last" model="ir.actions.server">
+        <field name="name">Outgoing Letters</field>
+        <field name="model_id" ref="model_outgoing_letter"/>
+        <field name="state">code</field>
+        <field name="code">
+action = model.action_open_last_letter()
+        </field>
+    </record>
+
+    <menuitem id="menu_outgoing_letter_root" name="Outgoing Letters"
+              web_icon="outgoing_letters,static/description/icon.png" sequence="50"
+              groups="outgoing_letters.group_outgoing_letter_user"/>
+    <menuitem id="menu_outgoing_letter" name="Letters"
+              parent="menu_outgoing_letter_root" action="action_outgoing_letter_open_last" sequence="10"/>
+
+    <record id="action_outgoing_letter_sequence" model="ir.actions.act_window">
+        <field name="name">Letter Sequence</field>
+        <field name="res_model">ir.sequence</field>
+        <field name="view_mode">form</field>
+        <field name="res_id" ref="seq_outgoing_letter"/>
+        <field name="target">current</field>
+    </record>
+
+    <menuitem id="menu_outgoing_letter_config"   name="Configuration"
+              parent="menu_outgoing_letter_root" sequence="100" groups="base.group_system"/>
+    <menuitem id="menu_outgoing_letter_sequence" name="Sequence"
+              parent="menu_outgoing_letter_config" action="action_outgoing_letter_sequence"
+              sequence="10" groups="base.group_system"/>
+    <menuitem id="menu_outgoing_letter_company"  name="Companies"
+              parent="menu_outgoing_letter_config" action="base.action_res_company_form"
+              sequence="20" groups="base.group_system"/>
+
+</odoo>

@@ -1,6 +1,7 @@
 from odoo import models, api, _, fields
 from odoo.exceptions import ValidationError
 
+
 class PurchaseOrderLine(models.Model):
     _inherit = 'purchase.order.line'
 
@@ -11,6 +12,8 @@ class PurchaseOrderLine(models.Model):
         are not negative. Zero is allowed for both fields.
         """
         for line in self:
+            if line.display_type:
+                continue
             if line.product_qty < 0:
                 raise ValidationError(_(
                     "The ordered quantity for product [%s] cannot be negative.",

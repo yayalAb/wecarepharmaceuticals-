@@ -1,6 +1,6 @@
 {
     'name': 'Inventory Validations',
-    'version': '1.0.0',
+    'version': '1.0.1',
     'author': 'Niyat ERP',
     'category': 'Inventory/Inventory',
     'summary': 'Adds various validation constraints to inventory-related models.',
