@@ -129,6 +129,7 @@ Internet → Nginx (port 80/443) → Odoo (port 8069)
 | 502 Bad Gateway | Odoo container may still be starting; wait 1–2 min or check `docker compose ps` |
 | Can't create database | Ensure PostgreSQL password in `.env` is correct; Odoo uses default `/etc/odoo/odoo.conf` |
 | Custom addons not visible | Verify volume mount and folder structure; check Odoo logs |
+| Amharic / Ge'ez text prints as `???` | Install Ethiopic fonts inside the container: `docker exec -u 0 -it odoo18-web bash -c "apt-get update && apt-get install -y fonts-abyssinica-sil fonts-noto-extra fonts-noto-core && fc-cache -fv"` |
 
 ## 9. Security Checklist (Production)
 
