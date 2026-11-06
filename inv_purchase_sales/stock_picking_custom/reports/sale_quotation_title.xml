@@ -50,17 +50,17 @@
                     <div style="overflow: hidden; min-height: 22px; margin-bottom: 14px;">
                         <div style="float: left; width: 50px; font-weight: bold; line-height: 22px;">Name:</div>
                         <div style="margin-left: 55px; border-bottom: 1px dashed #000; min-height: 22px; padding-left: 6px;">
-                            <span t-out="prepared_by.name if prepared_by else ''"/>
+                            <!-- <span t-out="prepared_by.name if prepared_by else ''"/> -->
                         </div>
                     </div>
                     <div style="overflow: hidden; min-height: 36px;">
                         <div style="float: left; width: 50px; font-weight: bold; line-height: 36px;">Sign:</div>
                         <div style="margin-left: 55px; border-bottom: 1px dashed #000; min-height: 36px; padding-left: 6px; text-align: center;">
                             <t t-if="prepared_by and 'sign_signature' in prepared_by._fields and prepared_by.sign_signature">
-                                <span t-field="prepared_by.sign_signature" t-options='{"widget": "image", "style": "max-height: 32px; max-width: 120px;"}'/>
+                                <!-- <span t-field="prepared_by.sign_signature" t-options='{"widget": "image", "style": "max-height: 32px; max-width: 120px;"}'/> -->
                             </t>
                             <t t-elif="prepared_by and 'employee_id' in prepared_by._fields and prepared_by.employee_id and 'emp_signature' in prepared_by.employee_id._fields and prepared_by.employee_id.emp_signature">
-                                <span t-field="prepared_by.employee_id.emp_signature" t-options='{"widget": "image", "style": "max-height: 32px; max-width: 120px;"}'/>
+                                <!-- <span t-field="prepared_by.employee_id.emp_signature" t-options='{"widget": "image", "style": "max-height: 32px; max-width: 120px;"}'/> -->
                             </t>
                         </div>
                     </div>
@@ -74,17 +74,17 @@
                     <div style="overflow: hidden; min-height: 22px; margin-bottom: 14px;">
                         <div style="float: left; width: 50px; font-weight: bold; line-height: 22px;">Name:</div>
                         <div style="margin-left: 55px; border-bottom: 1px dashed #000; min-height: 22px; padding-left: 6px;">
-                            <span t-out="approved_by.name if approved_by else ''"/>
+                            <!-- <span t-out="approved_by.name if approved_by else ''"/> -->
                         </div>
                     </div>
                     <div style="overflow: hidden; min-height: 36px;">
                         <div style="float: left; width: 50px; font-weight: bold; line-height: 36px;">Sign:</div>
                         <div style="margin-left: 55px; border-bottom: 1px dashed #000; min-height: 36px; padding-left: 6px; text-align: center;">
                             <t t-if="approved_by and 'sign_signature' in approved_by._fields and approved_by.sign_signature">
-                                <span t-field="approved_by.sign_signature" t-options='{"widget": "image", "style": "max-height: 32px; max-width: 120px;"}'/>
+                                <!-- <span t-field="approved_by.sign_signature" t-options='{"widget": "image", "style": "max-height: 32px; max-width: 120px;"}'/> -->
                             </t>
                             <t t-elif="approved_by and 'employee_id' in approved_by._fields and approved_by.employee_id and 'emp_signature' in approved_by.employee_id._fields and approved_by.employee_id.emp_signature">
-                                <span t-field="approved_by.employee_id.emp_signature" t-options='{"widget": "image", "style": "max-height: 32px; max-width: 120px;"}'/>
+                                <!-- <span t-field="approved_by.employee_id.emp_signature" t-options='{"widget": "image", "style": "max-height: 32px; max-width: 120px;"}'/> -->
                             </t>
                         </div>
                     </div>
