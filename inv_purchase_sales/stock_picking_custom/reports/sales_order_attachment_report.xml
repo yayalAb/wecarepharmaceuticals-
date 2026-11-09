@@ -197,11 +197,6 @@
             <div class="oe_structure" />
             <t t-if="doc.state != 'sale'">
                 <div style="font-family: 'Noto Sans Ethiopic', 'Times New Roman', serif; font-size: 11px; color: #000; margin-top: 5px;">
-                    <!-- Title -->
-                    <div style="text-align: center; font-size: 14px; font-weight: bold; text-decoration: underline; margin-bottom: 8px;">
-                        Clients Food and Drug &amp; Medical Supplies Requisition
-                    </div>
-
                     <!-- Date line -->
                     <div style="display: table; width: 100%; margin-bottom: 8px; font-size: 11px;">
                         <div style="display: table-row;">

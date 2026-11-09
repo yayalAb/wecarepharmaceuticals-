@@ -66,11 +66,6 @@
         <xpath expr="//div[@id='informations']" position="after">
             <div style="font-family: 'Noto Sans Ethiopic', 'Times New Roman', serif; font-size: 11px; color: #000; margin-top: 5px;">
 
-                <!-- Document Title (Bold & Underlined) -->
-                <div style="text-align: center; font-size: 14px; font-weight: bold; text-decoration: underline; margin-bottom: 8px;">
-                    Clients Food and Drug &amp; Medical Supplies Requisition
-                </div>
-
                 <!-- Date line (Right Aligned) -->
                 <div style="display: table; width: 100%; margin-bottom: 8px; font-size: 11px;">
                     <div style="display: table-row;">

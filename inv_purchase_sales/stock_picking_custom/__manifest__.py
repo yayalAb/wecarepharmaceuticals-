@@ -3,7 +3,7 @@
     'name': 'Stock Picking Custom',
     'summary': 'Customizes the Delivery Slips and Receipts to match company format.',
     'category': 'Inventory',
-    'version': '18.0.1.1.19',
+    'version': '18.0.1.1.20',
     'depends': [
         'stock',
         'store_request',
