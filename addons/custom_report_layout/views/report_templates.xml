@@ -43,7 +43,7 @@
                                     <tr style="height: 50%;">
                                         <td
                                             style="text-align: center; padding: 2px; vertical-align: middle;">
-                                            <span style="color: gray;">Doc Title</span>
+                                            
                                             <span t-esc="doc_title or 'Document'" />
                                         </td>
                                     </tr>

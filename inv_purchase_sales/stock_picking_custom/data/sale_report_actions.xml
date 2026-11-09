@@ -14,7 +14,7 @@
     <!-- Sales Quotation / Sales Order attachment on PDF Quote action -->
     <record id="sale.action_report_saleorder" model="ir.actions.report">
         <field name="name">Sales Quotation / Order</field>
-        <field name="print_report_name">('Sales Requisition - %s' if object.state in ('draft', 'sent') else 'Sales Order - %s') % (object.name)</field>
+        <field name="print_report_name">('Sales Requisition - %s' if object.state != 'sale' else 'Sales Order - %s') % (object.name)</field>
         <field name="report_name">stock_picking_custom.report_sales_order_attachment</field>
         <field name="report_file">stock_picking_custom.report_sales_order_attachment</field>
     </record>
@@ -22,6 +22,6 @@
     <!-- Native "Quotation / Order" print action added by sale_pdf_quote_builder -->
     <record id="sale_pdf_quote_builder.action_report_saleorder_raw" model="ir.actions.report">
         <field name="name">Sales Requisition</field>
-        <field name="print_report_name">('Sales Requisition - %s' if object.state in ('draft', 'sent') else 'Sales Order - %s') % (object.name)</field>
+        <field name="print_report_name">'Sales Requisition - %s' % (object.name)</field>
     </record>
 </odoo>
