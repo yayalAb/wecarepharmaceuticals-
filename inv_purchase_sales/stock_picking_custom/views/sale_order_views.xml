@@ -17,6 +17,9 @@
                 <field name="driver_name" invisible="1"/>
                 <field name="driver_phone" invisible="1"/>
             </xpath>
+            <xpath expr="//field[@name='order_line']" position="attributes">
+                <attribute name="required">1</attribute>
+            </xpath>
         </field>
     </record>
 

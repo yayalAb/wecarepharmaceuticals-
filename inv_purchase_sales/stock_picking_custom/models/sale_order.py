@@ -1,5 +1,5 @@
 from odoo import _, api, fields, models
-from odoo.exceptions import UserError
+from odoo.exceptions import UserError, ValidationError
 
 
 class SaleOrderLine(models.Model):
@@ -70,7 +70,29 @@ class SaleOrder(models.Model):
             self._sync_driver_to_pickings()
         return res
 
+    @api.constrains('order_line')
+    def _check_order_line_required(self):
+        for order in self:
+            if order.state == 'cancel':
+                continue
+            product_lines = order.order_line.filtered(lambda l: not l.display_type)
+            if not product_lines:
+                raise ValidationError(_("Please add at least one product line to the sales quotation/order."))
+
+    def action_quotation_submit(self):
+        for order in self:
+            product_lines = order.order_line.filtered(lambda l: not l.display_type)
+            if not product_lines:
+                raise ValidationError(_("Please add at least one product line to the sales quotation/order."))
+        if hasattr(super(), 'action_quotation_submit'):
+            return super().action_quotation_submit()
+        return True
+
     def action_confirm(self):
+        for order in self:
+            product_lines = order.order_line.filtered(lambda l: not l.display_type)
+            if not product_lines:
+                raise ValidationError(_("Please add at least one product line to the sales quotation/order."))
         missing = self.filtered(lambda o: not o.payment_method)
         if missing:
             raise UserError(_(
