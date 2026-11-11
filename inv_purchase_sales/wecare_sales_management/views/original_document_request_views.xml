@@ -74,6 +74,7 @@
                         <page string="Reason &amp; Notes" name="reason_notes">
                             <group>
                                 <field name="reason" placeholder="Provide the reason for requesting original documents..."
+                                       required="1"
                                        readonly="status in ('approved', 'cancelled')"/>
                                 <field name="notes" placeholder="Internal remarks / comments..."
                                        readonly="status in ('approved', 'cancelled')"/>
@@ -106,6 +107,7 @@
             <search>
                 <field name="name" string="Reference"/>
                 <field name="sales_order_id" string="Sales Order"/>
+                <field name="customer_reference" string="Customer Reference"/>
                 <field name="partner_id" string="Customer"/>
                 <field name="requested_person" string="Requested Person"/>
                 <field name="reviewer_id" string="Reviewer"/>

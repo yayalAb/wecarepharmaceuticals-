@@ -750,6 +750,19 @@ class WecareChequeRegister(models.Model):
                         'Please upload the Withholding Attachment when "Has Withholding" is checked.'
                     ))
 
+    @api.constrains('sale_order_id', 'cheque_image', 'payment_type')
+    def _check_sale_order_and_attachment_required(self):
+        for cheque in self:
+            if cheque.payment_type == 'inbound':
+                if not cheque.sale_order_id:
+                    raise ValidationError(self.env._(
+                        'Linked Sale Order is required for Customer Collection cheques.'
+                    ))
+                if not cheque.cheque_image:
+                    raise ValidationError(self.env._(
+                        'Cheque Attachment is required. Please upload a scanned copy of the cheque.'
+                    ))
+
     @api.constrains('amount', 'cheque_date')
     def _check_amount_date(self):
         for cheque in self:

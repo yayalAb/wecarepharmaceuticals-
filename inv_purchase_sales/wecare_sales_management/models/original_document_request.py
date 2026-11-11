@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from odoo import api, fields, models
-from odoo.exceptions import UserError
+from odoo.exceptions import UserError, ValidationError
 
 
 class WecareOriginalDocumentRequest(models.Model):
@@ -33,10 +33,38 @@ class WecareOriginalDocumentRequest(models.Model):
     )
     customer_reference = fields.Char(
         string='Customer Reference',
-        related='sales_order_id.client_order_ref',
+        compute='_compute_customer_reference',
         store=True,
         readonly=True,
     )
+
+    @api.depends('sales_order_id', 'sales_order_id.client_order_ref',
+                 'sales_order_id.invoice_ids.name', 'sales_order_id.invoice_ids.fs_no',
+                 'sales_order_id.invoice_ids.state')
+    def _compute_customer_reference(self):
+        for req in self:
+            so = req.sales_order_id
+            if so and so.client_order_ref:
+                req.customer_reference = so.client_order_ref
+            elif so:
+                invoices = so.invoice_ids.filtered(
+                    lambda m: m.move_type == 'out_invoice' and m.state != 'cancel'
+                )
+                posted = invoices.filtered(lambda m: m.state == 'posted')
+                inv = (posted or invoices)[:1]
+                if inv:
+                    fs = (getattr(inv, 'fs_no', False) or getattr(so, 'fs_no', False) or '').strip()
+                    if fs == '/':
+                        fs = ''
+                    inv_no = (inv.name or '').strip()
+                    if inv_no == '/':
+                        inv_no = ''
+                    parts = [p for p in [fs, inv_no] if p]
+                    req.customer_reference = ' '.join(parts) if parts else ''
+                else:
+                    req.customer_reference = ''
+            else:
+                req.customer_reference = ''
     salesperson_id = fields.Many2one(
         'res.users',
         string='Salesperson',
@@ -101,6 +129,7 @@ class WecareOriginalDocumentRequest(models.Model):
     )
     reason = fields.Text(
         string='Reason for Request',
+        required=True,
         tracking=True,
         help='Reason why original documents are needed.',
     )
@@ -112,6 +141,12 @@ class WecareOriginalDocumentRequest(models.Model):
         default=lambda self: self.env.company,
         tracking=True,
     )
+
+    @api.constrains('reason')
+    def _check_reason_required(self):
+        for req in self:
+            if not req.reason or not req.reason.strip():
+                raise ValidationError(self.env._('Reason for Request is required.'))
 
     @api.model_create_multi
     def create(self, vals_list):

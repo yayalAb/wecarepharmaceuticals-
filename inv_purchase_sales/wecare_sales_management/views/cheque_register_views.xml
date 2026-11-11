@@ -131,6 +131,7 @@
                                    readonly="state in ('deposited', 'cleared', 'cancelled')"/>
                             <field name="sale_order_id"
                                    options="{'no_create': True}"
+                                   required="payment_type == 'inbound'"
                                    readonly="state in ('deposited', 'cleared', 'cancelled')"/>
                             <field name="customer_reference"
                                    placeholder="Customer PO / Reference"
@@ -197,7 +198,9 @@
                                     <field name="partner_bank_id" readonly="state in ('cleared', 'cancelled')"/>
                                 </group>
                                 <group>
-                                    <field name="cheque_image" filename="cheque_image_filename" widget="binary" readonly="state in ('cleared', 'cancelled')"/>
+                                    <field name="cheque_image" filename="cheque_image_filename" widget="binary"
+                                           required="payment_type == 'inbound'"
+                                           readonly="state in ('cleared', 'cancelled')"/>
                                     <field name="cheque_image_filename" invisible="1"/>
                                 </group>
                             </group>

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'WeCare Sales Management',
-    'version': '18.0.1.8.3',
+    'version': '18.0.1.8.5',
     'category': 'Sales',
     'summary': 'Sales plan, cheque lifecycle, weekly reports, share to media, invoice-time stock',
     'description': """
