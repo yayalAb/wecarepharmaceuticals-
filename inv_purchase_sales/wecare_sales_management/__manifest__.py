@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'WeCare Sales Management',
-    'version': '18.0.1.8.5',
+    'version': '18.0.1.8.6',
     'category': 'Sales',
     'summary': 'Sales plan, cheque lifecycle, weekly reports, share to media, invoice-time stock',
     'description': """
@@ -40,6 +40,7 @@ WeCare Pharmaceuticals — Sales Planning, Collections and Weekly Reporting
     ],
     'data': [
         'security/wecare_security.xml',
+        'security/sale_order_button_security.xml',
         'security/ir.model.access.csv',
         'data/ir_sequence_data.xml',
         'data/ir_cron_data.xml',

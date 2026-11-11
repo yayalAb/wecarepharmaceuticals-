@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="module_category_sale_order_buttons" model="ir.module.category">
+        <field name="name">Sales Order Buttons</field>
+        <field name="description">Access rights for Sales Order action buttons (1 to 7).</field>
+        <field name="sequence">23</field>
+    </record>
+
+    <!-- 1. Send by Email -->
+    <record id="group_sale_order_button_send_by_email" model="res.groups">
+        <field name="name">1. Send by Email</field>
+        <field name="category_id" ref="module_category_sale_order_buttons"/>
+        <field name="comment">Allows user to click 'Send by Email' on Sales Quotations / Orders.</field>
+    </record>
+
+    <!-- 2. Send PRO-FORMA Invoice -->
+    <record id="group_sale_order_button_send_proforma" model="res.groups">
+        <field name="name">2. Send PRO-FORMA Invoice</field>
+        <field name="category_id" ref="module_category_sale_order_buttons"/>
+        <field name="comment">Allows user to click 'Send PRO-FORMA Invoice' on Sales Quotations / Orders.</field>
+    </record>
+
+    <!-- 3. Confirm -->
+    <record id="group_sale_order_button_confirm" model="res.groups">
+        <field name="name">3. Confirm</field>
+        <field name="category_id" ref="module_category_sale_order_buttons"/>
+        <field name="comment">Allows user to click 'Confirm' to convert quotation to Sales Order.</field>
+    </record>
+
+    <!-- 4. Cancel -->
+    <record id="group_sale_order_button_cancel" model="res.groups">
+        <field name="name">4. Cancel</field>
+        <field name="category_id" ref="module_category_sale_order_buttons"/>
+        <field name="comment">Allows user to click 'Cancel' on Sales Quotations / Orders.</field>
+    </record>
+
+    <!-- 5. Share to Media -->
+    <record id="group_sale_order_button_share_media" model="res.groups">
+        <field name="name">5. Share to Media</field>
+        <field name="category_id" ref="module_category_sale_order_buttons"/>
+        <field name="comment">Allows user to click 'Share to Media' (Telegram/WhatsApp).</field>
+    </record>
+
+    <!-- 6. Create Invoice -->
+    <record id="group_sale_order_button_create_invoice" model="res.groups">
+        <field name="name">6. Create Invoice</field>
+        <field name="category_id" ref="module_category_sale_order_buttons"/>
+        <field name="comment">Allows user to click 'Create Invoice' on Sales Orders.</field>
+    </record>
+
+    <!-- 7. Unlock -->
+    <record id="group_sale_order_button_unlock" model="res.groups">
+        <field name="name">7. Unlock</field>
+        <field name="category_id" ref="module_category_sale_order_buttons"/>
+        <field name="comment">Allows user to click 'Unlock' on locked Sales Orders.</field>
+    </record>
+
+    <!-- Automatically grant all 7 buttons to Administrators, Sales Managers, and WeCare Managers -->
+    <record id="base.group_system" model="res.groups">
+        <field name="implied_ids" eval="[
+            (4, ref('wecare_sales_management.group_sale_order_button_send_by_email')),
+            (4, ref('wecare_sales_management.group_sale_order_button_send_proforma')),
+            (4, ref('wecare_sales_management.group_sale_order_button_confirm')),
+            (4, ref('wecare_sales_management.group_sale_order_button_cancel')),
+            (4, ref('wecare_sales_management.group_sale_order_button_share_media')),
+            (4, ref('wecare_sales_management.group_sale_order_button_create_invoice')),
+            (4, ref('wecare_sales_management.group_sale_order_button_unlock')),
+        ]"/>
+    </record>
+
+    <record id="sales_team.group_sale_manager" model="res.groups">
+        <field name="implied_ids" eval="[
+            (4, ref('wecare_sales_management.group_sale_order_button_send_by_email')),
+            (4, ref('wecare_sales_management.group_sale_order_button_send_proforma')),
+            (4, ref('wecare_sales_management.group_sale_order_button_confirm')),
+            (4, ref('wecare_sales_management.group_sale_order_button_cancel')),
+            (4, ref('wecare_sales_management.group_sale_order_button_share_media')),
+            (4, ref('wecare_sales_management.group_sale_order_button_create_invoice')),
+            (4, ref('wecare_sales_management.group_sale_order_button_unlock')),
+        ]"/>
+    </record>
+
+    <record id="group_wecare_manager" model="res.groups">
+        <field name="implied_ids" eval="[
+            (4, ref('wecare_sales_management.group_sale_order_button_send_by_email')),
+            (4, ref('wecare_sales_management.group_sale_order_button_send_proforma')),
+            (4, ref('wecare_sales_management.group_sale_order_button_confirm')),
+            (4, ref('wecare_sales_management.group_sale_order_button_cancel')),
+            (4, ref('wecare_sales_management.group_sale_order_button_share_media')),
+            (4, ref('wecare_sales_management.group_sale_order_button_create_invoice')),
+            (4, ref('wecare_sales_management.group_sale_order_button_unlock')),
+        ]"/>
+    </record>
+</odoo>

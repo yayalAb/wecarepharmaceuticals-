@@ -9,6 +9,7 @@
                 <button name="action_share_to_media" type="object"
                         string="Share to Media"
                         class="btn-secondary"
+                        groups="wecare_sales_management.group_sale_order_button_share_media"
                         invisible="state == 'cancel'"/>
             </xpath>
             <div name="button_box" position="inside">
@@ -53,4 +54,56 @@
             </xpath>
         </field>
     </record>
+
+    <!-- Sales Order Button Security Groups (Buttons 1 to 7) -->
+    <record id="view_order_form_button_groups" model="ir.ui.view">
+        <field name="name">sale.order.form.button.groups</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="priority">30</field>
+        <field name="arch" type="xml">
+            <!-- 1. Send by Email -->
+            <xpath expr="//header/button[@id='send_by_email_primary']" position="attributes">
+                <attribute name="groups">wecare_sales_management.group_sale_order_button_send_by_email</attribute>
+            </xpath>
+            <xpath expr="//header/button[@id='send_by_email']" position="attributes">
+                <attribute name="groups">wecare_sales_management.group_sale_order_button_send_by_email</attribute>
+            </xpath>
+
+            <!-- 2. Send PRO-FORMA Invoice -->
+            <xpath expr="//header/button[@id='send_proforma_primary']" position="attributes">
+                <attribute name="groups">wecare_sales_management.group_sale_order_button_send_proforma</attribute>
+            </xpath>
+            <xpath expr="//header/button[@id='send_proforma']" position="attributes">
+                <attribute name="groups">wecare_sales_management.group_sale_order_button_send_proforma</attribute>
+            </xpath>
+
+            <!-- 3. Confirm -->
+            <xpath expr="//header/button[@id='action_confirm']" position="attributes">
+                <attribute name="groups">wecare_sales_management.group_sale_order_button_confirm</attribute>
+            </xpath>
+            <xpath expr="//header/button[@name='action_confirm'][@data-hotkey='q'][not(@id)]" position="attributes">
+                <attribute name="groups">wecare_sales_management.group_sale_order_button_confirm</attribute>
+            </xpath>
+
+            <!-- 4. Cancel -->
+            <xpath expr="//header/button[@name='action_cancel']" position="attributes">
+                <attribute name="groups">wecare_sales_management.group_sale_order_button_cancel</attribute>
+            </xpath>
+
+            <!-- 6. Create Invoice -->
+            <xpath expr="//header/button[@id='create_invoice']" position="attributes">
+                <attribute name="groups">wecare_sales_management.group_sale_order_button_create_invoice</attribute>
+            </xpath>
+            <xpath expr="//header/button[@id='create_invoice_percentage']" position="attributes">
+                <attribute name="groups">wecare_sales_management.group_sale_order_button_create_invoice</attribute>
+            </xpath>
+
+            <!-- 7. Unlock -->
+            <xpath expr="//header/button[@name='action_unlock']" position="attributes">
+                <attribute name="groups">wecare_sales_management.group_sale_order_button_unlock</attribute>
+            </xpath>
+        </field>
+    </record>
+
 </odoo>
