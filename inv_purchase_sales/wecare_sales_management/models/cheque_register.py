@@ -255,11 +255,35 @@ class WecareChequeRegister(models.Model):
         required=True,
         tracking=True,
     )
-    drawer_bank = fields.Char(
+    drawer_bank_id = fields.Many2one(
+        'res.bank',
         string='Drawer / Issuing Bank',
+        tracking=True,
+        help="Customer's issuing bank from the bank list.",
+    )
+    drawer_bank = fields.Char(
+        string='Drawer / Issuing Bank Name',
+        compute='_compute_drawer_bank_name',
+        inverse='_inverse_drawer_bank_name',
+        store=True,
         tracking=True,
         help="Customer's issuing bank name.",
     )
+
+    @api.depends('drawer_bank_id')
+    def _compute_drawer_bank_name(self):
+        for rec in self:
+            if rec.drawer_bank_id:
+                rec.drawer_bank = rec.drawer_bank_id.name
+            elif not rec.drawer_bank:
+                rec.drawer_bank = False
+
+    def _inverse_drawer_bank_name(self):
+        for rec in self:
+            if rec.drawer_bank and not rec.drawer_bank_id:
+                bank = self.env['res.bank'].search([('name', '=ilike', rec.drawer_bank.strip())], limit=1)
+                if bank:
+                    rec.drawer_bank_id = bank
     partner_bank_id = fields.Many2one(
         'res.partner.bank',
         string="Customer Bank Account",
@@ -530,6 +554,26 @@ class WecareChequeRegister(models.Model):
                     cheque.sale_order_id = sale_order
             if sale_order and sale_order.client_order_ref:
                 cheque.customer_reference = sale_order.client_order_ref
+            elif sale_order:
+                invoices = sale_order.invoice_ids.filtered(
+                    lambda m: m.move_type == 'out_invoice' and m.state != 'cancel'
+                )
+                posted = invoices.filtered(lambda m: m.state == 'posted')
+                inv = (posted or invoices)[:1]
+                if inv:
+                    fs = (getattr(inv, 'fs_no', False) or getattr(sale_order, 'fs_no', False) or '').strip()
+                    if fs == '/':
+                        fs = ''
+                    inv_no = (inv.name or '').strip()
+                    if inv_no == '/':
+                        inv_no = ''
+                    parts = [p for p in [fs, inv_no] if p]
+                    if parts:
+                        cheque.customer_reference = ' '.join(parts)
+                    elif not cheque.customer_reference:
+                        cheque.customer_reference = ''
+                elif not cheque.customer_reference:
+                    cheque.customer_reference = ''
             elif not cheque.customer_reference:
                 cheque.customer_reference = ''
 
@@ -586,8 +630,35 @@ class WecareChequeRegister(models.Model):
 
     @api.onchange('sale_order_id')
     def _onchange_sale_order_id(self):
-        if self.sale_order_id and self.sale_order_id.client_order_ref:
-            self.customer_reference = self.sale_order_id.client_order_ref
+        if self.sale_order_id:
+            if self.sale_order_id.user_id:
+                self.salesperson_id = self.sale_order_id.user_id
+            elif self.partner_id and self.partner_id.user_id:
+                self.salesperson_id = self.partner_id.user_id
+            if self.sale_order_id.partner_id and not self.partner_id:
+                self.partner_id = self.sale_order_id.partner_id
+            if self.sale_order_id.client_order_ref:
+                self.customer_reference = self.sale_order_id.client_order_ref
+            else:
+                invoices = self.sale_order_id.invoice_ids.filtered(
+                    lambda m: m.move_type == 'out_invoice' and m.state != 'cancel'
+                )
+                posted = invoices.filtered(lambda m: m.state == 'posted')
+                inv = (posted or invoices)[:1]
+                if inv:
+                    fs = (getattr(inv, 'fs_no', False) or getattr(self.sale_order_id, 'fs_no', False) or '').strip()
+                    if fs == '/':
+                        fs = ''
+                    inv_no = (inv.name or '').strip()
+                    if inv_no == '/':
+                        inv_no = ''
+                    parts = [p for p in [fs, inv_no] if p]
+                    if parts:
+                        self.customer_reference = ' '.join(parts)
+        else:
+            if self.partner_id and self.partner_id.user_id:
+                self.salesperson_id = self.partner_id.user_id
+            self.customer_reference = False
 
     @api.onchange('allocation_line_ids', 'invoice_ids')
     def _onchange_invoices_set_sale_order(self):
@@ -596,18 +667,56 @@ class WecareChequeRegister(models.Model):
             orders = invoices.mapped('invoice_line_ids.sale_line_ids.order_id')
             if orders:
                 self.sale_order_id = orders[:1]
+                if self.sale_order_id.user_id:
+                    self.salesperson_id = self.sale_order_id.user_id
                 if self.sale_order_id.client_order_ref:
                     self.customer_reference = self.sale_order_id.client_order_ref
 
     @api.onchange('partner_id')
     def _onchange_partner_id_set_details(self):
         if self.partner_id:
-            if not self.salesperson_id and self.partner_id.user_id:
+            if self.sale_order_id and self.sale_order_id.partner_id != self.partner_id:
+                self.sale_order_id = False
+                self.customer_reference = False
+            if self.partner_id.user_id:
                 self.salesperson_id = self.partner_id.user_id
+            elif not self.sale_order_id:
+                self.salesperson_id = False
             if self.partner_id.bank_ids:
                 self.partner_bank_id = self.partner_id.bank_ids[:1]
                 if self.partner_bank_id.bank_id:
-                    self.drawer_bank = self.partner_bank_id.bank_id.name
+                    self.drawer_bank_id = self.partner_bank_id.bank_id
+            else:
+                self.partner_bank_id = False
+        else:
+            if not self.sale_order_id:
+                self.salesperson_id = False
+            self.partner_bank_id = False
+
+    @api.onchange('partner_bank_id')
+    def _onchange_partner_bank_id(self):
+        if self.partner_bank_id and self.partner_bank_id.bank_id:
+            self.drawer_bank_id = self.partner_bank_id.bank_id
+
+    @api.onchange('drawer_bank_id')
+    def _onchange_drawer_bank_id(self):
+        if self.drawer_bank_id and self.partner_bank_id and self.partner_bank_id.bank_id != self.drawer_bank_id:
+            self.partner_bank_id = False
+        if self.drawer_bank_id and self.partner_id and not self.partner_bank_id:
+            matching = self.partner_id.bank_ids.filtered(lambda b: b.bank_id == self.drawer_bank_id)
+            if matching:
+                self.partner_bank_id = matching[0]
+
+    def init(self):
+        super().init()
+        self.env.cr.execute("""
+            UPDATE wecare_cheque_register cr
+            SET drawer_bank_id = b.id
+            FROM res_bank b
+            WHERE cr.drawer_bank_id IS NULL
+              AND cr.drawer_bank IS NOT NULL
+              AND LOWER(TRIM(cr.drawer_bank)) = LOWER(TRIM(b.name))
+        """)
 
     @api.constrains('name', 'company_id', 'original_cheque_id')
     def _check_duplicate_cheque_no(self):

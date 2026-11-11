@@ -193,7 +193,7 @@
                                 <group>
                                     <field name="amount" widget="monetary" readonly="state in ('cleared', 'cancelled')"/>
                                     <field name="cheque_date" readonly="state in ('cleared', 'cancelled')"/>
-                                    <field name="drawer_bank" placeholder="e.g. Commercial Bank of Ethiopia" readonly="state in ('cleared', 'cancelled')"/>
+                                    <field name="drawer_bank_id" placeholder="Select Bank..." readonly="state in ('cleared', 'cancelled')"/>
                                     <field name="partner_bank_id" readonly="state in ('cleared', 'cancelled')"/>
                                 </group>
                                 <group>
@@ -284,8 +284,10 @@
                 <field name="collection_no" string="Registration Ref"/>
                 <field name="partner_id" string="Customer"/>
                 <field name="salesperson_id"/>
+                <field name="sale_order_id" string="Sale Order"/>
+                <field name="customer_reference" string="Customer Reference"/>
                 <field name="journal_id" string="Bank"/>
-                <field name="drawer_bank" string="Customer Bank"/>
+                <field name="drawer_bank_id" string="Customer Bank"/>
                 <field name="deposit_reference" string="Deposit Ref"/>
                 <field name="state"/>
                 <separator/>

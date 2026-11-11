@@ -1,10 +1,56 @@
 # -*- coding: utf-8 -*-
 from odoo import api, fields, models
+from odoo.osv import expression
 
 
 class SaleOrder(models.Model):
     _name = 'sale.order'
     _inherit = ['sale.order', 'wecare.share.mixin', 'wecare.sales.voucher.mixin']
+
+    @api.depends('name', 'invoice_ids.name', 'invoice_ids.fs_no', 'invoice_ids.state', 'invoice_ids.move_type')
+    def _compute_display_name(self):
+        super()._compute_display_name()
+        for order in self:
+            invoices = order.invoice_ids.filtered(
+                lambda m: m.move_type == 'out_invoice' and m.state != 'cancel'
+            )
+            posted = invoices.filtered(lambda m: m.state == 'posted')
+            target = posted or invoices
+            inv_labels = []
+            for inv in target[:2]:
+                inv_no = (inv.name or '').strip()
+                if inv_no == '/':
+                    inv_no = ''
+                fs = (getattr(inv, 'fs_no', False) or getattr(order, 'fs_no', False) or '').strip()
+                if fs == '/':
+                    fs = ''
+                if inv_no and fs:
+                    inv_labels.append(f"{inv_no} - {fs}")
+                elif inv_no:
+                    inv_labels.append(inv_no)
+                elif fs:
+                    inv_labels.append(fs)
+            if not inv_labels and getattr(order, 'fs_no', False):
+                fs = str(order.fs_no).strip()
+                if fs and fs != '/':
+                    inv_labels.append(fs)
+            if inv_labels:
+                base_name = order.name or order.display_name or ''
+                order.display_name = f"{base_name} ({', '.join(inv_labels)})"
+
+    @api.model
+    def _name_search(self, name='', domain=None, operator='ilike', limit=100, order=None):
+        domain = list(domain or [])
+        if name:
+            name_domain = ['|', '|', '|',
+                ('name', operator, name),
+                ('client_order_ref', operator, name),
+                ('invoice_ids.name', operator, name),
+                ('invoice_ids.fs_no', operator, name),
+            ]
+            domain = expression.AND([domain, name_domain])
+            return super()._name_search(name='', domain=domain, operator=operator, limit=limit, order=order)
+        return super()._name_search(name=name, domain=domain, operator=operator, limit=limit, order=order)
 
     stock_location_id = fields.Many2one(
         'stock.location',
